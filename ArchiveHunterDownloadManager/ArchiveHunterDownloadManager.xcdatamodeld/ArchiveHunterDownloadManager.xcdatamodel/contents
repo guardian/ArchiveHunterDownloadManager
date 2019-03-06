@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="untitled.xcdatamodel" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
-    <elements/>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G20015" minimumToolsVersion="Automatic">
+    <entity name="BulkDownload" syncable="YES">
+        <attribute name="bulkDownloadId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="destinationPath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="status" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DownloadEntity" syncable="YES">
+        <attribute name="destinationFile" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="downloadProgress" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="fileId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="priority" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="status" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="temporaryUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="temporaryUrlExpiry" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BulkDownload" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="BulkDownload" positionX="-63" positionY="-18" width="128" height="90"/>
+        <element name="DownloadEntity" positionX="-54" positionY="9" width="128" height="180"/>
+    </elements>
 </model>

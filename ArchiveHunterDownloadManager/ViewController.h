@@ -7,9 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "AppDelegate.h"
 
 @interface ViewController : NSViewController
 
+@property (strong,nonatomic) IBOutlet AppDelegate* appDelegate;
+@property (readwrite, strong, nonatomic) IBOutlet NSArray* possiblePriotities;
 
 @end
 
