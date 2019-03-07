@@ -16,6 +16,7 @@
 		9BA935D2222E8C700066812F /* ArchiveHunterDownloadManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935D1222E8C700066812F /* ArchiveHunterDownloadManagerTests.m */; };
 		9BA935DD222E8C700066812F /* ArchiveHunterDownloadManagerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935DC222E8C700066812F /* ArchiveHunterDownloadManagerUITests.m */; };
 		9BCA366022300B41004799F4 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA365F22300B41004799F4 /* PreferencesController.m */; };
+		9BCA366B22312F6F004799F4 /* ServerComms.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA366A22312F6F004799F4 /* ServerComms.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,8 @@
 		9BA935DE222E8C700066812F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9BCA365E22300B41004799F4 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
 		9BCA365F22300B41004799F4 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
+		9BCA366922312F6F004799F4 /* ServerComms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerComms.h; sourceTree = "<group>"; };
+		9BCA366A22312F6F004799F4 /* ServerComms.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerComms.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +118,8 @@
 				9BA935BA222E8C700066812F /* Supporting Files */,
 				9BCA365E22300B41004799F4 /* PreferencesController.h */,
 				9BCA365F22300B41004799F4 /* PreferencesController.m */,
+				9BCA366922312F6F004799F4 /* ServerComms.h */,
+				9BCA366A22312F6F004799F4 /* ServerComms.m */,
 			);
 			path = ArchiveHunterDownloadManager;
 			sourceTree = "<group>";
@@ -276,6 +281,7 @@
 			files = (
 				9BCA366022300B41004799F4 /* PreferencesController.m in Sources */,
 				9BA935C2222E8C700066812F /* ArchiveHunterDownloadManager.xcdatamodeld in Sources */,
+				9BCA366B22312F6F004799F4 /* ServerComms.m in Sources */,
 				9BA935BF222E8C700066812F /* ViewController.m in Sources */,
 				9BA935BC222E8C700066812F /* main.m in Sources */,
 				9BA935B9222E8C700066812F /* AppDelegate.m in Sources */,

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G20015" minimumToolsVersion="Automatic">
     <entity name="BulkDownload" syncable="YES">
-        <attribute name="bulkDownloadId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="destinationPath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="downloadDescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="retrievalToken" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="status" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="userEmail" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="DownloadEntity" syncable="YES">
         <attribute name="destinationFile" optional="YES" attributeType="String" syncable="YES"/>
@@ -17,7 +20,7 @@
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BulkDownload" syncable="YES"/>
     </entity>
     <elements>
-        <element name="BulkDownload" positionX="-63" positionY="-18" width="128" height="90"/>
+        <element name="BulkDownload" positionX="-63" positionY="-18" width="128" height="135"/>
         <element name="DownloadEntity" positionX="-54" positionY="9" width="128" height="180"/>
     </elements>
 </model>

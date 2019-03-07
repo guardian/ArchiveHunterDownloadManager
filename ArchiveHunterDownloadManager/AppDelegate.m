@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "ServerComms.h"
 
 @interface AppDelegate ()
 
@@ -16,14 +17,83 @@
 
 @implementation AppDelegate
 
+- (id)init {
+    self = [super init];
+    [self registerMyApp];
+    _serverComms = [[ServerComms alloc] init];
+    
+    return self;
+}
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
+- (void)applictionWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
 }
 
+- (void)registerMyApp {
+    [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(getUrl:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
+}
+
+/**
+ create a new data entry based on the info from the server
+*/
+- (NSManagedObject *) createNewBulk:(NSDictionary *)bulkMetadata retrievalToken:(NSString *)retrievalToken {
+    NSManagedObjectContext *ctx = [self managedObjectContext];
+    
+    NSManagedObject* ent=[NSEntityDescription insertNewObjectForEntityForName:@"BulkDownload" inManagedObjectContext:ctx];
+
+    [ent setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                         [bulkMetadata objectForKey:@"description"], @"downloadDescription",
+                                         [bulkMetadata objectForKey:@"id"], @"id",
+                                         retrievalToken, @"retrievalToken",
+                                         @"New", @"Status",
+                                         [bulkMetadata objectForKey:@"userEmail"], @"userEmail",
+                                         nil]];
+    return ent;
+}
+
+- (NSManagedObject *) createNewEntry:(NSString *)entryId parent:(NSManagedObject *) parent {
+    NSManagedObjectContext *ctx = [self managedObjectContext];
+    
+    NSManagedObject* ent=[NSEntityDescription insertNewObjectForEntityForName:@"DownloadEntity" inManagedObjectContext:ctx];
+    
+    [ent setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                         entryId, @"fileId",
+                                         entryId, @"name", nil]];
+    return ent;
+}
+
+//URL handling
+- (void)getUrl:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
+    NSString * urlString = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
+    // Now you can parse the URL and perform whatever action is needed }
+    NSArray<NSString *> *components = [urlString componentsSeparatedByString:@":"];
+    NSLog(@"Got request: %@", components);
+    if([[components objectAtIndex:1] compare:@"bulkdownload"]==NSEqualToComparison){
+        NSError *err;
+        NSString *token = [components objectAtIndex:2];
+        NSLog(@"Got bulk download with onetime token %@", token);
+        
+        BOOL result = [_serverComms initiateDownload:token withError:&err completionHandler:^(NSDictionary *_Nullable data, NSError *err){
+            if(err){
+                NSLog(@"Download error: %@", err);
+            } else {
+                NSLog(@"Got data: %@", data);
+                
+                NSManagedObject *bulk = [self createNewBulk:[data objectForKey:@"metadata"] retrievalToken:[data objectForKey:@"retrievalToken"]];
+                
+                for(NSString *entryId in [data objectForKey:@"entries"]){
+                    
+                }
+            }
+        }];
+        if(!result){
+            NSLog(@"Download failed: %@", err);
+        }
+    }
+}
 #pragma mark - Core Data stack
 
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
