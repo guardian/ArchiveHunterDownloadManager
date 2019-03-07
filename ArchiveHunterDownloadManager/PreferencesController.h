@@ -12,5 +12,6 @@
 @interface PreferencesController : NSViewController
 
 @property (readonly, strong, nonatomic) HTTPServer *httpServer;
+@property (readwrite, atomic) NSNumber *isAuthenticated;
 
 @end

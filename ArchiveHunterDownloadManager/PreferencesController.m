@@ -16,10 +16,10 @@
 @synthesize httpServer;
 
 - (id) init {
-    self = [super init];
-    httpServer = [[HTTPServer alloc] init];
-    [httpServer setServerPort:4567];
-    return self;
+//    self = [super init];
+//    httpServer = [[HTTPServer alloc] init];
+//    [httpServer setServerPort:4567];
+//    return self;
 }
 
 - (void)viewDidLoad {
@@ -41,29 +41,34 @@
     return [parts componentsJoinedByString:@"&"];
 }
 
+
 - (IBAction)authorizeClicked:(id)sender {
-    NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
+//    NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
+//    
+//    NSURL *testAuthURL = [NSURL URLWithString:
+//                          [NSString stringWithFormat:@"https://%@/checkLogin", [dfl valueForKey:@"serverHost"]]];
+//    
+//    NSURLRequest *rq = [NSURLRequest requestWithURL:testAuthURL];
+//    NSURLSession *sess = [NSURLSession sharedSession];
+//    
+//    NSURLSessionTask *tsk = [sess dataTaskWithURL:testAuthURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+//        NSHTTPURLResponse *httpResponse=(NSHTTPURLResponse *)response;
+//        
+//        switch([httpResponse statusCode]){
+//            case 301:
+//                [self setIsAuthenticated:[NSNumber numberWithBool:FALSE]];
+//                [httpResponse ]
+//                break;
+//            case 200:
+//                [self setIsAuthenticated:[NSNumber numberWithBool:TRUE]];
+//                break;
+//                
+//        }
+//    }];
+//    
+//    //NSURLSessionDownloadTask *dld = [sess downloadTaskWithURL:testAuthURL];
+//    [dld did]
     
-    [httpServer start];
-    
-    if([httpServer lastError]){
-        NSAlert *a=[NSAlert alertWithError:[httpServer lastError]];
-        [a runModal];
-    }
-    
-    //see https://developers.google.com/identity/protocols/OAuth2InstalledApp
-    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"client_id",[dfl valueForKey:@"googleAppId"],
-                                 @"redirect_uri", 
-                                 nil];
-    
-    NSString *urlString = [NSString stringWithFormat:@"https://accounts.google.com/o/oauth2/v2/auth?%@",
-                           [self queryParamString:queryParams]
-                           ];
-    
-    NSURL *authUrl = [NSURL URLWithString:urlString];
-    
-    [[NSWorkspace sharedWorkspace] openURL:authUrl];
 }
 
 @end
