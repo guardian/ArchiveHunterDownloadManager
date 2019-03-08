@@ -680,17 +680,17 @@
                             <scrollView ambiguous="YES" misplaced="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RO2-xp-HhW">
                                 <rect key="frame" x="5" y="10" width="455" height="135"/>
                                 <clipView key="contentView" ambiguous="YES" id="lxe-lT-mdD">
-                                    <rect key="frame" x="1" y="0.0" width="453" height="134"/>
+                                    <rect key="frame" x="1" y="0.0" width="453" height="119"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="nOl-7H-qgY" id="YK1-wV-e8q">
-                                            <rect key="frame" x="0.0" y="0.0" width="453" height="111"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="565.5" height="96"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn width="59" minWidth="40" maxWidth="1000" id="V0H-T5-h4f">
+                                                <tableColumn width="212.453125" minWidth="40" maxWidth="1000" id="V0H-T5-h4f">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Name">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -721,7 +721,7 @@
                                                     </connections>
                                                 </tableColumn>
                                                 <tableColumn identifier="" width="87" minWidth="10" maxWidth="3.4028234663852886e+38" id="lAe-Qg-SAU">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Parent">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Size">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -732,6 +732,13 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.fileSize" id="F1C-DN-k0v">
+                                                            <dictionary key="options">
+                                                                <string key="NSValueTransformerName">FileSizeTransformer</string>
+                                                            </dictionary>
+                                                        </binding>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn identifier="" width="64" minWidth="10" maxWidth="3.4028234663852886e+38" id="aDm-Kx-LSb">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
@@ -759,7 +766,7 @@
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="" width="50.716613574223977" minWidth="10" maxWidth="3.4028234663852886e+38" id="dJU-oI-2dB">
+                                                <tableColumn identifier="" width="10" minWidth="10" maxWidth="3.4028234663852886e+38" id="dJU-oI-2dB">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Priority">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -777,8 +784,8 @@
                                                     </comboBoxCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <connections>
-                                                        <binding destination="XfG-lQ-9wD" name="contentValues" keyPath="possiblePriotities" id="Lv5-fR-Hbc"/>
                                                         <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.priority" previousBinding="Lv5-fR-Hbc" id="SF4-5T-bIS"/>
+                                                        <binding destination="XfG-lQ-9wD" name="contentValues" keyPath="possiblePriotities" id="Lv5-fR-Hbc"/>
                                                     </connections>
                                                 </tableColumn>
                                             </tableColumns>
@@ -786,23 +793,23 @@
                                     </subviews>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="OeP-jy-yIN">
+                                <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="OeP-jy-yIN">
                                     <rect key="frame" x="1" y="119" width="453" height="15"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="9.2167340753252266e-14" horizontal="NO" id="7g4-2A-DSM">
-                                    <rect key="frame" x="-14" y="15" width="15" height="0.0"/>
+                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="7g4-2A-DSM">
+                                    <rect key="frame" x="444" y="23" width="15" height="0.0"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="nOl-7H-qgY">
-                                    <rect key="frame" x="0.0" y="0.0" width="453" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="565.5" height="23"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
                             <scrollView ambiguous="YES" misplaced="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dQ6-7F-4VD">
                                 <rect key="frame" x="5" y="161" width="455" height="100"/>
                                 <clipView key="contentView" ambiguous="YES" id="y0E-zw-zZv">
-                                    <rect key="frame" x="1" y="23" width="453" height="76"/>
+                                    <rect key="frame" x="1" y="0.0" width="453" height="99"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="GMa-s4-bER" id="Raz-8u-reE">
@@ -870,7 +877,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="Ak1-Sz-yAV">
-                                    <rect key="frame" x="224" y="17" width="15" height="102"/>
+                                    <rect key="frame" x="439" y="23" width="15" height="0.0"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="GMa-s4-bER">

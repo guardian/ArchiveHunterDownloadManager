@@ -54,14 +54,21 @@
     return ent;
 }
 
-- (NSManagedObject *) createNewEntry:(NSString *)entryId parent:(NSManagedObject *) parent {
+- (NSManagedObject *) createNewEntry:(NSDictionary *)entrySynop parent:(NSManagedObject *) parent {
     NSManagedObjectContext *ctx = [self managedObjectContext];
     
     NSManagedObject* ent=[NSEntityDescription insertNewObjectForEntityForName:@"DownloadEntity" inManagedObjectContext:ctx];
+    NSString *objPath = [entrySynop objectForKey:@"path"];
+    
+    NSArray *pathParts = [objPath pathComponents];
+    NSLog(@"%@", [pathParts lastObject]);
     
     [ent setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         entryId, @"fileId",
-                                         entryId, @"name", nil]];
+                                         (NSString *)[entrySynop objectForKey:@"entryId"], @"fileId",
+                                         [pathParts lastObject], @"name",
+                                         parent, @"parent",
+                                         [entrySynop objectForKey:@"fileSize"], @"fileSize",
+                                         nil]];
     return ent;
 }
 
@@ -84,8 +91,8 @@
                 
                 NSManagedObject *bulk = [self createNewBulk:[data objectForKey:@"metadata"] retrievalToken:[data objectForKey:@"retrievalToken"]];
                 
-                for(NSString *entryId in [data objectForKey:@"entries"]){
-                    
+                for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
+                    [self createNewEntry:entrySynop parent:bulk];
                 }
             }
         }];
