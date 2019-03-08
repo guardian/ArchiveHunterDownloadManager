@@ -11,8 +11,10 @@
 
 @interface ViewController : NSViewController
 
-@property (strong,nonatomic) IBOutlet AppDelegate* appDelegate;
+@property (weak,nonatomic) IBOutlet AppDelegate* appDelegate;
 @property (readwrite, strong, nonatomic) IBOutlet NSArray* possiblePriotities;
+
+- (void) askUserForPath:(NSManagedObject *)bulk;
 
 @end
 

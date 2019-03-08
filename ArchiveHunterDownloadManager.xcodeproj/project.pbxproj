@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9B1044BC22329123001E637B /* FileSizeTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B1044BB22329123001E637B /* FileSizeTransformer.m */; };
+		9B1044BF223296C9001E637B /* BulkOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B1044BE223296C9001E637B /* BulkOperations.m */; };
 		9BA935B9222E8C700066812F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935B8222E8C700066812F /* AppDelegate.m */; };
 		9BA935BC222E8C700066812F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935BB222E8C700066812F /* main.m */; };
 		9BA935BF222E8C700066812F /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935BE222E8C700066812F /* ViewController.m */; };
@@ -40,6 +41,8 @@
 /* Begin PBXFileReference section */
 		9B1044BA22329123001E637B /* FileSizeTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSizeTransformer.h; sourceTree = "<group>"; };
 		9B1044BB22329123001E637B /* FileSizeTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileSizeTransformer.m; sourceTree = "<group>"; };
+		9B1044BD223296C9001E637B /* BulkOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BulkOperations.h; sourceTree = "<group>"; };
+		9B1044BE223296C9001E637B /* BulkOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BulkOperations.m; sourceTree = "<group>"; };
 		9BA935B4222E8C700066812F /* ArchiveHunterDownloadManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ArchiveHunterDownloadManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA935B7222E8C700066812F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		9BA935B8222E8C700066812F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -125,6 +128,8 @@
 				9BCA366A22312F6F004799F4 /* ServerComms.m */,
 				9B1044BA22329123001E637B /* FileSizeTransformer.h */,
 				9B1044BB22329123001E637B /* FileSizeTransformer.m */,
+				9B1044BD223296C9001E637B /* BulkOperations.h */,
+				9B1044BE223296C9001E637B /* BulkOperations.m */,
 			);
 			path = ArchiveHunterDownloadManager;
 			sourceTree = "<group>";
@@ -289,6 +294,7 @@
 				9BA935C2222E8C700066812F /* ArchiveHunterDownloadManager.xcdatamodeld in Sources */,
 				9BCA366B22312F6F004799F4 /* ServerComms.m in Sources */,
 				9BA935BF222E8C700066812F /* ViewController.m in Sources */,
+				9B1044BF223296C9001E637B /* BulkOperations.m in Sources */,
 				9BA935BC222E8C700066812F /* main.m in Sources */,
 				9BA935B9222E8C700066812F /* AppDelegate.m in Sources */,
 			);

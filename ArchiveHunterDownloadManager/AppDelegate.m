@@ -9,6 +9,8 @@
 #import "AppDelegate.h"
 #import "ServerComms.h"
 
+#import "ViewController.h"
+
 @interface AppDelegate ()
 
 - (IBAction)saveAction:(id)sender;
@@ -21,9 +23,11 @@
     self = [super init];
     [self registerMyApp];
     _serverComms = [[ServerComms alloc] init];
+    _bulkOperations = [[BulkOperations alloc] init];
     
     return self;
 }
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
 }
@@ -48,7 +52,7 @@
                                          [bulkMetadata objectForKey:@"description"], @"downloadDescription",
                                          [bulkMetadata objectForKey:@"id"], @"id",
                                          retrievalToken, @"retrievalToken",
-                                         @"New", @"Status",
+                                         [NSNumber numberWithInteger:0], @"Status",
                                          [bulkMetadata objectForKey:@"userEmail"], @"userEmail",
                                          nil]];
     return ent;
@@ -63,9 +67,16 @@
     NSArray *pathParts = [objPath pathComponents];
     NSLog(@"%@", [pathParts lastObject]);
     
+    NSRange allButLastRange;
+    allButLastRange.location=0;
+    allButLastRange.length=[pathParts count]-1;
+    
+    NSString *pathOnly = [[pathParts subarrayWithRange:allButLastRange] componentsJoinedByString:@"/"];
+    
     [ent setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                          (NSString *)[entrySynop objectForKey:@"entryId"], @"fileId",
                                          [pathParts lastObject], @"name",
+                                         pathOnly, @"path",
                                          parent, @"parent",
                                          [entrySynop objectForKey:@"fileSize"], @"fileSize",
                                          nil]];
@@ -94,6 +105,12 @@
                 for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
                     [self createNewEntry:entrySynop parent:bulk];
                 }
+                
+                [[self managedObjectContext] save:&err];
+                if(err){
+                    NSLog(@"could not save data store: %@", err);
+                }
+                [self asyncSetupDownload:bulk];
             }
         }];
         if(!result){
@@ -101,6 +118,27 @@
         }
     }
 }
+
+//run setup for a bulk. Do this in the background.
+- (void) asyncSetupDownload:(NSManagedObject *)bulk {
+    
+    if(![[self bulkOperations] moc]) [[self bulkOperations] setMoc:[self managedObjectContext]];
+    
+    dispatch_queue_t targetQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    
+    dispatch_async(targetQueue, ^{
+        BulkOperationStatus status = [_bulkOperations startBulk:bulk];
+        if(status==BO_WAITING_USER_INPUT){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSError *err=nil;
+                [(ViewController *)_mainViewController askUserForPath:bulk];
+                [[self managedObjectContext] save:&err];
+            });
+        }
+    });
+}
+
+//
 #pragma mark - Core Data stack
 
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
