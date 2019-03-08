@@ -121,12 +121,19 @@
 
 //run setup for a bulk. Do this in the background.
 - (void) asyncSetupDownload:(NSManagedObject *)bulk {
+    NSError *err;
     
     if(![[self bulkOperations] moc]) [[self bulkOperations] setMoc:[self managedObjectContext]];
+    
+    if(![[self managedObjectContext] save:&err]){
+        NSLog(@"Could not save managed objects: %@", err);
+    }
     
     dispatch_queue_t targetQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     
     dispatch_async(targetQueue, ^{
+        NSError *err;
+        
         BulkOperationStatus status = [_bulkOperations startBulk:bulk];
         if(status==BO_WAITING_USER_INPUT){
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -134,6 +141,12 @@
                 [(ViewController *)_mainViewController askUserForPath:bulk];
                 [[self managedObjectContext] save:&err];
             });
+        } else {
+            NSLog(@"Status is %d", status);
+            NSLog(@"bulk is %@", bulk);
+            if(![[self managedObjectContext] save:&err]){
+                NSLog(@"Could not save managed objects: %@", err);
+            }
         }
     });
 }

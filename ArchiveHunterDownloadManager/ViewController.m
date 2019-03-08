@@ -47,6 +47,21 @@
     }
 }
 
+- (IBAction)editClicked:(id)sender {
+    NSWindow *window = [[self view] window];
+    NSArray *selection = [_bulkArrayController selectedObjects];
+    if([selection count]==0){
+        NSAlert *alrt = [[NSAlert alloc] init];
+        [alrt setInformativeText:@"You must select a bulk entry to edit"];
+        [alrt beginSheetModalForWindow:window completionHandler:^(NSInteger result){
+            
+        }];
+    } else {
+        NSManagedObject *selectedBulk = [selection objectAtIndex:0];
+        [self askUserForPath:selectedBulk];
+    }
+}
+
 - (void) askUserForPath:(NSManagedObject *)bulk {
     NSWindow *window = [[self view] window];
     NSOpenPanel *panel = [NSOpenPanel openPanel];
@@ -65,7 +80,7 @@
                 NSLog(@"new download path is %@", newDownloadPath);
                 
                 [bulk setValue:newDownloadPath forKey:@"destinationPath"];
-                
+
                 [[self appDelegate] asyncSetupDownload:bulk];
                 break;
             default:

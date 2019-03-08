@@ -34,6 +34,7 @@
         BOOL exists = [[NSFileManager  defaultManager] fileExistsAtPath:downloadPath isDirectory:&isDir];
         if(exists && isDir){
             [self prepareBulkEntries:bulk withError:&err];
+            [bulk setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
             return BO_READY;
         } else {
             [bulk setValue:[NSNumber numberWithInteger:BO_WAITING_USER_INPUT] forKey:@"status"];

@@ -6,7 +6,7 @@
 //  Copyright © 2019 Guardian News and Media. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 
 typedef enum BulkOperationStatus {
     BO_READY=0,
