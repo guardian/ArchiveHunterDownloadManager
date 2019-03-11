@@ -24,8 +24,6 @@
                         change:(NSDictionary *)change
                        context:(void *)context
 {
-    NSLog(@"observeValueForKeyPath: %@", keyPath);
-    
     if([keyPath compare:@"selectionIndex"]==NSOrderedSame){
         [self setDownloadEntryFilterPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
             NSManagedObject *entry = (NSManagedObject *)evaluatedObject;
@@ -34,6 +32,7 @@
         }]];
     }
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 

@@ -24,6 +24,7 @@
 		9BCA366022300B41004799F4 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA365F22300B41004799F4 /* PreferencesController.m */; };
 		9BCA366B22312F6F004799F4 /* ServerComms.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA366A22312F6F004799F4 /* ServerComms.m */; };
 		9BE8592C223696E2001D586A /* BulkDownloadStats.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BE8592B223696E2001D586A /* BulkDownloadStats.m */; };
+		9BE859312236C5AC001D586A /* BulkOperationsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BE859302236C5AC001D586A /* BulkOperationsTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,6 +79,7 @@
 		9BCA366A22312F6F004799F4 /* ServerComms.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerComms.m; sourceTree = "<group>"; };
 		9BE8592A223696E2001D586A /* BulkDownloadStats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BulkDownloadStats.h; sourceTree = "<group>"; };
 		9BE8592B223696E2001D586A /* BulkDownloadStats.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BulkDownloadStats.m; sourceTree = "<group>"; };
+		9BE859302236C5AC001D586A /* BulkOperationsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BulkOperationsTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +167,7 @@
 			children = (
 				9BA935D1222E8C700066812F /* ArchiveHunterDownloadManagerTests.m */,
 				9BA935D3222E8C700066812F /* Info.plist */,
+				9BE859302236C5AC001D586A /* BulkOperationsTests.m */,
 			);
 			path = ArchiveHunterDownloadManagerTests;
 			sourceTree = "<group>";
@@ -367,6 +370,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9BA935D2222E8C700066812F /* ArchiveHunterDownloadManagerTests.m in Sources */,
+				9BE859312236C5AC001D586A /* BulkOperationsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

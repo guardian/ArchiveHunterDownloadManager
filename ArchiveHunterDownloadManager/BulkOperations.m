@@ -94,13 +94,82 @@
     }];
 }
 
+//find the location of the first common portion of both path arrays
+- (NSUInteger)findStartPosition:(NSArray *)bulkPathParts forEntryPath:(NSArray *)entryPathParts
+{
+    NSUInteger n;
+    
+    for(n=0;n<[bulkPathParts count];++n){
+        if([[bulkPathParts objectAtIndex:n] compare:[entryPathParts objectAtIndex:0]]==NSOrderedSame) break;
+    }
+    if(n==[bulkPathParts count]) return -1; //there were no common portions
+    return n;
+}
+
+- (NSUInteger)findLastCommonPosition:(NSArray *)bulkPathParts forEntryPath:(NSArray *)entryPathParts startingAt:(NSUInteger) startPoint
+{
+    NSUInteger n;
+    
+    for(n=startPoint;n<[bulkPathParts count];++n){
+        NSLog(@"bulk: %@", [bulkPathParts objectAtIndex:n]);
+        NSLog(@"entry: %@", [entryPathParts objectAtIndex:n-startPoint]);
+        
+        if([[bulkPathParts objectAtIndex:n] compare:[entryPathParts objectAtIndex:n-startPoint]]!=NSOrderedSame) break;
+    }
+    return n;
+}
+
+- (NSString *)stripCommonPathComponents:(NSString *)bulkPath forEntryPath:(NSString *)entryPath
+{
+    NSArray *bulkPathParts = [bulkPath pathComponents];
+    NSArray *entryPathParts = [entryPath pathComponents];
+    
+    NSInteger startPosition = [self findStartPosition:bulkPathParts forEntryPath:entryPathParts];
+    NSInteger lastCommonPosition = [self findLastCommonPosition:bulkPathParts forEntryPath:entryPathParts startingAt:startPosition];
+    
+    NSLog(@"startPosition: %lu, lastCommonPosition: %lu", startPosition, lastCommonPosition);
+    
+    NSArray *pathPrefixParts;
+    //start with bulk part prefix
+    if(startPosition>0){
+        NSRange prefixRange;
+        prefixRange.location=0;
+        prefixRange.length = startPosition-1;
+        pathPrefixParts = [bulkPathParts subarrayWithRange:prefixRange];
+    } else {
+        pathPrefixParts = [NSArray array];
+    }
+    //skip the common portion
+    
+    //finish with the parts from the entry
+    NSRange entryRange;
+    entryRange.location=0;
+    entryRange.length = [entryPathParts count]+startPosition-lastCommonPosition;
+    NSArray *entryPostfixParts = [entryPathParts subarrayWithRange:entryRange];
+    
+    return [[pathPrefixParts componentsJoinedByString:@"/"] stringByAppendingString:[entryPostfixParts componentsJoinedByString:@"/"]];
+    
+//    if(n>=[entryPathParts count]){ //both paths matched exactly?
+//        NSLog(@"entry path exactly matched download path? this should not happen");
+//        return entryPath;
+//    } else {
+//        //n is the index of the first non-matching path part
+//        NSRange pathRange;
+//        pathRange.location=n;
+//        pathRange.length=[entryPathParts count]-n;
+//        NSLog(@"range is from %lu with length %lu", pathRange.location, pathRange.length);
+//        return [[entryPathParts subarrayWithRange:pathRange] componentsJoinedByString:@"/"];
+//    }
+}
+
 - (void) setupDownloadEntry:(NSManagedObject *)entry withBulk:(NSManagedObject *)bulk {
     //don't mess with entries that are running or have completed
     if([(NSNumber *)[entry valueForKey:@"status"] integerValue]==BO_COMPLETED ||
        [(NSNumber *)[entry valueForKey:@"status"] integerValue]==BO_RUNNING) return;
     
-    //FIXME: should remove common path components.
-    NSString *localDestString = [[entry valueForKey:@"path"] stringByAppendingPathComponent:[entry valueForKey:@"name"]];
+    NSString *localDestString = [
+                                 [self stripCommonPathComponents:[bulk valueForKey:@"destinationPath"] forEntryPath:[entry valueForKey:@"path"]
+                                  ] stringByAppendingPathComponent:[entry valueForKey:@"name"]];
     
     NSString *fileDestPath = [[bulk valueForKey:@"destinationPath"] stringByAppendingPathComponent:localDestString];
     
