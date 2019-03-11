@@ -655,7 +655,7 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                    <window key="window" title="Download Manager" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
@@ -677,6 +677,145 @@
                         <rect key="frame" x="0.0" y="0.0" width="766" height="390"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
+                            <scrollView ambiguous="YES" misplaced="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RO2-xp-HhW">
+                                <rect key="frame" x="5" y="20" width="741" height="214"/>
+                                <clipView key="contentView" ambiguous="YES" id="lxe-lT-mdD">
+                                    <rect key="frame" x="1" y="0.0" width="739" height="213"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="nOl-7H-qgY" id="YK1-wV-e8q">
+                                            <rect key="frame" x="0.0" y="0.0" width="739" height="190"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <size key="intercellSpacing" width="3" height="2"/>
+                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                            <tableColumns>
+                                                <tableColumn width="212.453125" minWidth="40" maxWidth="1000" id="V0H-T5-h4f">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Name">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" title="Text Cell" id="1m2-4W-w38">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.name" id="CiO-GQ-n6O"/>
+                                                    </connections>
+                                                </tableColumn>
+                                                <tableColumn editable="NO" width="110" minWidth="40" maxWidth="1000" id="znW-hb-mJf">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Download Progress">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                    </tableHeaderCell>
+                                                    <levelIndicatorCell key="dataCell" state="on" alignment="left" doubleValue="3" maxValue="3" warningValue="3" criticalValue="3" levelIndicatorStyle="continuousCapacity" id="3Hr-va-CJo">
+                                                        <font key="font" metaFont="system"/>
+                                                    </levelIndicatorCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.downloadProgress" id="NxW-4Z-fpf"/>
+                                                    </connections>
+                                                </tableColumn>
+                                                <tableColumn identifier="" width="87" minWidth="10" maxWidth="3.4028234663852886e+38" id="lAe-Qg-SAU">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Size">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="yPL-Er-AqM">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.fileSize" id="F1C-DN-k0v">
+                                                            <dictionary key="options">
+                                                                <string key="NSValueTransformerName">FileSizeTransformer</string>
+                                                            </dictionary>
+                                                        </binding>
+                                                    </connections>
+                                                </tableColumn>
+                                                <tableColumn identifier="" width="88" minWidth="10" maxWidth="3.4028234663852886e+38" id="aDm-Kx-LSb">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Download Path">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="BJH-Sy-wLH">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.destinationFile" id="XxL-r1-T54"/>
+                                                    </connections>
+                                                </tableColumn>
+                                                <tableColumn identifier="" width="64" minWidth="10" maxWidth="3.4028234663852886e+38" id="fx2-9M-NqJ">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Status">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="T1E-IK-PBA">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.status" id="O6T-cJ-1f0">
+                                                            <dictionary key="options">
+                                                                <string key="NSValueTransformerName">BulkObjectStatusTransformer</string>
+                                                            </dictionary>
+                                                        </binding>
+                                                    </connections>
+                                                </tableColumn>
+                                                <tableColumn identifier="" width="159.31873864524587" minWidth="10" maxWidth="3.4028234663852886e+38" id="dJU-oI-2dB">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Priority">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                    </tableHeaderCell>
+                                                    <comboBoxCell key="dataCell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" buttonBordered="NO" completes="NO" numberOfVisibleItems="5" id="dlb-3q-rVz">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        <objectValues>
+                                                            <string>Item 1</string>
+                                                            <string>Item 2</string>
+                                                            <string>Item 3</string>
+                                                        </objectValues>
+                                                    </comboBoxCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.priority" previousBinding="Lv5-fR-Hbc" id="SF4-5T-bIS"/>
+                                                        <binding destination="XfG-lQ-9wD" name="contentValues" keyPath="possiblePriotities" id="Lv5-fR-Hbc"/>
+                                                    </connections>
+                                                </tableColumn>
+                                            </tableColumns>
+                                        </tableView>
+                                    </subviews>
+                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </clipView>
+                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="OeP-jy-yIN">
+                                    <rect key="frame" x="1" y="198" width="739" height="15"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="7g4-2A-DSM">
+                                    <rect key="frame" x="730" y="23" width="15" height="0.0"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <tableHeaderView key="headerView" id="nOl-7H-qgY">
+                                    <rect key="frame" x="0.0" y="0.0" width="739" height="23"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableHeaderView>
+                            </scrollView>
                             <scrollView ambiguous="YES" misplaced="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dQ6-7F-4VD">
                                 <rect key="frame" x="5" y="281" width="741" height="100"/>
                                 <clipView key="contentView" ambiguous="YES" id="y0E-zw-zZv">
@@ -789,7 +928,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="Ak1-Sz-yAV">
-                                    <rect key="frame" x="439" y="23" width="15" height="0.0"/>
+                                    <rect key="frame" x="725" y="23" width="15" height="0.0"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="GMa-s4-bER">
@@ -807,138 +946,16 @@
                                     <action selector="editClicked:" target="XfG-lQ-9wD" id="aCg-Yi-40f"/>
                                 </connections>
                             </button>
-                            <scrollView ambiguous="YES" misplaced="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RO2-xp-HhW">
-                                <rect key="frame" x="5" y="20" width="741" height="214"/>
-                                <clipView key="contentView" ambiguous="YES" id="lxe-lT-mdD">
-                                    <rect key="frame" x="1" y="0.0" width="739" height="213"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="nOl-7H-qgY" id="YK1-wV-e8q">
-                                            <rect key="frame" x="0.0" y="0.0" width="739" height="190"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <size key="intercellSpacing" width="3" height="2"/>
-                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
-                                            <tableColumns>
-                                                <tableColumn width="212.453125" minWidth="40" maxWidth="1000" id="V0H-T5-h4f">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Name">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
-                                                    </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" title="Text Cell" id="1m2-4W-w38">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                    <connections>
-                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.name" id="CiO-GQ-n6O"/>
-                                                    </connections>
-                                                </tableColumn>
-                                                <tableColumn editable="NO" width="110" minWidth="40" maxWidth="1000" id="znW-hb-mJf">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Download Progress">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
-                                                    </tableHeaderCell>
-                                                    <levelIndicatorCell key="dataCell" state="on" alignment="left" doubleValue="3" maxValue="3" warningValue="3" criticalValue="3" levelIndicatorStyle="continuousCapacity" id="3Hr-va-CJo">
-                                                        <font key="font" metaFont="system"/>
-                                                    </levelIndicatorCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                    <connections>
-                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.downloadProgress" id="NxW-4Z-fpf"/>
-                                                    </connections>
-                                                </tableColumn>
-                                                <tableColumn identifier="" width="87" minWidth="10" maxWidth="3.4028234663852886e+38" id="lAe-Qg-SAU">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Size">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                                    </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="yPL-Er-AqM">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                    <connections>
-                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.fileSize" id="F1C-DN-k0v">
-                                                            <dictionary key="options">
-                                                                <string key="NSValueTransformerName">FileSizeTransformer</string>
-                                                            </dictionary>
-                                                        </binding>
-                                                    </connections>
-                                                </tableColumn>
-                                                <tableColumn identifier="" width="88" minWidth="10" maxWidth="3.4028234663852886e+38" id="aDm-Kx-LSb">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Download Path">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                                    </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="BJH-Sy-wLH">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                    <connections>
-                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.destinationFile" id="XxL-r1-T54"/>
-                                                    </connections>
-                                                </tableColumn>
-                                                <tableColumn identifier="" width="64" minWidth="10" maxWidth="3.4028234663852886e+38" id="fx2-9M-NqJ">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                                    </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="T1E-IK-PBA">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                </tableColumn>
-                                                <tableColumn identifier="" width="159.64165912086048" minWidth="10" maxWidth="3.4028234663852886e+38" id="dJU-oI-2dB">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Priority">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                                    </tableHeaderCell>
-                                                    <comboBoxCell key="dataCell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" buttonBordered="NO" completes="NO" numberOfVisibleItems="5" id="dlb-3q-rVz">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                        <objectValues>
-                                                            <string>Item 1</string>
-                                                            <string>Item 2</string>
-                                                            <string>Item 3</string>
-                                                        </objectValues>
-                                                    </comboBoxCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                    <connections>
-                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.priority" previousBinding="Lv5-fR-Hbc" id="SF4-5T-bIS"/>
-                                                        <binding destination="XfG-lQ-9wD" name="contentValues" keyPath="possiblePriotities" id="Lv5-fR-Hbc"/>
-                                                    </connections>
-                                                </tableColumn>
-                                            </tableColumns>
-                                        </tableView>
-                                    </subviews>
-                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="OeP-jy-yIN">
-                                    <rect key="frame" x="1" y="198" width="739" height="15"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </scroller>
-                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.018898144624426787" horizontal="NO" id="7g4-2A-DSM">
-                                    <rect key="frame" x="444" y="23" width="15" height="0.0"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </scroller>
-                                <tableHeaderView key="headerView" id="nOl-7H-qgY">
-                                    <rect key="frame" x="0.0" y="0.0" width="739" height="23"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </tableHeaderView>
-                            </scrollView>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="srv-x1-N3e">
+                                <rect key="frame" x="722" y="253" width="24" height="21"/>
+                                <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSRefreshTemplate" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JgW-LH-Srl">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="runClicked:" target="XfG-lQ-9wD" id="CJW-69-TVP"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="9bA-3N-mTy" firstAttribute="top" secondItem="dQ6-7F-4VD" secondAttribute="bottom" constant="8" id="5so-g0-o2j"/>
@@ -1032,6 +1049,32 @@
                                     <action selector="dismissController:" target="umw-qB-Rhc" id="1J8-ub-MTT"/>
                                 </connections>
                             </button>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HJL-2f-wHj">
+                                <rect key="frame" x="209" y="176" width="196" height="18"/>
+                                <buttonCell key="cell" type="radio" title="Don't download existing files" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="4Zk-yC-62Q">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="overwriteSelectorChanged:" target="umw-qB-Rhc" id="KCv-LI-dQ4"/>
+                                    <binding destination="fdz-vs-Tfq" name="value" keyPath="values.overwriteSelected" id="0XH-Jm-FbX">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NegateTransformer</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="leM-a7-eoj">
+                                <rect key="frame" x="19" y="176" width="166" height="18"/>
+                                <buttonCell key="cell" type="radio" title="Over-write existing files" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="jzf-hD-Iw1">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="overwriteSelectorChanged:" target="umw-qB-Rhc" id="jDh-ez-jRw"/>
+                                    <binding destination="fdz-vs-Tfq" name="value" keyPath="values.overwriteSelected" id="Fhj-xC-HUw"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="ndY-P7-UZ7" secondAttribute="trailing" constant="20" id="0zA-1Z-yeh"/>
@@ -1048,11 +1091,13 @@
                 <customObject id="37j-pm-2aK" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <userDefaultsController id="UbJ-U1-gG7"/>
                 <userDefaultsController id="fdz-vs-Tfq"/>
+                <userDefaultsController id="cSU-RD-kfr"/>
             </objects>
             <point key="canvasLocation" x="771" y="385"/>
         </scene>
     </scenes>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="NSRefreshTemplate" width="11" height="15"/>
     </resources>
 </document>

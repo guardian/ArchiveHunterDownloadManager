@@ -17,6 +17,7 @@
 @property (readwrite, strong, nonatomic) IBOutlet NSArray* possiblePriotities;
 
 - (void) askUserForPath:(NSManagedObject *)bulk;
+- (void) showErrorBox:(NSString *)msg;
 
 @end
 

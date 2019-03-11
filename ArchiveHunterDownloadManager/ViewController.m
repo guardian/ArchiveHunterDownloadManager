@@ -62,6 +62,20 @@
     }
 }
 
+- (IBAction)runClicked:(id)sender {
+    NSWindow *window = [[self view] window];
+    NSError *err;
+    
+    BOOL result = [BulkOperations bulkForAll:[[self appDelegate] managedObjectContext] withError:&err block:^(NSManagedObject *bulk){
+        [[[self appDelegate] bulkOperations] startBulk:bulk];
+    }];
+    
+    if(!result){
+        NSAlert *alrt = [NSAlert alertWithError:err];
+        [alrt beginSheetModalForWindow:window completionHandler:nil];
+    }
+    
+}
 - (void) askUserForPath:(NSManagedObject *)bulk {
     NSWindow *window = [[self view] window];
     NSOpenPanel *panel = [NSOpenPanel openPanel];
@@ -89,5 +103,14 @@
         }
     }];
 }
+
+- (void) showErrorBox:(NSString *)msg {
+    NSWindow *window = [[self view] window];
+
+    NSAlert *alrt = [[NSAlert alloc] init];
+    [alrt setInformativeText:msg];
+    [alrt beginSheetModalForWindow:window completionHandler:nil];
+}
+
 
 @end

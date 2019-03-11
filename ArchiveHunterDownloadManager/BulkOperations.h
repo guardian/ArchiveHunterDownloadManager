@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "ServerComms.h"
 
 typedef enum BulkOperationStatus {
     BO_READY=0,
@@ -19,6 +20,9 @@ typedef enum BulkOperationStatus {
 @interface BulkOperations : NSObject
 
 @property (weak, nonatomic) NSManagedObjectContext *moc;
+@property (strong, atomic) ServerComms *serverComms;
++ (BOOL) bulkForEach:(NSManagedObject *)bulk managedObjectContext:(NSManagedObjectContext *)moc withError:(NSError **)err block:(void (^)(NSManagedObject *))block;
++ (BOOL) bulkForAll:(NSManagedObjectContext *)moc withError:(NSError **)err block:(void (^)(NSManagedObject *))block ;
 
 - (BulkOperationStatus) startBulk:(NSManagedObject *)bulk;
 - (BOOL) prepareBulkEntries:(NSManagedObject *)bulk withError:(NSError **)err;

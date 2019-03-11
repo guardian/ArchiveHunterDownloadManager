@@ -95,28 +95,45 @@
         NSLog(@"Got bulk download with onetime token %@", token);
         
         BOOL result = [_serverComms initiateDownload:token withError:&err completionHandler:^(NSDictionary *_Nullable data, NSError *err){
+            NSError *localErr=nil;
+            
             if(err){
                 NSLog(@"Download error: %@", err);
             } else {
                 NSLog(@"Got data: %@", data);
+                NSDictionary *metadata = [data objectForKey:@"metadata"];
                 
-                NSManagedObject *bulk = [self createNewBulk:[data objectForKey:@"metadata"] retrievalToken:[data objectForKey:@"retrievalToken"]];
-                
-                for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
-                    [self createNewEntry:entrySynop parent:bulk];
+                if([self haveBulkEntryFor:[metadata valueForKey:@"id"] withError:&localErr]){
+                    [(ViewController *)_mainViewController showErrorBox:@"You already have this bulk in your download queue"];
+                } else {
+                    NSManagedObject *bulk = [self createNewBulk:metadata retrievalToken:[data objectForKey:@"retrievalToken"]];
+                    
+                    for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
+                        [self createNewEntry:entrySynop parent:bulk];
+                    }
+                    
+                    [[self managedObjectContext] save:&err];
+                    if(err){
+                        NSLog(@"could not save data store: %@", err);
+                    }
+                    [self asyncSetupDownload:bulk];
                 }
-                
-                [[self managedObjectContext] save:&err];
-                if(err){
-                    NSLog(@"could not save data store: %@", err);
-                }
-                [self asyncSetupDownload:bulk];
             }
         }];
         if(!result){
             NSLog(@"Download failed: %@", err);
         }
     }
+}
+
+- (BOOL) haveBulkEntryFor:(NSString *) bulkId withError:(NSError **)err{
+    NSFetchRequest *req = [NSFetchRequest fetchRequestWithEntityName:@"BulkDownload"];
+    [req setPredicate:[NSPredicate predicateWithFormat:@"id == %@", bulkId]];
+    
+    NSArray *results = [[self managedObjectContext] executeFetchRequest:req error:err];
+    if(!results) return NO;
+    
+    return [results count]>0;
 }
 
 //run setup for a bulk. Do this in the background.

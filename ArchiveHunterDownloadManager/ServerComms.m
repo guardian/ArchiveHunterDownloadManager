@@ -7,6 +7,8 @@
 //
 
 #import "ServerComms.h"
+#import "DownloadDelegate.h"
+#import "BulkOperations.h"
 
 @implementation ServerComms
 
@@ -54,5 +56,44 @@
     }
 }
 
+- (void)setEntryError:(NSError *)err forEntry:(NSManagedObject *)entry {
+    [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                  [err localizedDescription],@"lastError",
+                                                  [NSNumber numberWithInt:BO_ERRORED], @"status"
+                                                  ,nil]];
+}
 
+- (NSURLDownload *)performItemDownload:(NSURL *)actualDownloadUrl forEntry:(NSManagedObject *)entry {
+    DownloadDelegate *del = [[DownloadDelegate alloc] initWithEntry:entry];
+    NSURLRequest *req = [NSURLRequest requestWithURL:actualDownloadUrl];
+    
+    NSURLDownload *dld = [[NSURLDownload alloc] initWithRequest:req delegate:del];
+    [dld setDestination:[entry valueForKey:@"destinationFile"] allowOverwrite:YES];
+    [dld setDeletesFileUponFailure:YES];
+
+    return dld;
+}
+
+- (NSURLSessionDataTask *) itemRetrievalTask:(NSURL *)retrievalLink forEntry:(NSManagedObject *)entry {
+    NSURLSession *sess = [NSURLSession sharedSession];
+    
+    return [sess dataTaskWithURL:retrievalLink completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSError *parseError=nil;
+        
+        if(error){
+            [self setEntryError:error forEntry:entry];
+        } else {
+            NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&parseError];
+            if(json){
+                NSString *actualDownloadUrl = [json valueForKey:@"entry"];
+                NSLog(@"Actual download URL for %@ is %@" , retrievalLink, actualDownloadUrl);
+                [self performItemDownload:[NSURL URLWithString:actualDownloadUrl] forEntry:entry];
+            } else {
+                NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                NSLog(@"Could not parse JSON from server: %@", parseError);
+                [self setEntryError:parseError forEntry:entry];
+            }
+        }
+    }];
+}
 @end

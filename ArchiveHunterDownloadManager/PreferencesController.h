@@ -12,4 +12,6 @@
 
 @property (readwrite, atomic) NSNumber *isAuthenticated;
 
+@property (readwrite, atomic) IBOutlet NSNumber *overwriteSelected;
+
 @end
