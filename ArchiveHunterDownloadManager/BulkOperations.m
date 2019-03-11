@@ -95,7 +95,7 @@
 }
 
 //find the location of the first common portion of both path arrays
-- (NSUInteger)findStartPosition:(NSArray *)bulkPathParts forEntryPath:(NSArray *)entryPathParts
+- (NSInteger)findStartPosition:(NSArray *)bulkPathParts forEntryPath:(NSArray *)entryPathParts
 {
     NSUInteger n;
     
@@ -106,13 +106,14 @@
     return n;
 }
 
-- (NSUInteger)findLastCommonPosition:(NSArray *)bulkPathParts forEntryPath:(NSArray *)entryPathParts startingAt:(NSUInteger) startPoint
+//find the location of the last common portion (overlap) of both path arrays
+- (NSInteger)findLastCommonPosition:(NSArray *)bulkPathParts forEntryPath:(NSArray *)entryPathParts startingAt:(NSInteger) startPoint
 {
     NSUInteger n;
     
     for(n=startPoint;n<[bulkPathParts count];++n){
-        NSLog(@"bulk: %@", [bulkPathParts objectAtIndex:n]);
-        NSLog(@"entry: %@", [entryPathParts objectAtIndex:n-startPoint]);
+        //NSLog(@"bulk: %@", [bulkPathParts objectAtIndex:n]);
+        //NSLog(@"entry: %@", [entryPathParts objectAtIndex:n-startPoint]);
         
         if([[bulkPathParts objectAtIndex:n] compare:[entryPathParts objectAtIndex:n-startPoint]]!=NSOrderedSame) break;
     }
@@ -121,45 +122,44 @@
 
 - (NSString *)stripCommonPathComponents:(NSString *)bulkPath forEntryPath:(NSString *)entryPath
 {
-    NSArray *bulkPathParts = [bulkPath pathComponents];
-    NSArray *entryPathParts = [entryPath pathComponents];
+    NSArray <NSString *> *bulkPathParts = [bulkPath pathComponents];
+    NSArray <NSString *> *entryPathParts = [entryPath pathComponents];
     
+    if([[entryPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame){
+        NSRange stripRange;
+        stripRange.location=1;
+        stripRange.length=[entryPathParts count]-1;
+        entryPathParts = [entryPathParts subarrayWithRange:stripRange];
+    }
     NSInteger startPosition = [self findStartPosition:bulkPathParts forEntryPath:entryPathParts];
-    NSInteger lastCommonPosition = [self findLastCommonPosition:bulkPathParts forEntryPath:entryPathParts startingAt:startPosition];
+    //NSInteger lastCommonPosition = [self findLastCommonPosition:bulkPathParts forEntryPath:entryPathParts startingAt:startPosition];
     
-    NSLog(@"startPosition: %lu, lastCommonPosition: %lu", startPosition, lastCommonPosition);
+    //NSLog(@"startPosition: %lu, lastCommonPosition: %lu", startPosition, lastCommonPosition);
     
     NSArray *pathPrefixParts;
     //start with bulk part prefix
-    if(startPosition>0){
+    if(startPosition<0){    //there was no overlap in the two paths, so concatenate them together
         NSRange prefixRange;
-        prefixRange.location=0;
+        prefixRange.location=[[bulkPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame ? 1:0;
+        prefixRange.length = [bulkPathParts count]-1;
+        pathPrefixParts = [bulkPathParts subarrayWithRange:prefixRange];
+    } else {                //we got an overlap, strip off the overlapping part of the first path
+        NSRange prefixRange;
+        prefixRange.location=[[bulkPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame ? 1:0;
         prefixRange.length = startPosition-1;
         pathPrefixParts = [bulkPathParts subarrayWithRange:prefixRange];
-    } else {
-        pathPrefixParts = [NSArray array];
     }
     //skip the common portion
     
     //finish with the parts from the entry
-    NSRange entryRange;
-    entryRange.location=0;
-    entryRange.length = [entryPathParts count]+startPosition-lastCommonPosition;
-    NSArray *entryPostfixParts = [entryPathParts subarrayWithRange:entryRange];
+    NSString *finalPath=[[pathPrefixParts arrayByAddingObjectsFromArray:entryPathParts ] componentsJoinedByString:@"/"];
     
-    return [[pathPrefixParts componentsJoinedByString:@"/"] stringByAppendingString:[entryPostfixParts componentsJoinedByString:@"/"]];
-    
-//    if(n>=[entryPathParts count]){ //both paths matched exactly?
-//        NSLog(@"entry path exactly matched download path? this should not happen");
-//        return entryPath;
-//    } else {
-//        //n is the index of the first non-matching path part
-//        NSRange pathRange;
-//        pathRange.location=n;
-//        pathRange.length=[entryPathParts count]-n;
-//        NSLog(@"range is from %lu with length %lu", pathRange.location, pathRange.length);
-//        return [[entryPathParts subarrayWithRange:pathRange] componentsJoinedByString:@"/"];
-//    }
+    //re-add a leading / if it was present on the original path
+    if([[bulkPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame){
+        return [NSString stringWithFormat:@"/%@", finalPath];
+    } else {
+        return finalPath;
+    }
 }
 
 - (void) setupDownloadEntry:(NSManagedObject *)entry withBulk:(NSManagedObject *)bulk {
