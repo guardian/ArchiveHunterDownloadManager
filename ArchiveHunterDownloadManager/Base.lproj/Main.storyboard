@@ -944,6 +944,16 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eR9-eG-Y5O">
+                                <rect key="frame" x="299" y="245" width="96" height="32"/>
+                                <buttonCell key="cell" type="push" title="Click me!" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2NR-K5-N1D">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="testMessageClicked:" target="XfG-lQ-9wD" id="Rab-CE-IPm"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="RO2-xp-HhW" firstAttribute="top" secondItem="srv-x1-N3e" secondAttribute="bottom" constant="20" id="1cC-mn-j5h"/>

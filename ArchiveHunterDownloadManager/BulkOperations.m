@@ -9,6 +9,7 @@
 
 #import "BulkOperations.h"
 #import "BulkDownloadStats.h"
+#import "NotificationsHelper.h"
 
 @implementation BulkOperations
 
@@ -255,14 +256,18 @@
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_RUNNING], @"status", nil];
     } else if([stats successCount]==[stats totalCount]){
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_COMPLETED], @"status", nil];
+        [NotificationsHelper showBulkCompletedNotification:bulk];
     } else if([stats successCount]+[stats invalidCount]==[stats totalCount]) {
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_COMPLETED], @"status", nil];
+        [NotificationsHelper showBulkCompletedNotification:bulk];
     } else if([stats waitingCount]>0){
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_WAITING_USER_INPUT], @"status", nil];
     } else if([stats errorCount]==[stats totalCount]){
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_ERRORED], @"status", nil];
+        [NotificationsHelper showBulkFailedNotification:bulk];
     } else if([stats errorCount]>0){
-        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_ERRORED], @"partial", nil];
+        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_PARTIAL], @"status", nil];
+        [NotificationsHelper showPartialFailedNotification:bulk];
     }
     
     [bulk setValuesForKeysWithDictionary:updates];
