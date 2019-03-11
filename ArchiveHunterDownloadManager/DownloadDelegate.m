@@ -10,17 +10,19 @@
 #import "BulkOperations.h"
 
 @implementation DownloadDelegate
-- (id)init
+- (id)init:(dispatch_queue_t)queue
 {
     self = [super init];
+    _replyQueue = queue;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
     _entry = nil;
     return self;
 }
 
-- (id)initWithEntry:(NSManagedObject *)entry
+- (id)initWithEntry:(NSManagedObject *)entry dispatchQueue:(dispatch_queue_t)queue
 {
     self = [super init];
+    _replyQueue = queue;
     _entry = entry;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
     return self;
@@ -28,7 +30,7 @@
 
 - (void)downloadDidBegin:(NSURLDownload *)download
 {
-    NSLog(@"download started: %@", [[download request] URL]);
+    NSLog(@"%@ download started", [[self entry] valueForKey:@"destinationFile"]);
     [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                                   @"",@"lastError",
                                                   [NSNumber numberWithInt:BO_RUNNING], @"status"
@@ -38,36 +40,41 @@
 
 - (void)download:(NSURLDownload *)download didCreateDestination:(NSString *)path
 {
-    NSLog(@"created file for download: %@", path);
+    NSLog(@"%@ created file for download: %@", [[self entry] valueForKey:@"destinationFile"], path);
 }
 
 - (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length
 {
-    NSLog(@"download received data of length %lu", length);
+//    NSLog(@"download received data of length %lu", length);
     
     [self setDownloadedSoFar:[NSNumber numberWithLongLong:[[self downloadedSoFar] longLongValue]+length]];
     NSNumber *totalSize = (NSNumber *)[[self entry] valueForKey:@"fileSize"];
     
     NSNumber *newProgress = [NSNumber numberWithDouble:[[self downloadedSoFar] doubleValue] / [totalSize doubleValue]];
     
-    NSLog(@"downloadedSoFar: %@ totalSize %@ newProgress %@", _downloadedSoFar, totalSize, newProgress);
+    //NSLog(@"downloadedSoFar: %@ totalSize %@ newProgress %@", _downloadedSoFar, totalSize, newProgress);
     [[self entry] setValue:newProgress forKey:@"downloadProgress"];
 }
 
 //we don't want to decode anything automatically
 - (BOOL)download:(NSURLDownload *)download shouldDecodeSourceDataOfMIMEType:(NSString *)encodingType
 {
+    NSLog(@"%@ shouldDecode", [[self entry] valueForKey:@"destinationFile"]);
     return NO;
 }
 
 - (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error
 {
-    NSLog(@"Download %@ failed with error %@", [download request], error);
+    NSLog(@"Download %@ failed with error %@", [[self entry] valueForKey:@"destinationFile"], error);
     
     [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                                   [error localizedDescription],@"lastError",
                                                   [NSNumber numberWithInt:BO_ERRORED], @"status"
                                                   ,nil]];
+    dispatch_async(_replyQueue, ^{
+        //this should perform the MOC save
+        [BulkOperations updateMasterOnItemComplete:[self entry]];
+    });
     
 }
 
@@ -79,6 +86,9 @@
                                                   @"",@"lastError",
                                                   [NSNumber numberWithInt:BO_COMPLETED], @"status"
                                                   ,nil]];
+    dispatch_async(_replyQueue, ^{
+        [BulkOperations updateMasterOnItemComplete:[self entry]];
+    });
 }
 
 @end

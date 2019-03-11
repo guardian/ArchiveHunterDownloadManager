@@ -15,6 +15,7 @@
 - (id)init {
     self = [super init];
     _session = [NSURLSession sharedSession];
+    _replyQueue = dispatch_queue_create("com.gu.ArchiveHunterDownloadManager.ServerComms",NULL );
     return self;
 }
 
@@ -63,15 +64,49 @@
                                                   ,nil]];
 }
 
-- (NSURLDownload *)performItemDownload:(NSURL *)actualDownloadUrl forEntry:(NSManagedObject *)entry {
-    DownloadDelegate *del = [[DownloadDelegate alloc] initWithEntry:entry];
+- (void)performItemDownload:(NSURL *)actualDownloadUrl forEntry:(NSManagedObject *)entry {
+    NSError *err=nil;
+    BOOL isDir;
+    
+    DownloadDelegate *del = [[DownloadDelegate alloc] initWithEntry:entry dispatchQueue:[self replyQueue]];
     NSURLRequest *req = [NSURLRequest requestWithURL:actualDownloadUrl];
     
-    NSURLDownload *dld = [[NSURLDownload alloc] initWithRequest:req delegate:del];
-    [dld setDestination:[entry valueForKey:@"destinationFile"] allowOverwrite:YES];
-    [dld setDeletesFileUponFailure:YES];
-
-    return dld;
+    //check that the directory for destination file exists
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *dir = [(NSString *)[entry valueForKey:@"destinationFile"] stringByDeletingLastPathComponent];
+    
+    if([fileManager fileExistsAtPath:dir isDirectory:&isDir]){
+        if(!isDir){
+            NSLog(@"%@ already exists and isn't a directory", dir);
+            [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                   [NSString stringWithFormat:@"A file already exists at %@", dir],@"lastError", 
+                                                   [NSNumber numberWithInteger:BO_ERRORED], @"status",
+                                                   nil]];
+            return;
+        }
+    } else {
+        [fileManager createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&err];
+        if(err){
+            NSLog(@"%@: could not create: %@", dir, err);
+            [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                   @"lastError", [err localizedDescription],
+                                                   @"status", [NSNumber numberWithInt:BO_ERRORED],
+                                                   nil]];
+            return;
+        }
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //this must be done on the main thread to get at the primary runloop
+        NSURLDownload *dld = [[NSURLDownload alloc] initWithRequest:req delegate:del];
+        
+        if(!dld){
+            NSLog(@"Error - could not start download.");
+        }
+        NSLog(@"Downloading %@ to %@", actualDownloadUrl, [entry valueForKey:@"destinationFile"]);
+        [dld setDestination:[entry valueForKey:@"destinationFile"] allowOverwrite:YES];
+        [dld setDeletesFileUponFailure:YES];
+    });
 }
 
 - (NSURLSessionDataTask *) itemRetrievalTask:(NSURL *)retrievalLink forEntry:(NSManagedObject *)entry {
@@ -85,9 +120,17 @@
         } else {
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&parseError];
             if(json){
+                //NSString *actualDownloadUrl = [(NSString *)[json valueForKey:@"entry"] stringByRemovingPercentEncoding];
                 NSString *actualDownloadUrl = [json valueForKey:@"entry"];
+                
                 NSLog(@"Actual download URL for %@ is %@" , retrievalLink, actualDownloadUrl);
-                [self performItemDownload:[NSURL URLWithString:actualDownloadUrl] forEntry:entry];
+                NSURL *downloadURL = [NSURL URLWithString:actualDownloadUrl];
+                
+                if(downloadURL){
+                    [self performItemDownload:downloadURL forEntry:entry];
+                } else {
+                    NSLog(@"Could not create NSURL from %@", actualDownloadUrl);
+                }
             } else {
                 NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 NSLog(@"Could not parse JSON from server: %@", parseError);

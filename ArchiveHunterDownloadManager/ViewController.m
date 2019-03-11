@@ -76,6 +76,31 @@
     }
     
 }
+
+- (IBAction)revealClicked:(id)sender {
+    NSWindow *window = [[self view] window];
+    NSArray *selection = [_bulkArrayController selectedObjects];
+    if([selection count]==0){
+        NSAlert *alrt = [[NSAlert alloc] init];
+        [alrt setInformativeText:@"You must select a bulk entry to reveal"];
+        [alrt beginSheetModalForWindow:window completionHandler:^(NSInteger result){
+            
+        }];
+    } else {
+        NSManagedObject *selectedBulk = [selection objectAtIndex:0];
+        
+        NSString *bulkDir = [selectedBulk valueForKey:@"destinationPath"];
+        if(bulkDir){
+            [[NSWorkspace sharedWorkspace] openFile:bulkDir];
+        } else {
+            NSAlert *alrt = [[NSAlert alloc] init];
+            [alrt setInformativeText:@"You need to set a download path before reveal in finder can work"];
+            [alrt beginSheetModalForWindow:window completionHandler:^(NSInteger result){
+                
+            }];
+        }
+    }
+}
 - (void) askUserForPath:(NSManagedObject *)bulk {
     NSWindow *window = [[self view] window];
     NSOpenPanel *panel = [NSOpenPanel openPanel];

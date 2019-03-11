@@ -11,8 +11,10 @@
 @interface DownloadDelegate : NSObject <NSURLDownloadDelegate>
 @property (weak, atomic) NSManagedObject *entry;
 @property (weak, atomic) NSNumber *downloadedSoFar;
-- (id)init;
-- (id)initWithEntry:(NSManagedObject *)entry;
+@property (readonly) dispatch_queue_t replyQueue;
+
+- (id)init:(dispatch_queue_t)queue;
+- (id)initWithEntry:(NSManagedObject *)entry dispatchQueue:(dispatch_queue_t)queue;
 
 - (void)downloadDidBegin:(NSURLDownload *)download;
 - (void)download:(NSURLDownload *)download didCreateDestination:(NSString *)path;

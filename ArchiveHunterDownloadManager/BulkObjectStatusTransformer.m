@@ -36,6 +36,10 @@
             return @"Complete";
         case BO_WAITING_USER_INPUT:
             return @"Needs attention";
+        case BO_INVALID:
+            return @"Invalid file";
+        case BO_PARTIAL:
+            return @"Some errors";
         default:
             return @"unknown";
     }

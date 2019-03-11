@@ -14,7 +14,9 @@ typedef enum BulkOperationStatus {
     BO_RUNNING,
     BO_COMPLETED,
     BO_ERRORED,
-    BO_WAITING_USER_INPUT
+    BO_PARTIAL,
+    BO_WAITING_USER_INPUT,
+    BO_INVALID
 } BulkOperationStatus;
 
 @interface BulkOperations : NSObject
@@ -23,6 +25,7 @@ typedef enum BulkOperationStatus {
 @property (strong, atomic) ServerComms *serverComms;
 + (BOOL) bulkForEach:(NSManagedObject *)bulk managedObjectContext:(NSManagedObjectContext *)moc withError:(NSError **)err block:(void (^)(NSManagedObject *))block;
 + (BOOL) bulkForAll:(NSManagedObjectContext *)moc withError:(NSError **)err block:(void (^)(NSManagedObject *))block ;
++ (void) updateMasterOnItemComplete:(NSManagedObject *)item;
 
 - (BulkOperationStatus) startBulk:(NSManagedObject *)bulk;
 - (BOOL) prepareBulkEntries:(NSManagedObject *)bulk withError:(NSError **)err;

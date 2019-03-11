@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #import "BulkOperations.h"
+#import "BulkDownloadStats.h"
 
 @implementation BulkOperations
 
@@ -40,14 +41,18 @@
         BOOL isDir;
         BOOL exists = [[NSFileManager  defaultManager] fileExistsAtPath:downloadPath isDirectory:&isDir];
         if(exists && isDir){
-            [self prepareBulkEntries:bulk withError:&err];
-            [bulk setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
-            
-            BulkOperationStatus st = [self kickoffBulks:bulk withError:&err];
-            if(st!=BO_READY){
-                NSLog(@"Could not start kickoff: %@", err);
+            if([self prepareBulkEntries:bulk withError:&err]){
+                [bulk setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
+                
+                BulkOperationStatus st = [self kickoffBulks:bulk withError:&err];
+                if(st!=BO_READY){
+                    NSLog(@"Could not start kickoff: %@", err);
+                }
+                return st;
+            } else {
+                NSLog(@"Could not prepare bulk entries: %@",err);
+                return BO_ERRORED;
             }
-            return st;
         } else {
             [bulk setValue:[NSNumber numberWithInteger:BO_WAITING_USER_INPUT] forKey:@"status"];
             return BO_WAITING_USER_INPUT;   //as a convenience
@@ -75,14 +80,8 @@
 
 + (BOOL) bulkForEach:(NSManagedObject *)bulk managedObjectContext:(NSManagedObjectContext *)moc withError:(NSError **)err block:(void (^)(NSManagedObject *))block {
     //query CoreData for all Downloadentities for this bulk
-    NSFetchRequest *req = [NSFetchRequest fetchRequestWithEntityName:@"DownloadEntity"];
     
-    [req setPredicate:[NSPredicate predicateWithFormat:@"parent == %@", bulk]];
-    NSArray *results = [moc executeFetchRequest:req error:err];
-    NSLog(@"bulkForEach got %@ from %@", results, bulk);
-    
-    if(!results) return NO; //caller should already have the error through withError parameter
-    
+    NSArray *results = [bulk valueForKey:@"entities"];
     for(NSManagedObject *entry in results){
         block(entry);
     }
@@ -126,7 +125,11 @@
     
     BOOL result = [BulkOperations bulkForEach:bulk managedObjectContext:_moc withError:err block:^(NSManagedObject *entry){
         dispatch_async(targetQueue, ^{
-            [self performItemDownload:entry];
+            if([[entry valueForKey:@"fileSize"] longLongValue]>0){
+                [self performItemDownload:entry];
+            } else {
+                [entry setValue:[NSNumber numberWithInt:BO_INVALID] forKey:@"status"];
+            }
         });
     }];
     
@@ -167,4 +170,39 @@
     
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulk/%@/get/%@", hostName, retrievalToken, entryId]];
 }
+
+/**
+ update master bulk status when a download completes or fails
+*/
++ (void)updateMasterOnItemComplete:(NSManagedObject *)item
+{
+    NSError *saveErr=nil;
+    NSManagedObject *bulk = [item valueForKey:@"parent"];
+    NSDictionary *updates;
+    
+    BulkDownloadStats *stats = [[BulkDownloadStats alloc] initWithBulk:bulk];
+    
+    if([stats runningCount]>0){
+        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_RUNNING], @"status", nil];
+    } else if([stats successCount]==[stats totalCount]){
+        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_COMPLETED], @"status", nil];
+    } else if([stats successCount]+[stats invalidCount]==[stats totalCount]) {
+        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_COMPLETED], @"status", nil];
+    } else if([stats waitingCount]>0){
+        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_WAITING_USER_INPUT], @"status", nil];
+    } else if([stats errorCount]==[stats totalCount]){
+        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_ERRORED], @"status", nil];
+    } else if([stats errorCount]>0){
+        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_ERRORED], @"partial", nil];
+    }
+    
+    [bulk setValuesForKeysWithDictionary:updates];
+    
+    [[item managedObjectContext] save:&saveErr];
+    if(saveErr){
+        NSLog(@"ERROR: Could not save data store: %@", saveErr);
+    }
+}
+
+
 @end
