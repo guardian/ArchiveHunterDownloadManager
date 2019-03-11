@@ -137,32 +137,17 @@
 		9BA935B6222E8C700066812F /* ArchiveHunterDownloadManager */ = {
 			isa = PBXGroup;
 			children = (
+				9BE8592F2236B707001D586A /* Helpers */,
+				9BE8592E2236B6F4001D586A /* Controllers */,
+				9BE8592D2236B6DC001D586A /* UITransformers */,
 				9B24A17E2233BE8C00349A6C /* NotNeeded */,
 				9BA935B7222E8C700066812F /* AppDelegate.h */,
 				9BA935B8222E8C700066812F /* AppDelegate.m */,
-				9BA935BD222E8C700066812F /* ViewController.h */,
-				9BA935BE222E8C700066812F /* ViewController.m */,
 				9BA935C3222E8C700066812F /* Assets.xcassets */,
 				9BA935C5222E8C700066812F /* Main.storyboard */,
 				9BA935C8222E8C700066812F /* Info.plist */,
 				9BA935C0222E8C700066812F /* ArchiveHunterDownloadManager.xcdatamodeld */,
 				9BA935BA222E8C700066812F /* Supporting Files */,
-				9BCA365E22300B41004799F4 /* PreferencesController.h */,
-				9BCA365F22300B41004799F4 /* PreferencesController.m */,
-				9BCA366922312F6F004799F4 /* ServerComms.h */,
-				9BCA366A22312F6F004799F4 /* ServerComms.m */,
-				9B1044BA22329123001E637B /* FileSizeTransformer.h */,
-				9B1044BB22329123001E637B /* FileSizeTransformer.m */,
-				9B1044BD223296C9001E637B /* BulkOperations.h */,
-				9B1044BE223296C9001E637B /* BulkOperations.m */,
-				9B1044C02232B47C001E637B /* BulkObjectStatusTransformer.h */,
-				9B1044C12232B47C001E637B /* BulkObjectStatusTransformer.m */,
-				9B1044C62233022C001E637B /* DownloadDelegate.h */,
-				9B1044C72233022C001E637B /* DownloadDelegate.m */,
-				9B24A17F22346CB000349A6C /* NegateTransformer.h */,
-				9B24A18022346CB000349A6C /* NegateTransformer.m */,
-				9BE8592A223696E2001D586A /* BulkDownloadStats.h */,
-				9BE8592B223696E2001D586A /* BulkDownloadStats.m */,
 			);
 			path = ArchiveHunterDownloadManager;
 			sourceTree = "<group>";
@@ -191,6 +176,45 @@
 				9BA935DE222E8C700066812F /* Info.plist */,
 			);
 			path = ArchiveHunterDownloadManagerUITests;
+			sourceTree = "<group>";
+		};
+		9BE8592D2236B6DC001D586A /* UITransformers */ = {
+			isa = PBXGroup;
+			children = (
+				9B24A17F22346CB000349A6C /* NegateTransformer.h */,
+				9B24A18022346CB000349A6C /* NegateTransformer.m */,
+				9B1044BA22329123001E637B /* FileSizeTransformer.h */,
+				9B1044BB22329123001E637B /* FileSizeTransformer.m */,
+				9B1044C02232B47C001E637B /* BulkObjectStatusTransformer.h */,
+				9B1044C12232B47C001E637B /* BulkObjectStatusTransformer.m */,
+			);
+			name = UITransformers;
+			sourceTree = "<group>";
+		};
+		9BE8592E2236B6F4001D586A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				9BCA365E22300B41004799F4 /* PreferencesController.h */,
+				9BCA365F22300B41004799F4 /* PreferencesController.m */,
+				9BA935BD222E8C700066812F /* ViewController.h */,
+				9BA935BE222E8C700066812F /* ViewController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		9BE8592F2236B707001D586A /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				9BCA366922312F6F004799F4 /* ServerComms.h */,
+				9BCA366A22312F6F004799F4 /* ServerComms.m */,
+				9B1044BD223296C9001E637B /* BulkOperations.h */,
+				9B1044BE223296C9001E637B /* BulkOperations.m */,
+				9B1044C62233022C001E637B /* DownloadDelegate.h */,
+				9B1044C72233022C001E637B /* DownloadDelegate.m */,
+				9BE8592A223696E2001D586A /* BulkDownloadStats.h */,
+				9BE8592B223696E2001D586A /* BulkDownloadStats.m */,
+			);
+			name = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -13,8 +13,12 @@
 
 @property (weak,nonatomic) IBOutlet AppDelegate* appDelegate;
 @property (weak, nonatomic) IBOutlet NSArrayController *bulkArrayController;
+@property (weak, nonatomic) IBOutlet NSArrayController *downloadsArrayController;
 
 @property (readwrite, strong, nonatomic) IBOutlet NSArray* possiblePriotities;
+
+@property (strong, atomic) NSPredicate* downloadEntryFilterPredicate;
+@property (strong, atomic) NSIndexSet *bulkSelectionIndices;
 
 - (void) askUserForPath:(NSManagedObject *)bulk;
 - (void) showErrorBox:(NSString *)msg;

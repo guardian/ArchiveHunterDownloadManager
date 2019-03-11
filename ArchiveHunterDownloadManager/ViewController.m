@@ -10,16 +10,35 @@
 
 @implementation ViewController
 @synthesize appDelegate;
+@synthesize bulkSelectionIndices;
 
 - (id) init {
     self = [super init];
+    _downloadEntryFilterPredicate = [NSPredicate predicateWithValue:FALSE];
     [self setPossiblePriotities:[NSArray arrayWithObjects:@"High",@"Normal",@"Low",@"Ignore", nil]];
     return self;
 }
 
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context
+{
+    NSLog(@"observeValueForKeyPath: %@", keyPath);
+    
+    if([keyPath compare:@"selectionIndex"]==NSOrderedSame){
+        [self setDownloadEntryFilterPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            NSManagedObject *entry = (NSManagedObject *)evaluatedObject;
+            NSManagedObject *parent = [entry valueForKey:@"parent"];
+            return [parent valueForKey:@"id"]== [[[self bulkArrayController] selection] valueForKey:@"id"];
+        }]];
+    }
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    [_bulkArrayController addObserver:self forKeyPath:@"selectionIndex" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionInitial context:nil];
+    
     // Do any additional setup after loading the view.
 }
 
