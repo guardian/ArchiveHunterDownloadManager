@@ -794,8 +794,8 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
-                            <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9bA-3N-mTy">
-                                <rect key="frame" x="5" y="253" width="21" height="21"/>
+                            <button toolTip="Set download path" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9bA-3N-mTy">
+                                <rect key="frame" x="34" y="252" width="21" height="21"/>
                                 <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSActionTemplate" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="AwS-fY-Qjh">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -804,7 +804,7 @@
                                     <action selector="editClicked:" target="XfG-lQ-9wD" id="aCg-Yi-40f"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="srv-x1-N3e">
+                            <button toolTip="Start downloading everything" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="srv-x1-N3e">
                                 <rect key="frame" x="722" y="253" width="24" height="21"/>
                                 <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSRefreshTemplate" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JgW-LH-Srl">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -812,16 +812,6 @@
                                 </buttonCell>
                                 <connections>
                                     <action selector="runClicked:" target="XfG-lQ-9wD" id="CJW-69-TVP"/>
-                                </connections>
-                            </button>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sp7-FW-6xu">
-                                <rect key="frame" x="34" y="253" width="23" height="21"/>
-                                <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSFolder" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Hry-oZ-wdK">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="revealClicked:" target="XfG-lQ-9wD" id="f9b-zC-jLe"/>
                                 </connections>
                             </button>
                             <scrollView ambiguous="YES" misplaced="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dQ6-7F-4VD">
@@ -944,29 +934,47 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eR9-eG-Y5O">
-                                <rect key="frame" x="299" y="245" width="96" height="32"/>
-                                <buttonCell key="cell" type="push" title="Click me!" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2NR-K5-N1D">
+                            <button toolTip="Remove bulk" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aaB-ed-uGp">
+                                <rect key="frame" x="5" y="252" width="21" height="21"/>
+                                <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSRemoveTemplate" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Wqw-pn-EdS">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="testMessageClicked:" target="XfG-lQ-9wD" id="Rab-CE-IPm"/>
+                                    <action selector="removeBulkClicked:" target="XfG-lQ-9wD" id="VMS-bK-DmZ"/>
+                                </connections>
+                            </button>
+                            <button toolTip="Reveal in Finder" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sp7-FW-6xu">
+                                <rect key="frame" x="63" y="252" width="23" height="21"/>
+                                <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSFolder" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Hry-oZ-wdK">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="revealClicked:" target="XfG-lQ-9wD" id="f9b-zC-jLe"/>
                                 </connections>
                             </button>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="Sp7-FW-6xu" firstAttribute="leading" secondItem="9bA-3N-mTy" secondAttribute="trailing" constant="8" id="1Ad-QI-9u6"/>
                             <constraint firstItem="RO2-xp-HhW" firstAttribute="top" secondItem="srv-x1-N3e" secondAttribute="bottom" constant="20" id="1cC-mn-j5h"/>
                             <constraint firstItem="srv-x1-N3e" firstAttribute="top" secondItem="dQ6-7F-4VD" secondAttribute="bottom" constant="8" id="4ju-2k-iPG"/>
-                            <constraint firstItem="9bA-3N-mTy" firstAttribute="top" secondItem="dQ6-7F-4VD" secondAttribute="bottom" constant="8" id="5so-g0-o2j"/>
+                            <constraint firstItem="RO2-xp-HhW" firstAttribute="top" secondItem="Sp7-FW-6xu" secondAttribute="bottom" constant="19" id="93V-rr-V5X"/>
                             <constraint firstAttribute="bottom" secondItem="RO2-xp-HhW" secondAttribute="bottom" constant="10" id="EoA-j0-JLy"/>
+                            <constraint firstItem="aaB-ed-uGp" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="5" id="GC7-sp-TPN"/>
+                            <constraint firstItem="9bA-3N-mTy" firstAttribute="top" secondItem="dQ6-7F-4VD" secondAttribute="bottom" constant="9" id="GuW-H4-bcI"/>
+                            <constraint firstItem="Sp7-FW-6xu" firstAttribute="leading" secondItem="9bA-3N-mTy" secondAttribute="trailing" constant="8" id="I1p-9d-VZN"/>
                             <constraint firstAttribute="trailing" secondItem="RO2-xp-HhW" secondAttribute="trailing" constant="15" id="IOd-Xq-387"/>
+                            <constraint firstItem="Sp7-FW-6xu" firstAttribute="top" secondItem="dQ6-7F-4VD" secondAttribute="bottom" constant="9" id="Ibr-gv-DWA"/>
+                            <constraint firstItem="RO2-xp-HhW" firstAttribute="top" secondItem="aaB-ed-uGp" secondAttribute="bottom" constant="19" id="OWz-OW-qsY"/>
+                            <constraint firstItem="9bA-3N-mTy" firstAttribute="leading" secondItem="aaB-ed-uGp" secondAttribute="trailing" constant="8" id="WsK-aA-qNQ"/>
                             <constraint firstAttribute="trailing" secondItem="srv-x1-N3e" secondAttribute="trailing" constant="20" id="b28-UL-NkY"/>
-                            <constraint firstItem="9bA-3N-mTy" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="5" id="b3h-lA-3aB"/>
+                            <constraint firstItem="RO2-xp-HhW" firstAttribute="top" secondItem="9bA-3N-mTy" secondAttribute="bottom" constant="19" id="gBu-F0-o4T"/>
                             <constraint firstItem="RO2-xp-HhW" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="5" id="gTu-r5-lpc"/>
                             <constraint firstItem="dQ6-7F-4VD" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="9" id="iRB-Bx-r8d"/>
                             <constraint firstAttribute="trailing" secondItem="dQ6-7F-4VD" secondAttribute="trailing" constant="20" id="jxS-Md-Kvh"/>
-                            <constraint firstItem="RO2-xp-HhW" firstAttribute="top" secondItem="9bA-3N-mTy" secondAttribute="bottom" constant="24" id="srf-kT-PNR"/>
+                            <constraint firstItem="aaB-ed-uGp" firstAttribute="top" secondItem="dQ6-7F-4VD" secondAttribute="bottom" constant="9" id="kGI-ys-MNy"/>
+                            <constraint firstItem="9bA-3N-mTy" firstAttribute="leading" secondItem="aaB-ed-uGp" secondAttribute="trailing" constant="8" id="mBA-sq-QCW"/>
                             <constraint firstItem="dQ6-7F-4VD" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="5" id="xhS-S3-9Jy"/>
                         </constraints>
                     </view>
@@ -1103,5 +1111,6 @@
         <image name="NSActionTemplate" width="14" height="14"/>
         <image name="NSFolder" width="32" height="32"/>
         <image name="NSRefreshTemplate" width="11" height="15"/>
+        <image name="NSRemoveTemplate" width="11" height="11"/>
     </resources>
 </document>

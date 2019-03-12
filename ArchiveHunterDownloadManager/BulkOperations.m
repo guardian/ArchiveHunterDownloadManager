@@ -172,10 +172,8 @@
                                  [self stripCommonPathComponents:[bulk valueForKey:@"destinationPath"] forEntryPath:[entry valueForKey:@"path"]
                                   ] stringByAppendingPathComponent:[entry valueForKey:@"name"]];
     
-    NSString *fileDestPath = [[bulk valueForKey:@"destinationPath"] stringByAppendingPathComponent:localDestString];
-    
     [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                           fileDestPath, @"destinationFile",
+                                           localDestString, @"destinationFile",
                                            [NSNumber numberWithInteger:BO_READY], @"status",
                                            [NSNumber numberWithFloat:0.0], @"downloadProgress", nil]];
     
