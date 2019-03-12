@@ -64,11 +64,14 @@
                                                   ,nil]];
 }
 
-- (void)performItemDownload:(NSURL *)actualDownloadUrl forEntry:(NSManagedObject *)entry {
+- (void)performItemDownload:(NSURL *)actualDownloadUrl
+                   forEntry:(NSManagedObject *)entry
+                    manager:(DownloadQueueManager *)mgr
+{
     NSError *err=nil;
     BOOL isDir;
     
-    DownloadDelegate *del = [[DownloadDelegate alloc] initWithEntry:entry dispatchQueue:[self replyQueue]];
+    DownloadDelegate *del = [[DownloadDelegate alloc] initWithEntry:entry dispatchQueue:[self replyQueue] withManager:mgr];
     NSURLRequest *req = [NSURLRequest requestWithURL:actualDownloadUrl];
     
     //check that the directory for destination file exists
@@ -109,7 +112,10 @@
     });
 }
 
-- (NSURLSessionDataTask *) itemRetrievalTask:(NSURL *)retrievalLink forEntry:(NSManagedObject *)entry {
+- (NSURLSessionDataTask *) itemRetrievalTask:(NSURL *)retrievalLink
+                                    forEntry:(NSManagedObject *)entry
+                                     manager:(DownloadQueueManager *)mgr
+{
     NSURLSession *sess = [NSURLSession sharedSession];
     
     return [sess dataTaskWithURL:retrievalLink completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -127,7 +133,7 @@
                 NSURL *downloadURL = [NSURL URLWithString:actualDownloadUrl];
                 
                 if(downloadURL){
-                    [self performItemDownload:downloadURL forEntry:entry];
+                    [self performItemDownload:downloadURL forEntry:entry manager:mgr];
                 } else {
                     NSLog(@"Could not create NSURL from %@", actualDownloadUrl);
                 }

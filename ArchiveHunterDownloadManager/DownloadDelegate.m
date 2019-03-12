@@ -8,6 +8,7 @@
 
 #import "DownloadDelegate.h"
 #import "BulkOperations.h"
+#import "DownloadQueueManager.h"
 
 @implementation DownloadDelegate
 - (id)init:(dispatch_queue_t)queue
@@ -19,12 +20,13 @@
     return self;
 }
 
-- (id)initWithEntry:(NSManagedObject *)entry dispatchQueue:(dispatch_queue_t)queue
+- (id)initWithEntry:(NSManagedObject *)entry dispatchQueue:(dispatch_queue_t)queue withManager:(id)downloadQueueManager
 {
     self = [super init];
     _replyQueue = queue;
     _entry = entry;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
+    _downloadQueueManager = downloadQueueManager;
     return self;
 }
 
@@ -71,6 +73,10 @@
                                                   [error localizedDescription],@"lastError",
                                                   [NSNumber numberWithInt:BO_ERRORED], @"status"
                                                   ,nil]];
+    [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
+                                               bulkOperationStatus:BO_ERRORED
+                                                       shouldRetry:FALSE];
+    
     dispatch_async(_replyQueue, ^{
         //this should perform the MOC save
         [BulkOperations updateMasterOnItemComplete:[self entry]];
@@ -86,6 +92,10 @@
                                                   @"",@"lastError",
                                                   [NSNumber numberWithInt:BO_COMPLETED], @"status"
                                                   ,nil]];
+    
+    [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
+                                               bulkOperationStatus:BO_COMPLETED
+                                                       shouldRetry:FALSE];
     dispatch_async(_replyQueue, ^{
         [BulkOperations updateMasterOnItemComplete:[self entry]];
     });

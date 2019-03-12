@@ -16,7 +16,9 @@
                 withError:(NSError *_Nullable *_Nullable)err
         completionHandler:(void (^ _Nonnull)(NSDictionary *_Nullable data, NSError *_Nullable err))completionBlock;
 
-- (NSURLSessionDataTask *_Nullable) itemRetrievalTask:(NSURL *_Nonnull)retrievalLink forEntry:(NSManagedObject *_Nonnull)entry;
+- (NSURLSessionDataTask *_Nullable) itemRetrievalTask:(NSURL *_Nonnull)retrievalLink
+                                             forEntry:(NSManagedObject *_Nonnull)entry
+                                              manager:(id)mgr;
 
 @property (atomic, strong) NSURLSession *session;
 @property (readonly, strong) dispatch_queue_t replyQueue;

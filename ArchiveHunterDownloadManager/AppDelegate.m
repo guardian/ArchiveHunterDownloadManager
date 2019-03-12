@@ -22,6 +22,13 @@
 - (id)init {
     self = [super init];
     [self registerMyApp];
+    
+    NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
+    
+    NSUInteger concurrency = [[dfl valueForKey:@"maxConcurrentDownloads"] integerValue];
+    
+    _queueManager = [[DownloadQueueManager alloc] initWithConcurrency:concurrency];
+    _bulkOperations = [[BulkOperations alloc] initWithQueueManager:[self queueManager]];
     _serverComms = [[ServerComms alloc] init];
     
     return self;
@@ -31,10 +38,10 @@
     // Insert code here to initialize your application
     NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
     
-    NSUInteger concurrency = [[dfl valueForKey:@"maxConcurrentDownloads"] integerValue];
-    
-    _queueManager = [[DownloadQueueManager alloc] initWithConcurrency:concurrency];
-    _bulkOperations = [[BulkOperations alloc] initWithQueueManager:[self queueManager]];
+//    NSUInteger concurrency = [[dfl valueForKey:@"maxConcurrentDownloads"] integerValue];
+//    
+//    _queueManager = [[DownloadQueueManager alloc] initWithConcurrency:concurrency];
+//    _bulkOperations = [[BulkOperations alloc] initWithQueueManager:[self queueManager]];
     
     [dfl addObserver:self forKeyPath:@"maxConcurrentDownloads" options:NSKeyValueObservingOptionNew context:nil];
     
@@ -135,13 +142,14 @@ ensure that the Notification Center pops-up our notifications
             if(err){
                 NSLog(@"Download error: %@", err);
             } else {
-                NSLog(@"Got data: %@", data);
+                //NSLog(@"Got data: %@", data);
                 NSDictionary *metadata = [data objectForKey:@"metadata"];
                 
                 if([self haveBulkEntryFor:[metadata valueForKey:@"id"] withError:&localErr]){
                     [(ViewController *)_mainViewController showErrorBox:@"You already have this bulk in your download queue"];
                 } else {
-                    NSManagedObject *bulk = [self createNewBulk:metadata retrievalToken:[data objectForKey:@"retrievalToken"]];
+                    NSManagedObject *bulk = [self createNewBulk:metadata
+                                                 retrievalToken:[data objectForKey:@"retrievalToken"]];
                     
                     for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
                         [self createNewEntry:entrySynop parent:bulk];
@@ -177,6 +185,8 @@ ensure that the Notification Center pops-up our notifications
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL autoStart = [[defaults valueForKey:@"autoStart"] boolValue];
     
+    NSLog(@"asyncSetupDownlaod");
+    
     if(![[self bulkOperations] moc]) [[self bulkOperations] setMoc:[self managedObjectContext]];
     
     if(![[self managedObjectContext] save:&err]){
@@ -187,7 +197,7 @@ ensure that the Notification Center pops-up our notifications
     
     dispatch_async(targetQueue, ^{
         NSError *err;
-        
+        NSLog(@"asyncSetupDownload - in block");
         BulkOperationStatus status = [_bulkOperations startBulk:bulk autoStart:autoStart];
         if(status==BO_WAITING_USER_INPUT){
             dispatch_async(dispatch_get_main_queue(), ^{

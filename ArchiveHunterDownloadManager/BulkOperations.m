@@ -39,7 +39,6 @@
     /*
      check that the download path exists and is a directory. If not, put us into a waiting state.
      */
-    //the valueForKey check fails if there is no value for the key. how to fix?
     NSError *err=nil;
     NSString *downloadPath = [self getDownloadPath:bulk];
     
@@ -51,7 +50,7 @@
         if(exists && isDir){
             if([self prepareBulkEntries:bulk withError:&err]){
                 [bulk setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
-                
+                NSLog(@"autoStart is %d", autoStart);
                 if(autoStart){
                     BulkOperationStatus st = [self kickoffBulks:bulk withError:&err];
                     if(st!=BO_READY){

@@ -14,6 +14,10 @@
 @implementation DownloadQueueManager
 NSMutableArray<DownloadQueueEntry *> *_waitingQueue;
 NSMutableArray<DownloadQueueEntry *> *_activeItems;
+
+//we use a serial queue to ensure that multithreaded options don't screw us up
+dispatch_queue_t commandDispatchQueue;
+
 ServerComms *serverComms;
 
 - (id)init
@@ -24,6 +28,7 @@ ServerComms *serverComms;
     _activeItems = [NSMutableArray array];
     _status = Q_WAITING;
     _concurrency = 4;
+    commandDispatchQueue = dispatch_queue_create("DownloadQueueManager",nil);
     return self;
 }
 
@@ -35,14 +40,17 @@ ServerComms *serverComms;
     _activeItems = [NSMutableArray array];
     _status = Q_WAITING;
     _concurrency = concurrency;
+    commandDispatchQueue = dispatch_queue_create("DownloadQueueManager",nil);
     return self;
 }
 
 - (void)addToQueue:(NSManagedObject *)entry
 {
-    NSLog(@"addToQueue");
-    [_waitingQueue addObject:[[DownloadQueueEntry alloc] initWithEntry:entry]];
-    [self pullNextItem];
+    dispatch_async(commandDispatchQueue, ^{
+        NSLog(@"addToQueue");
+        [_waitingQueue addObject:[[DownloadQueueEntry alloc] initWithEntry:entry]];
+        [self pullNextItem];
+    });
 }
 
 /**
@@ -51,7 +59,7 @@ ServerComms *serverComms;
 - (void)pullNextItem
 {
     NSLog(@"pullNextItem");
-    NSInteger spareCapacity = _concurrency - [_activeItems count];
+    NSInteger spareCapacity = [self concurrency] - [_activeItems count];
     NSLog(@"spareCapacity: %lu", spareCapacity);
     
     //we are already running at capacity
@@ -63,11 +71,24 @@ ServerComms *serverComms;
             [self didChangeValueForKey:@"status"];
         }
     } else { //we have spare capacity
-        for(NSUInteger n=0;n<spareCapacity;++n){
-            DownloadQueueEntry *entry = [_waitingQueue objectAtIndex:0];
-            [_waitingQueue removeObjectAtIndex:0];
-            if([self performItemDownload:[entry managedObject]]){
-                [_activeItems addObject:entry];
+        if([_waitingQueue count]==0){
+            [self willChangeValueForKey:@"status"];
+            _status = Q_WAITING;
+            [self didChangeValueForKey:@"status"];
+        } else {
+            [self willChangeValueForKey:@"status"];
+            _status = Q_BUSY;
+            [self didChangeValueForKey:@"status"];
+            NSUInteger jobsToPull = [_waitingQueue count]>spareCapacity ? spareCapacity : [_waitingQueue count];
+            
+            for(NSUInteger n=0;n<jobsToPull;++n){
+                DownloadQueueEntry *entry = [_waitingQueue objectAtIndex:0];
+                [_waitingQueue removeObjectAtIndex:0];
+                if([self performItemDownload:[entry managedObject]]){
+                    [_activeItems addObject:entry];
+                } else {
+                    NSLog(@"unable to start download");
+                }
             }
         }
     }
@@ -103,7 +124,7 @@ ServerComms *serverComms;
     
     if(!retrievalLink) return FALSE;
     
-    NSURLSessionDataTask *retrievalTask = [serverComms itemRetrievalTask:retrievalLink forEntry:entry];
+    NSURLSessionDataTask *retrievalTask = [serverComms itemRetrievalTask:retrievalLink forEntry:entry manager:self];
     
     [retrievalTask resume];
     return TRUE;
@@ -112,37 +133,46 @@ ServerComms *serverComms;
 /**
  called by BulkOperations to inform us that something finished
  */
-- (void)informCompleted:(NSManagedObject *)entry bulkOperationStatus:(BulkOperationStatus)status shouldRetry:(BOOL)shouldRetry
+- (void)informCompleted:(NSManagedObject *)entry
+    bulkOperationStatus:(BulkOperationStatus)status
+            shouldRetry:(BOOL)shouldRetry
 {
-    NSUInteger matchingIndex;
-    NSIndexSet *fullSet;
-    DownloadQueueEntry *queueEntry;
-    
-    //find the matching index by pointer equality, should work as we are all in the same process
-    fullSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [_activeItems count])];
-    
-    matchingIndex = [fullSet indexWithOptions:NSEnumerationConcurrent
-                                  passingTest:^BOOL (NSUInteger idx, BOOL *stop){
-                                      id indexPtr = [_activeItems objectAtIndex:idx];
-                                      return indexPtr==entry;
-                                  }];
-    
-    switch(status){
-        case BO_COMPLETED:
-            //completed, just remove from the active queue
-            [_activeItems removeObjectAtIndex:matchingIndex];
-            break;
-        case BO_ERRORED:
-            //errored, if we want to retry bump the retry index and requeue
-            queueEntry = (DownloadQueueEntry *)[_activeItems objectAtIndex:matchingIndex];
-            [_activeItems removeObjectAtIndex:matchingIndex];
-            if(shouldRetry){
-                [queueEntry setRetryCount:[NSNumber numberWithInteger:[[queueEntry retryCount] integerValue]+1]];
-            }
-            break;
-        default:
-            NSLog(@"informCompleted called for an object in state %d which is not completed!", status);
-    }
-    [self pullNextItem];
+    dispatch_async(commandDispatchQueue, ^{
+        NSUInteger matchingIndex;
+        NSIndexSet *fullSet;
+        DownloadQueueEntry *queueEntry;
+        
+        fullSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [_activeItems count])];
+        
+        matchingIndex = [fullSet indexWithOptions:NSEnumerationConcurrent
+                                      passingTest:^BOOL (NSUInteger idx, BOOL *stop){
+                                          DownloadQueueEntry  *indexPtr = [_activeItems objectAtIndex:idx];
+                                          
+                                          return [indexPtr managedObject]==entry;
+                                      }];
+        if(matchingIndex==-1 | matchingIndex>[_activeItems count]){
+            NSLog(@"could not find a matching item for %@ in the active items list", entry);
+            [self pullNextItem];
+            return;
+        }
+        
+        switch(status){
+            case BO_COMPLETED:
+                //completed, just remove from the active queue
+                [_activeItems removeObjectAtIndex:matchingIndex];
+                break;
+            case BO_ERRORED:
+                //errored, if we want to retry bump the retry index and requeue
+                queueEntry = (DownloadQueueEntry *)[_activeItems objectAtIndex:matchingIndex];
+                [_activeItems removeObjectAtIndex:matchingIndex];
+                if(shouldRetry){
+                    [queueEntry setRetryCount:[NSNumber numberWithInteger:[[queueEntry retryCount] integerValue]+1]];
+                }
+                break;
+            default:
+                NSLog(@"informCompleted called for an object in state %d which is not completed!", status);
+        }
+        [self pullNextItem];
+    });
 }
 @end
