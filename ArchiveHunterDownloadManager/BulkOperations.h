@@ -27,7 +27,7 @@ typedef enum BulkOperationStatus {
 + (BOOL) bulkForAll:(NSManagedObjectContext *)moc withError:(NSError **)err block:(void (^)(NSManagedObject *))block ;
 + (void) updateMasterOnItemComplete:(NSManagedObject *)item;
 
-- (BulkOperationStatus) startBulk:(NSManagedObject *)bulk;
+- (BulkOperationStatus) startBulk:(NSManagedObject *)bulk autoStart:(BOOL)autoStart;
 - (BOOL) prepareBulkEntries:(NSManagedObject *)bulk withError:(NSError **)err;
 - (void) setupDownloadEntry:(NSManagedObject *)entry withBulk:(NSManagedObject *)bulk;
 

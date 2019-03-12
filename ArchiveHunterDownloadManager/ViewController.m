@@ -87,7 +87,7 @@
     NSError *err;
     
     BOOL result = [BulkOperations bulkForAll:[[self appDelegate] managedObjectContext] withError:&err block:^(NSManagedObject *bulk){
-        [[[self appDelegate] bulkOperations] startBulk:bulk];
+        [[[self appDelegate] bulkOperations] startBulk:bulk autoStart:TRUE];
     }];
     
     if(!result){

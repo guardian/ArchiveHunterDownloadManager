@@ -1061,7 +1061,7 @@
                                 </connections>
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HJL-2f-wHj">
-                                <rect key="frame" x="209" y="176" width="196" height="18"/>
+                                <rect key="frame" x="209" y="60" width="196" height="18"/>
                                 <buttonCell key="cell" type="radio" title="Don't download existing files" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="4Zk-yC-62Q">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1076,7 +1076,7 @@
                                 </connections>
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="leM-a7-eoj">
-                                <rect key="frame" x="19" y="176" width="166" height="18"/>
+                                <rect key="frame" x="19" y="60" width="166" height="18"/>
                                 <buttonCell key="cell" type="radio" title="Over-write existing files" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="jzf-hD-Iw1">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1084,6 +1084,16 @@
                                 <connections>
                                     <action selector="overwriteSelectorChanged:" target="umw-qB-Rhc" id="jDh-ez-jRw"/>
                                     <binding destination="fdz-vs-Tfq" name="value" keyPath="values.overwriteSelected" id="Fhj-xC-HUw"/>
+                                </connections>
+                            </button>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Ke-ZA-oaY">
+                                <rect key="frame" x="18" y="189" width="368" height="18"/>
+                                <buttonCell key="cell" type="check" title="Automatically start downloads as soon as they are added" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="5TF-DJ-xsX">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="a36-ZE-KhO" name="value" keyPath="values.autoStart" id="0ia-rQ-fIp"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -1103,6 +1113,7 @@
                 <userDefaultsController id="UbJ-U1-gG7"/>
                 <userDefaultsController id="fdz-vs-Tfq"/>
                 <userDefaultsController id="cSU-RD-kfr"/>
+                <userDefaultsController id="a36-ZE-KhO"/>
             </objects>
             <point key="canvasLocation" x="771" y="385"/>
         </scene>

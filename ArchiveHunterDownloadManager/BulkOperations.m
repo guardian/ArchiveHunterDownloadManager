@@ -28,7 +28,7 @@
     }
 }
 
-- (BulkOperationStatus) startBulk:(NSManagedObject *)bulk {
+- (BulkOperationStatus) startBulk:(NSManagedObject *)bulk autoStart:(BOOL)autoStart{
     /*
      check that the download path exists and is a directory. If not, put us into a waiting state.
      */
@@ -45,11 +45,14 @@
             if([self prepareBulkEntries:bulk withError:&err]){
                 [bulk setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
                 
-                BulkOperationStatus st = [self kickoffBulks:bulk withError:&err];
-                if(st!=BO_READY){
-                    NSLog(@"Could not start kickoff: %@", err);
+                if(autoStart){
+                    BulkOperationStatus st = [self kickoffBulks:bulk withError:&err];
+                    if(st!=BO_READY){
+                        NSLog(@"Could not start kickoff: %@", err);
+                    }
+                    return st;
                 }
-                return st;
+                return BO_READY;
             } else {
                 NSLog(@"Could not prepare bulk entries: %@",err);
                 return BO_ERRORED;

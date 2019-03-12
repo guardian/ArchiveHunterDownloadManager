@@ -30,6 +30,11 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+    NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
+    
+    //at first startup, ensure autoStart is on
+    if([dfl valueForKey:@"autoStart"]==nil) [dfl setValue:[NSNumber numberWithBool:YES] forKey:@"autoStart"];
+    
      [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
 }
 
@@ -151,6 +156,8 @@ ensure that the Notification Center pops-up our notifications
 //run setup for a bulk. Do this in the background.
 - (void) asyncSetupDownload:(NSManagedObject *)bulk {
     NSError *err;
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL autoStart = [[defaults valueForKey:@"autoStart"] boolValue];
     
     if(![[self bulkOperations] moc]) [[self bulkOperations] setMoc:[self managedObjectContext]];
     
@@ -163,7 +170,7 @@ ensure that the Notification Center pops-up our notifications
     dispatch_async(targetQueue, ^{
         NSError *err;
         
-        BulkOperationStatus status = [_bulkOperations startBulk:bulk];
+        BulkOperationStatus status = [_bulkOperations startBulk:bulk autoStart:autoStart];
         if(status==BO_WAITING_USER_INPUT){
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSError *err=nil;
