@@ -23,7 +23,6 @@
     self = [super init];
     [self registerMyApp];
     _serverComms = [[ServerComms alloc] init];
-    _bulkOperations = [[BulkOperations alloc] init];
     
     return self;
 }
@@ -31,6 +30,13 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
+    
+    NSUInteger concurrency = [[dfl valueForKey:@"maxConcurrentDownloads"] integerValue];
+    
+    _queueManager = [[DownloadQueueManager alloc] initWithConcurrency:concurrency];
+    _bulkOperations = [[BulkOperations alloc] initWithQueueManager:[self queueManager]];
+    
+    [dfl addObserver:self forKeyPath:@"maxConcurrentDownloads" options:NSKeyValueObservingOptionNew context:nil];
     
     //at first startup, ensure autoStart is on
     if([dfl valueForKey:@"autoStart"]==nil) [dfl setValue:[NSNumber numberWithBool:YES] forKey:@"autoStart"];
@@ -40,6 +46,18 @@
 
 - (void)applictionWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context
+{
+    if([keyPath compare:@"maxConcurrentDownloads"]==NSOrderedSame){
+        NSLog(@"updated concurrent downloads setting");
+        NSNumber *newValue=[change valueForKey:NSKeyValueChangeNewKey];
+        [_queueManager setConcurrency:[newValue integerValue]];
+    }
 }
 
 - (void)registerMyApp {

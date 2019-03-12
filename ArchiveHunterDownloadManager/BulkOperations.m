@@ -15,7 +15,14 @@
 
 - (id) init {
     self = [super init];
-    _serverComms = [[ServerComms alloc] init];
+    _qManager = [[DownloadQueueManager alloc] init];
+    return self;
+}
+
+- (id) initWithQueueManager:(DownloadQueueManager *)mgr
+{
+    self = [super init];
+    _qManager = mgr;
     return self;
 }
 
@@ -197,7 +204,8 @@
     BOOL result = [BulkOperations bulkForEach:bulk managedObjectContext:_moc withError:err block:^(NSManagedObject *entry){
         dispatch_async(targetQueue, ^{
             if([[entry valueForKey:@"fileSize"] longLongValue]>0){
-                [self performItemDownload:entry];
+                NSLog(@"adding entry to queue manager");
+                [[self qManager] addToQueue:entry];
             } else {
                 [entry setValue:[NSNumber numberWithInt:BO_INVALID] forKey:@"status"];
             }
@@ -211,36 +219,6 @@
     }
 }
 
-/**
- actually do an item download
- */
-- (void) performItemDownload:(NSManagedObject *)entry {
-    BulkOperationStatus entryStatus = (BulkOperationStatus)[(NSNumber *)[entry valueForKey:@"status"] integerValue];
-    if(entryStatus!=BO_READY && entryStatus!=BO_ERRORED){
-        NSLog(@"Can't start a download in state %d", entryStatus);
-        return;
-    }
-    
-    NSManagedObject *parent = [entry valueForKey:@"parent"];
-    NSString *retrievalToken = [parent valueForKey:@"retrievalToken"];
-    NSURL *retrievalLink = [self getRetrievalLinkUrl:[entry valueForKey:@"fileId"] withRetrievalToken:retrievalToken];
-    
-    if(!retrievalLink) return;
-    
-    NSURLSessionDataTask *retrievalTask = [[self serverComms] itemRetrievalTask:retrievalLink forEntry:entry];
-    
-    [retrievalTask resume];
-}
-
-- (NSURL *_Nullable) getRetrievalLinkUrl:(NSString *)entryId withRetrievalToken:(NSString *)retrievalToken {
-    NSString *hostName = [[NSUserDefaults standardUserDefaults] valueForKey:@"serverHost"];
-    if(!hostName){
-        NSLog(@"ERROR: You need to set the hostname");
-        return nil;
-    }
-    
-    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulk/%@/get/%@", hostName, retrievalToken, entryId]];
-}
 
 /**
  update master bulk status when a download completes or fails
