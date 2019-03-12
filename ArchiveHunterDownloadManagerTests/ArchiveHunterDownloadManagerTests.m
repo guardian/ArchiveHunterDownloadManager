@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "BulkOperations.h"
 
 @interface ArchiveHunterDownloadManagerTests : XCTestCase
 

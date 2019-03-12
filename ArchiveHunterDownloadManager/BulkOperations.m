@@ -9,6 +9,7 @@
 
 #import "BulkOperations.h"
 #import "BulkDownloadStats.h"
+#import "NotificationsHelper.h"
 
 @implementation BulkOperations
 
@@ -94,18 +95,85 @@
     }];
 }
 
+//find the location of the first common portion of both path arrays
+- (NSInteger)findStartPosition:(NSArray *)bulkPathParts forEntryPath:(NSArray *)entryPathParts
+{
+    NSUInteger n;
+    
+    for(n=0;n<[bulkPathParts count];++n){
+        if([[bulkPathParts objectAtIndex:n] compare:[entryPathParts objectAtIndex:0]]==NSOrderedSame) break;
+    }
+    if(n==[bulkPathParts count]) return -1; //there were no common portions
+    return n;
+}
+
+//find the location of the last common portion (overlap) of both path arrays
+- (NSInteger)findLastCommonPosition:(NSArray *)bulkPathParts forEntryPath:(NSArray *)entryPathParts startingAt:(NSInteger) startPoint
+{
+    NSUInteger n;
+    
+    for(n=startPoint;n<[bulkPathParts count];++n){
+        //NSLog(@"bulk: %@", [bulkPathParts objectAtIndex:n]);
+        //NSLog(@"entry: %@", [entryPathParts objectAtIndex:n-startPoint]);
+        
+        if([[bulkPathParts objectAtIndex:n] compare:[entryPathParts objectAtIndex:n-startPoint]]!=NSOrderedSame) break;
+    }
+    return n;
+}
+
+- (NSString *)stripCommonPathComponents:(NSString *)bulkPath forEntryPath:(NSString *)entryPath
+{
+    NSArray <NSString *> *bulkPathParts = [bulkPath pathComponents];
+    NSArray <NSString *> *entryPathParts = [entryPath pathComponents];
+    
+    if([[entryPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame){
+        NSRange stripRange;
+        stripRange.location=1;
+        stripRange.length=[entryPathParts count]-1;
+        entryPathParts = [entryPathParts subarrayWithRange:stripRange];
+    }
+    NSInteger startPosition = [self findStartPosition:bulkPathParts forEntryPath:entryPathParts];
+    //NSInteger lastCommonPosition = [self findLastCommonPosition:bulkPathParts forEntryPath:entryPathParts startingAt:startPosition];
+    
+    //NSLog(@"startPosition: %lu, lastCommonPosition: %lu", startPosition, lastCommonPosition);
+    
+    NSArray *pathPrefixParts;
+    //start with bulk part prefix
+    if(startPosition<0){    //there was no overlap in the two paths, so concatenate them together
+        NSRange prefixRange;
+        prefixRange.location=[[bulkPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame ? 1:0;
+        prefixRange.length = [bulkPathParts count]-1;
+        pathPrefixParts = [bulkPathParts subarrayWithRange:prefixRange];
+    } else {                //we got an overlap, strip off the overlapping part of the first path
+        NSRange prefixRange;
+        prefixRange.location=[[bulkPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame ? 1:0;
+        prefixRange.length = startPosition-1;
+        pathPrefixParts = [bulkPathParts subarrayWithRange:prefixRange];
+    }
+    //skip the common portion
+    
+    //finish with the parts from the entry
+    NSString *finalPath=[[pathPrefixParts arrayByAddingObjectsFromArray:entryPathParts ] componentsJoinedByString:@"/"];
+    
+    //re-add a leading / if it was present on the original path
+    if([[bulkPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame){
+        return [NSString stringWithFormat:@"/%@", finalPath];
+    } else {
+        return finalPath;
+    }
+}
+
 - (void) setupDownloadEntry:(NSManagedObject *)entry withBulk:(NSManagedObject *)bulk {
     //don't mess with entries that are running or have completed
     if([(NSNumber *)[entry valueForKey:@"status"] integerValue]==BO_COMPLETED ||
        [(NSNumber *)[entry valueForKey:@"status"] integerValue]==BO_RUNNING) return;
     
-    //FIXME: should remove common path components.
-    NSString *localDestString = [[entry valueForKey:@"path"] stringByAppendingPathComponent:[entry valueForKey:@"name"]];
-    
-    NSString *fileDestPath = [[bulk valueForKey:@"destinationPath"] stringByAppendingPathComponent:localDestString];
+    NSString *localDestString = [
+                                 [self stripCommonPathComponents:[bulk valueForKey:@"destinationPath"] forEntryPath:[entry valueForKey:@"path"]
+                                  ] stringByAppendingPathComponent:[entry valueForKey:@"name"]];
     
     [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                           fileDestPath, @"destinationFile",
+                                           localDestString, @"destinationFile",
                                            [NSNumber numberWithInteger:BO_READY], @"status",
                                            [NSNumber numberWithFloat:0.0], @"downloadProgress", nil]];
     
@@ -186,14 +254,18 @@
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_RUNNING], @"status", nil];
     } else if([stats successCount]==[stats totalCount]){
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_COMPLETED], @"status", nil];
+        [NotificationsHelper showBulkCompletedNotification:bulk];
     } else if([stats successCount]+[stats invalidCount]==[stats totalCount]) {
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_COMPLETED], @"status", nil];
+        [NotificationsHelper showBulkCompletedNotification:bulk];
     } else if([stats waitingCount]>0){
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_WAITING_USER_INPUT], @"status", nil];
     } else if([stats errorCount]==[stats totalCount]){
         updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_ERRORED], @"status", nil];
+        [NotificationsHelper showBulkFailedNotification:bulk];
     } else if([stats errorCount]>0){
-        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_ERRORED], @"partial", nil];
+        updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:BO_PARTIAL], @"status", nil];
+        [NotificationsHelper showPartialFailedNotification:bulk];
     }
     
     [bulk setValuesForKeysWithDictionary:updates];

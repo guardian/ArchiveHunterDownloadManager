@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "NotificationsHelper.h"
 
 @implementation ViewController
 @synthesize appDelegate;
@@ -24,8 +25,6 @@
                         change:(NSDictionary *)change
                        context:(void *)context
 {
-    NSLog(@"observeValueForKeyPath: %@", keyPath);
-    
     if([keyPath compare:@"selectionIndex"]==NSOrderedSame){
         [self setDownloadEntryFilterPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
             NSManagedObject *entry = (NSManagedObject *)evaluatedObject;
@@ -34,6 +33,7 @@
         }]];
     }
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 
@@ -48,39 +48,40 @@
     // Update the view, if already loaded.
 }
 
-- (IBAction)testClicked:(id)sender {
-    NSError *err;
-    NSManagedObjectContext *ctx = [[self appDelegate] managedObjectContext];
-    
-    NSManagedObject* ent=[NSEntityDescription insertNewObjectForEntityForName:@"DownloadEntity" inManagedObjectContext:ctx];
-    [ent setValuesForKeysWithDictionary:
-     [NSDictionary dictionaryWithObjectsAndKeys:
-      @"test1",@"name",
-      [NSNumber numberWithDouble:0.5], @"downloadProgress",
-      @"Normal", @"priority",
-      nil]
-     ];
-    [ctx save:&err];
-    if(err){
-        NSLog(@"Could not save: %@", err);
-    }
-}
-
-- (IBAction)editClicked:(id)sender {
+/**
+ gets the NSManagedObject pointer for the currently selected bulk.
+ displays an alert panel with 'failureMessage' if nothing is selected
+ otherwise calls the provided block passing the NSManagedObject pointer as the argument
+ */
+- (void)withSelectedBulk:(NSString *)failureMessage block:(void(^)(NSManagedObject *))block
+{
     NSWindow *window = [[self view] window];
     NSArray *selection = [_bulkArrayController selectedObjects];
     if([selection count]==0){
         NSAlert *alrt = [[NSAlert alloc] init];
-        [alrt setInformativeText:@"You must select a bulk entry to edit"];
+        [alrt setInformativeText:failureMessage];
         [alrt beginSheetModalForWindow:window completionHandler:^(NSInteger result){
             
         }];
     } else {
         NSManagedObject *selectedBulk = [selection objectAtIndex:0];
-        [self askUserForPath:selectedBulk];
+        
+        block(selectedBulk);
     }
 }
 
+/**
+ user has clicked the "cog" button, show the edit box
+ */
+- (IBAction)editClicked:(id)sender {
+    [self withSelectedBulk:@"You must select a bulk entry to edit" block:^(NSManagedObject *selectedBulk){
+        [self askUserForPath:selectedBulk];
+    }];
+}
+
+/**
+ user has clicked the "reload" button, start off downloads
+ */
 - (IBAction)runClicked:(id)sender {
     NSWindow *window = [[self view] window];
     NSError *err;
@@ -96,18 +97,12 @@
     
 }
 
+/**
+ user has clicked the "folder" button, reveal the download location in Finder
+ */
 - (IBAction)revealClicked:(id)sender {
     NSWindow *window = [[self view] window];
-    NSArray *selection = [_bulkArrayController selectedObjects];
-    if([selection count]==0){
-        NSAlert *alrt = [[NSAlert alloc] init];
-        [alrt setInformativeText:@"You must select a bulk entry to reveal"];
-        [alrt beginSheetModalForWindow:window completionHandler:^(NSInteger result){
-            
-        }];
-    } else {
-        NSManagedObject *selectedBulk = [selection objectAtIndex:0];
-        
+    [self withSelectedBulk:@"You must select a bulk entry to reveal" block:^(NSManagedObject *selectedBulk){
         NSString *bulkDir = [selectedBulk valueForKey:@"destinationPath"];
         if(bulkDir){
             [[NSWorkspace sharedWorkspace] openFile:bulkDir];
@@ -118,8 +113,61 @@
                 
             }];
         }
+    }];
+}
+
+/**
+ user has clicked the "minus" button, remove the bulk and its contents from the memory store
+ */
+- (IBAction)removeBulkClicked:(id)sender
+{
+    NSWindow *window = [[self view] window];
+    [self withSelectedBulk:@"You must select a bulk entry to remove" block:^(NSManagedObject *selectedBulk){
+        NSError *iterationError=nil, *saveError=nil;
+        NSManagedObjectContext *moc = [[self appDelegate] managedObjectContext];
+        BulkOperationStatus status = [(NSNumber *)[selectedBulk valueForKey:@"status"] intValue];
+        if(status==BO_RUNNING){
+            [self showErrorBox:@"You can't remove a download that is in progress"];
+        } else {
+            //first remove all of the downloads
+            [BulkOperations bulkForEach:selectedBulk managedObjectContext:moc withError:&iterationError block:^(NSManagedObject *entry){
+                [moc deleteObject:entry];
+            }];
+            
+            if(iterationError){
+                NSAlert *alrt = [NSAlert alertWithError:iterationError];
+                [alrt beginSheetModalForWindow:window completionHandler:nil];
+            } else {
+                [moc deleteObject:selectedBulk];
+                [moc save:&saveError];
+                if(saveError){
+                    NSAlert *alrt = [NSAlert alertWithError:iterationError];
+                    [alrt beginSheetModalForWindow:window completionHandler:nil];
+                }
+            }
+        }
+    }];
+}
+
+- (IBAction)testMessageClicked:(id)sender
+{
+    NSWindow *window = [[self view] window];
+    NSArray *selection = [_bulkArrayController selectedObjects];
+    if([selection count]==0){
+        NSAlert *alrt = [[NSAlert alloc] init];
+        [alrt setInformativeText:@"You must select a bulk entry to reveal"];
+        [alrt beginSheetModalForWindow:window completionHandler:^(NSInteger result){
+            
+        }];
+    } else {
+        NSManagedObject *selectedBulk = [selection objectAtIndex:0];
+        [NotificationsHelper showPartialFailedNotification:selectedBulk];
     }
 }
+
+/**
+ pop up an Open dialog to ask the user where they want to save this bulk download
+ */
 - (void) askUserForPath:(NSManagedObject *)bulk {
     NSWindow *window = [[self view] window];
     NSOpenPanel *panel = [NSOpenPanel openPanel];
@@ -148,6 +196,9 @@
     }];
 }
 
+/**
+ simple helper method to show an error box as a window-modal sheet
+ */
 - (void) showErrorBox:(NSString *)msg {
     NSWindow *window = [[self view] window];
 

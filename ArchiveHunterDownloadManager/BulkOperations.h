@@ -31,4 +31,7 @@ typedef enum BulkOperationStatus {
 - (BOOL) prepareBulkEntries:(NSManagedObject *)bulk withError:(NSError **)err;
 - (void) setupDownloadEntry:(NSManagedObject *)entry withBulk:(NSManagedObject *)bulk;
 
+
+- (NSString *)stripCommonPathComponents:(NSString *)bulkPath forEntryPath:(NSString *)entryPath;
+
 @end

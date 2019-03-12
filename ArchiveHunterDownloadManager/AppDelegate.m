@@ -30,6 +30,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+     [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
 }
 
 - (void)applictionWillTerminate:(NSNotification *)aNotification {
@@ -39,6 +40,17 @@
 - (void)registerMyApp {
     [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(getUrl:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
 }
+
+
+/**
+ensure that the Notification Center pops-up our notifications
+ */
+- (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center
+     shouldPresentNotification:(NSUserNotification *)notification
+{
+    return YES;
+}
+
 
 /**
  create a new data entry based on the info from the server
