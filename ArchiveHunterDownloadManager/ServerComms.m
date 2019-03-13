@@ -43,7 +43,7 @@
              completionBlock(nil, error);
              NSAlert *alert = [[NSAlert alloc] init];
              [alert setMessageText:@"Network Error"];
-             [alert setInformativeText:@"A network error occured. Please check if the server domain name is set connectly in the Preferences window."];
+             [alert setInformativeText:@"A network error occured. Please check if the server domain name is set correctly in the Preferences window."];
              [alert addButtonWithTitle:@"Okay"];
              [alert runModal];
          } else {
