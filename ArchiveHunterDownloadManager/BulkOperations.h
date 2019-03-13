@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "ServerComms.h"
+#import "DownloadQueueManager.h"
 
 typedef enum BulkOperationStatus {
     BO_READY=0,
@@ -22,7 +22,11 @@ typedef enum BulkOperationStatus {
 @interface BulkOperations : NSObject
 
 @property (weak, nonatomic) NSManagedObjectContext *moc;
-@property (strong, atomic) ServerComms *serverComms;
+@property (strong, atomic) DownloadQueueManager *qManager;
+
+- (id) init;
+- (id) initWithQueueManager:(DownloadQueueManager *)mgr;
+
 + (BOOL) bulkForEach:(NSManagedObject *)bulk managedObjectContext:(NSManagedObjectContext *)moc withError:(NSError **)err block:(void (^)(NSManagedObject *))block;
 + (BOOL) bulkForAll:(NSManagedObjectContext *)moc withError:(NSError **)err block:(void (^)(NSManagedObject *))block ;
 + (void) updateMasterOnItemComplete:(NSManagedObject *)item;

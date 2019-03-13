@@ -12,9 +12,10 @@
 @property (weak, atomic) NSManagedObject *entry;
 @property (weak, atomic) NSNumber *downloadedSoFar;
 @property (readonly) dispatch_queue_t replyQueue;
+@property (strong, readonly) id downloadQueueManager;
 
 - (id)init:(dispatch_queue_t)queue;
-- (id)initWithEntry:(NSManagedObject *)entry dispatchQueue:(dispatch_queue_t)queue;
+- (id)initWithEntry:(NSManagedObject *)entry dispatchQueue:(dispatch_queue_t)queue withManager:(id)downloadQueueManager;
 
 - (void)downloadDidBegin:(NSURLDownload *)download;
 - (void)download:(NSURLDownload *)download didCreateDestination:(NSString *)path;

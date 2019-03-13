@@ -22,8 +22,14 @@
 - (id)init {
     self = [super init];
     [self registerMyApp];
+    
+    NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
+    
+    NSUInteger concurrency = [[dfl valueForKey:@"maxConcurrentDownloads"] integerValue];
+    
+    _queueManager = [[DownloadQueueManager alloc] initWithConcurrency:concurrency];
+    _bulkOperations = [[BulkOperations alloc] initWithQueueManager:[self queueManager]];
     _serverComms = [[ServerComms alloc] init];
-    _bulkOperations = [[BulkOperations alloc] init];
     
     return self;
 }
@@ -31,6 +37,13 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
+    
+//    NSUInteger concurrency = [[dfl valueForKey:@"maxConcurrentDownloads"] integerValue];
+//    
+//    _queueManager = [[DownloadQueueManager alloc] initWithConcurrency:concurrency];
+//    _bulkOperations = [[BulkOperations alloc] initWithQueueManager:[self queueManager]];
+    
+    [dfl addObserver:self forKeyPath:@"maxConcurrentDownloads" options:NSKeyValueObservingOptionNew context:nil];
     
     //at first startup, ensure autoStart is on
     if([dfl valueForKey:@"autoStart"]==nil) [dfl setValue:[NSNumber numberWithBool:YES] forKey:@"autoStart"];
@@ -40,6 +53,18 @@
 
 - (void)applictionWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context
+{
+    if([keyPath compare:@"maxConcurrentDownloads"]==NSOrderedSame){
+        NSLog(@"updated concurrent downloads setting");
+        NSNumber *newValue=[change valueForKey:NSKeyValueChangeNewKey];
+        [_queueManager setConcurrency:[newValue integerValue]];
+    }
 }
 
 - (void)registerMyApp {
@@ -117,13 +142,14 @@ ensure that the Notification Center pops-up our notifications
             if(err){
                 NSLog(@"Download error: %@", err);
             } else {
-                NSLog(@"Got data: %@", data);
+                //NSLog(@"Got data: %@", data);
                 NSDictionary *metadata = [data objectForKey:@"metadata"];
                 
                 if([self haveBulkEntryFor:[metadata valueForKey:@"id"] withError:&localErr]){
                     [(ViewController *)_mainViewController showErrorBox:@"You already have this bulk in your download queue"];
                 } else {
-                    NSManagedObject *bulk = [self createNewBulk:metadata retrievalToken:[data objectForKey:@"retrievalToken"]];
+                    NSManagedObject *bulk = [self createNewBulk:metadata
+                                                 retrievalToken:[data objectForKey:@"retrievalToken"]];
                     
                     for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
                         [self createNewEntry:entrySynop parent:bulk];
@@ -159,6 +185,8 @@ ensure that the Notification Center pops-up our notifications
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL autoStart = [[defaults valueForKey:@"autoStart"] boolValue];
     
+    NSLog(@"asyncSetupDownlaod");
+    
     if(![[self bulkOperations] moc]) [[self bulkOperations] setMoc:[self managedObjectContext]];
     
     if(![[self managedObjectContext] save:&err]){
@@ -169,7 +197,7 @@ ensure that the Notification Center pops-up our notifications
     
     dispatch_async(targetQueue, ^{
         NSError *err;
-        
+        NSLog(@"asyncSetupDownload - in block");
         BulkOperationStatus status = [_bulkOperations startBulk:bulk autoStart:autoStart];
         if(status==BO_WAITING_USER_INPUT){
             dispatch_async(dispatch_get_main_queue(), ^{
