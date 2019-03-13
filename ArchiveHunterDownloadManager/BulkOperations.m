@@ -224,7 +224,6 @@
 */
 + (void)updateMasterOnItemComplete:(NSManagedObject *)item
 {
-    NSError *saveErr=nil;
     NSManagedObject *bulk = [item valueForKey:@"parent"];
     NSDictionary *updates;
     
@@ -248,12 +247,16 @@
         [NotificationsHelper showPartialFailedNotification:bulk];
     }
     
-    [bulk setValuesForKeysWithDictionary:updates];
-    
-    [[item managedObjectContext] save:&saveErr];
-    if(saveErr){
-        NSLog(@"ERROR: Could not save data store: %@", saveErr);
-    }
+    //serialise accesses to the data models
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSError *saveErr=nil;
+        [bulk setValuesForKeysWithDictionary:updates];
+        
+        [[item managedObjectContext] save:&saveErr];
+        if(saveErr){
+            NSLog(@"ERROR: Could not save data store: %@", saveErr);
+        }
+    });
 }
 
 
