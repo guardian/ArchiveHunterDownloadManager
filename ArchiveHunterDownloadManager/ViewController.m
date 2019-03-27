@@ -164,6 +164,32 @@
     }];
 }
 
+/**
+ user has clicked the "reset running" button, go through all "running" status downloads and reset them to "ready"
+ */
+- (IBAction)resetRunningClicked:(id)sender
+{
+    NSWindow *window = [[self view] window];
+    [self withSelectedBulk:@"You must select a bulk entry" block:^(NSManagedObject *selectedBulk) {
+        NSError *iterationError=nil;
+        NSManagedObjectContext *moc = [[self appDelegate] managedObjectContext];
+        BulkOperationStatus status = [(NSNumber *)[selectedBulk valueForKey:@"status"] intValue];
+        
+        if(status==BO_RUNNING){
+            [self showErrorBox:@"You can't reset job status while the download is in progress. Stop it first then try again"];
+        } else {
+            [BulkOperations bulkForEach:selectedBulk managedObjectContext:moc withError:&iterationError block:^(NSManagedObject *entry) {
+                [entry setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
+            }];
+            
+            if(iterationError){
+                NSAlert *alrt = [NSAlert alertWithError:iterationError];
+                [alrt beginSheetModalForWindow:window completionHandler:nil];
+            }
+        }
+    }];
+}
+
 - (IBAction)testMessageClicked:(id)sender
 {
     NSWindow *window = [[self view] window];

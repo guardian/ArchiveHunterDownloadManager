@@ -954,6 +954,16 @@
                                     <action selector="revealClicked:" target="XfG-lQ-9wD" id="f9b-zC-jLe"/>
                                 </connections>
                             </button>
+                            <button toolTip="Reset &quot;Running&quot; to &quot;Ready&quot;" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9lQ-hM-sZt">
+                                <rect key="frame" x="692" y="253" width="22" height="21"/>
+                                <buttonCell key="cell" type="smallSquare" title="Reset Running" bezelStyle="smallSquare" image="NSCaution" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6TJ-rW-4tf">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="resetRunningClicked:" target="XfG-lQ-9wD" id="8pn-ob-XLp"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="Sp7-FW-6xu" firstAttribute="leading" secondItem="9bA-3N-mTy" secondAttribute="trailing" constant="8" id="1Ad-QI-9u6"/>
@@ -1140,6 +1150,7 @@
     </scenes>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="NSCaution" width="32" height="32"/>
         <image name="NSFolder" width="32" height="32"/>
         <image name="NSRefreshTemplate" width="11" height="15"/>
         <image name="NSRemoveTemplate" width="11" height="11"/>
