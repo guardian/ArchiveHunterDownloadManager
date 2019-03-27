@@ -179,7 +179,8 @@
             [self showErrorBox:@"You can't reset job status while the download is in progress. Stop it first then try again"];
         } else {
             [BulkOperations bulkForEach:selectedBulk managedObjectContext:moc withError:&iterationError block:^(NSManagedObject *entry) {
-                [entry setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
+                BulkOperationStatus itemStatus = [[entry valueForKey:@"status"] intValue];
+                if(itemStatus==BO_RUNNING) [entry setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
             }];
             
             if(iterationError){
