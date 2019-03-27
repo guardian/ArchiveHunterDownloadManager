@@ -187,8 +187,26 @@
                 NSAlert *alrt = [NSAlert alertWithError:iterationError];
                 [alrt beginSheetModalForWindow:window completionHandler:nil];
             }
+            [moc save:nil];
         }
     }];
+}
+
+- (IBAction)stopDownload:(id)sender
+{
+    [self withSelectedBulk:@"You must select a bulk entry" block:^(NSManagedObject *selectedBulk) {
+        NSError *iterationError=nil;
+        NSManagedObjectContext *moc = [[self appDelegate] managedObjectContext];
+        
+        //remove each potentially pending download from the queue
+        [BulkOperations bulkForEach:selectedBulk managedObjectContext:moc withError:&iterationError block:^(NSManagedObject *entry) {
+            [[[self appDelegate] queueManager] removeFromQueue:entry];
+        }];
+        
+        [selectedBulk setValue:[NSNumber numberWithInteger:BO_PARTIAL] forKey:@"status"];
+        [moc save:nil];
+    }];
+    
 }
 
 - (IBAction)testMessageClicked:(id)sender

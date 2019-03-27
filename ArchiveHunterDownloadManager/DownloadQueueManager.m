@@ -53,6 +53,32 @@ ServerComms *serverComms;
     });
 }
 
+- (void)removeFromQueue:(NSManagedObject *)entry
+{
+    dispatch_async(commandDispatchQueue, ^{
+        NSLog(@"removeFromQueue");
+        DownloadQueueEntry *ent = [self findDownloadEntry:entry];
+        if(ent){
+            [_waitingQueue removeObject:ent];
+        }
+    });
+}
+
+/**
+ find a DownloadQueueEntry for the provided archive entry
+ returns Null if there is not one in the queue
+ */
+- (DownloadQueueEntry *_Nullable)findDownloadEntry:(NSManagedObject *)forSource
+{
+    NSString *sourceFileId = [forSource valueForKey:@"fileId"];
+    
+    for(DownloadQueueEntry *ent in _waitingQueue){
+        NSString *otherFileId = [[ent managedObject] valueForKey:@"fileId"];
+        if([otherFileId compare:sourceFileId]==NSOrderedSame) return ent;
+    }
+    return NULL;
+}
+
 /**
  check how many jobs are running and pull from queue if necessary
  */

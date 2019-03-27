@@ -21,5 +21,6 @@ typedef enum queueStatus {
 - (id) init;
 - (id) initWithConcurrency:(NSUInteger) concurrency;
 - (void)addToQueue:(NSManagedObject *)entry;
+- (void)removeFromQueue:(NSManagedObject *)entry;
 - (void)informCompleted:(NSManagedObject *)entry bulkOperationStatus:(NSUInteger)status shouldRetry:(BOOL)shouldRetry;
 @end
