@@ -96,6 +96,8 @@ ensure that the Notification Center pops-up our notifications
                                          retrievalToken, @"retrievalToken",
                                          [NSNumber numberWithInteger:0], @"Status",
                                          [bulkMetadata objectForKey:@"userEmail"], @"userEmail",
+                                         [NSNumber numberWithLongLong:0], @"totalSize",
+                                         [NSNumber numberWithLongLong:0], @"amountDownloaded",
                                          nil]];
     return ent;
 }
