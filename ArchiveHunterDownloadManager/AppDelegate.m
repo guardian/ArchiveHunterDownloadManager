@@ -160,9 +160,18 @@ ensure that the Notification Center pops-up our notifications
                     NSManagedObject *bulk = [self createNewBulk:metadata
                                                  retrievalToken:[data objectForKey:@"retrievalToken"]];
                     
+                    long long totalSize = 0;
+                    
                     for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
                         [self createNewEntry:entrySynop parent:bulk];
+                        NSNumber *fileSize = [entrySynop valueForKey:@"fileSize"];
+                        //NSLog(@"File Size: %@", fileSize);
+                        //NSLog(@"File Size Long Long: %lld", [fileSize longLongValue]);
+                        totalSize = [fileSize longLongValue] + totalSize;
                     }
+                    
+                    //NSLog(@"Total File Size: %lld", totalSize);
+                    [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
                     
                     [[self managedObjectContext] save:&err];
                     if(err){
