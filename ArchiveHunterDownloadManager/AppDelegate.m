@@ -96,6 +96,8 @@ ensure that the Notification Center pops-up our notifications
                                          retrievalToken, @"retrievalToken",
                                          [NSNumber numberWithInteger:0], @"Status",
                                          [bulkMetadata objectForKey:@"userEmail"], @"userEmail",
+                                         [NSNumber numberWithLongLong:0], @"totalSize",
+                                         [NSNumber numberWithLongLong:0], @"amountDownloaded",
                                          nil]];
     return ent;
 }
@@ -158,9 +160,18 @@ ensure that the Notification Center pops-up our notifications
                     NSManagedObject *bulk = [self createNewBulk:metadata
                                                  retrievalToken:[data objectForKey:@"retrievalToken"]];
                     
+                    long long totalSize = 0;
+                    
                     for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
                         [self createNewEntry:entrySynop parent:bulk];
+                        NSNumber *fileSize = [entrySynop valueForKey:@"fileSize"];
+                        //NSLog(@"File Size: %@", fileSize);
+                        //NSLog(@"File Size Long Long: %lld", [fileSize longLongValue]);
+                        totalSize = [fileSize longLongValue] + totalSize;
                     }
+                    
+                    //NSLog(@"Total File Size: %lld", totalSize);
+                    [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
                     
                     [[self managedObjectContext] save:&err];
                     if(err){
@@ -218,12 +229,14 @@ ensure that the Notification Center pops-up our notifications
             if(![[self managedObjectContext] save:&err]){
                 NSLog(@"Could not save managed objects: %@", err);
                 
-                NSString *errorString = [NSString stringWithFormat:@"%@", err];
-                NSAlert *alert = [[NSAlert alloc] init];
-                [alert setMessageText:@"Save Error"];
-                [alert setInformativeText:[NSString stringWithFormat:@"A saving error occured: %@", [errorString substringToIndex:256]]];
-                [alert addButtonWithTitle:@"Okay"];
-                [alert runModal];
+		dispatch_async(dispatch_get_main_queue(), ^{
+			NSString *errorString = [NSString stringWithFormat:@"%@", err];
+			NSAlert *alert = [[NSAlert alloc] init];
+			[alert setMessageText:@"Save Error"];
+			[alert setInformativeText:[NSString stringWithFormat:@"A saving error occured: %@", [errorString substringToIndex:256]]];
+			[alert addButtonWithTitle:@"Okay"];
+			[alert runModal];
+		});
             }
         }
     });

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G20015" minimumToolsVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G21013" minimumToolsVersion="Automatic">
     <entity name="BulkDownload" syncable="YES">
+        <attribute name="amountDownloaded" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="destinationPath" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="downloadDescription" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="retrievalToken" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="totalSize" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="userEmail" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="entities" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="DownloadEntity" inverseName="parent" inverseEntity="DownloadEntity" syncable="YES"/>
     </entity>
@@ -24,7 +26,7 @@
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BulkDownload" inverseName="entities" inverseEntity="BulkDownload" syncable="YES"/>
     </entity>
     <elements>
-        <element name="BulkDownload" positionX="-63" positionY="-18" width="128" height="150"/>
+        <element name="BulkDownload" positionX="-63" positionY="-18" width="128" height="180"/>
         <element name="DownloadEntity" positionX="-54" positionY="9" width="128" height="225"/>
     </elements>
 </model>

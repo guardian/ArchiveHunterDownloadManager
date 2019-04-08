@@ -48,11 +48,23 @@
 - (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length
 {
 //    NSLog(@"download received data of length %lu", length);
-    
     [self setDownloadedSoFar:[NSNumber numberWithLongLong:[[self downloadedSoFar] longLongValue]+length]];
     NSNumber *totalSize = (NSNumber *)[[self entry] valueForKey:@"fileSize"];
     
     NSNumber *newProgress = [NSNumber numberWithDouble:[[self downloadedSoFar] doubleValue] / [totalSize doubleValue]];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSError *err=NULL;
+        NSManagedObject *bulk = [[self entry] valueForKey:@"parent"];
+        long long currentProgress = [(NSNumber *)[bulk valueForKey:@"amountDownloaded"] longLongValue];
+        
+        [bulk setValue:[NSNumber numberWithLongLong:currentProgress+length] forKey:@"amountDownloaded"];
+        
+        [[bulk managedObjectContext] save:&err];
+        if(err){
+            NSLog(@"Could not save bulk data: %@", err);
+        }
+    });
     
     //NSLog(@"downloadedSoFar: %@ totalSize %@ newProgress %@", _downloadedSoFar, totalSize, newProgress);
     [[self entry] setValue:newProgress forKey:@"downloadProgress"];
