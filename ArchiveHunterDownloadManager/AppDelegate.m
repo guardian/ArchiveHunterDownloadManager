@@ -229,12 +229,14 @@ ensure that the Notification Center pops-up our notifications
             if(![[self managedObjectContext] save:&err]){
                 NSLog(@"Could not save managed objects: %@", err);
                 
-                NSString *errorString = [NSString stringWithFormat:@"%@", err];
-                NSAlert *alert = [[NSAlert alloc] init];
-                [alert setMessageText:@"Save Error"];
-                [alert setInformativeText:[NSString stringWithFormat:@"A saving error occured: %@", [errorString substringToIndex:256]]];
-                [alert addButtonWithTitle:@"Okay"];
-                [alert runModal];
+		dispatch_async(dispatch_get_main_queue(), ^{
+			NSString *errorString = [NSString stringWithFormat:@"%@", err];
+			NSAlert *alert = [[NSAlert alloc] init];
+			[alert setMessageText:@"Save Error"];
+			[alert setInformativeText:[NSString stringWithFormat:@"A saving error occured: %@", [errorString substringToIndex:256]]];
+			[alert addButtonWithTitle:@"Okay"];
+			[alert runModal];
+		});
             }
         }
     });
