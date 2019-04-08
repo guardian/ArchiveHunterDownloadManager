@@ -141,6 +141,13 @@ ensure that the Notification Center pops-up our notifications
             
             if(err){
                 NSLog(@"Download error: %@", err);
+                
+                NSString *errorString = [NSString stringWithFormat:@"%@", err];
+                NSAlert *alert = [[NSAlert alloc] init];
+                [alert setMessageText:@"Download Error"];
+                [alert setInformativeText:[NSString stringWithFormat:@"A download error occured: %@", [errorString substringToIndex:256]]];
+                [alert addButtonWithTitle:@"Okay"];
+                [alert runModal];
             } else {
                 //NSLog(@"Got data: %@", data);
                 NSDictionary *metadata = [data objectForKey:@"metadata"];
@@ -210,6 +217,13 @@ ensure that the Notification Center pops-up our notifications
             NSLog(@"bulk is %@", bulk);
             if(![[self managedObjectContext] save:&err]){
                 NSLog(@"Could not save managed objects: %@", err);
+                
+                NSString *errorString = [NSString stringWithFormat:@"%@", err];
+                NSAlert *alert = [[NSAlert alloc] init];
+                [alert setMessageText:@"Save Error"];
+                [alert setInformativeText:[NSString stringWithFormat:@"A saving error occured: %@", [errorString substringToIndex:256]]];
+                [alert addButtonWithTitle:@"Okay"];
+                [alert runModal];
             }
         }
     });

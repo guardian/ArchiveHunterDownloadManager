@@ -19,6 +19,7 @@
 
 @property (strong, atomic) NSPredicate* downloadEntryFilterPredicate;
 @property (strong, atomic) NSIndexSet *bulkSelectionIndices;
+@property (strong, atomic) NSNumber* hideCompleted;
 
 - (void) askUserForPath:(NSManagedObject *)bulk;
 - (void) showErrorBox:(NSString *)msg;

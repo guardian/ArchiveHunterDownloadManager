@@ -16,8 +16,25 @@
 - (id) init {
     self = [super init];
     _downloadEntryFilterPredicate = [NSPredicate predicateWithValue:FALSE];
+    _hideCompleted = [NSNumber numberWithBool:YES];
     [self setPossiblePriotities:[NSArray arrayWithObjects:@"High",@"Normal",@"Low",@"Ignore", nil]];
     return self;
+}
+
+- (NSPredicate *)getUpdatedPredicate {
+    return [NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        NSManagedObject *entry = (NSManagedObject *)evaluatedObject;
+        NSManagedObject *parent = [entry valueForKey:@"parent"];
+        BOOL shouldHideCompleted = [[self hideCompleted] boolValue];
+        
+        enum BulkOperationStatus itemStatus = (enum BulkOperationStatus)[[entry valueForKey:@"status"] integerValue];
+
+        if (shouldHideCompleted && (itemStatus == BO_COMPLETED)) {
+            return false;
+        } else {
+            return [parent valueForKey:@"id"]== [[[self bulkArrayController] selection] valueForKey:@"id"];
+        }
+    }];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -26,18 +43,16 @@
                        context:(void *)context
 {
     if([keyPath compare:@"selectionIndex"]==NSOrderedSame){
-        [self setDownloadEntryFilterPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-            NSManagedObject *entry = (NSManagedObject *)evaluatedObject;
-            NSManagedObject *parent = [entry valueForKey:@"parent"];
-            return [parent valueForKey:@"id"]== [[[self bulkArrayController] selection] valueForKey:@"id"];
-        }]];
+        [self setDownloadEntryFilterPredicate:[self getUpdatedPredicate]];
+    } else if([keyPath compare:@"hideCompleted"]==NSOrderedSame){
+        [self setDownloadEntryFilterPredicate:[self getUpdatedPredicate]];
     }
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
     [_bulkArrayController addObserver:self forKeyPath:@"selectionIndex" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionInitial context:nil];
+    [self addObserver:self forKeyPath:@"hideCompleted" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionInitial context:nil];
     
     // Do any additional setup after loading the view.
 }

@@ -68,6 +68,13 @@
 - (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error
 {
     NSLog(@"Download %@ failed with error %@", [[self entry] valueForKey:@"destinationFile"], error);
+
+    NSString *errorString = [NSString stringWithFormat:@"%@", error];
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:@"File Download Error"];
+    [alert setInformativeText:[NSString stringWithFormat:@"A file download error occured: %@", [errorString substringToIndex:256]]];
+    [alert addButtonWithTitle:@"Okay"];
+    [alert runModal];
     
     [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                                   [error localizedDescription],@"lastError",
