@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HttpHeadInfo.h"
+#import "MMappedFile.h"
 #include <curl/curl.h>
 
 size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *userdata);
@@ -19,6 +20,12 @@ size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *use
 @property NSString* filePath;
 @property NSNumber* skipVerification;   //actually boolean
 @property HttpHeadInfo* headInfo;
+@property MMappedFile* currentFile;
+
+@property NSNumber* totalSize;
+@property NSNumber* bytesDownloaded;
+
+@property (nonatomic, copy) void (^progressCb)(NSNumber* bytesDownloaded, NSNumber* totalSize, id userData);
 
 //internal properties
 @property NSNumber* _writeFd;

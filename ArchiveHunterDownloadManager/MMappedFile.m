@@ -76,12 +76,12 @@ extern int errno;
 {
     //FIXME: should make sync optional in arguments
     if(_raw_ptr){
-        //msync(_raw_ptr,__size, MS_SYNC);
+        msync(_raw_ptr,__size, MS_SYNC);
         munmap(_raw_ptr, __size);
         _raw_ptr = NULL;
     }
     if(__fd){
-        //fsync(__fd);
+        fsync(__fd);
         close(__fd);
     }
     //REVISIT: should handle errors a bit more

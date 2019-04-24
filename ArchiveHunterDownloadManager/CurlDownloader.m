@@ -7,7 +7,7 @@
 //
 
 #import "CurlDownloader.h"
-#import "MMappedFile.h"
+#import <CommonCrypto/CommonDigest.h>
 
 //libcurl callbacks
 /**
@@ -66,6 +66,10 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     _skipVerification = [NSNumber numberWithBool:NO];
     __curlPtr = NULL;
     _headInfo = [[HttpHeadInfo alloc] init];
+    
+    _totalSize = nil;
+    _bytesDownloaded = nil;
+    
     return self;
 }
 
@@ -141,6 +145,7 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     curl_easy_setopt(__curlPtr, CURLOPT_URL, [url cStringUsingEncoding:NSUTF8StringEncoding]);
     curl_easy_setopt(__curlPtr, CURLOPT_HTTPGET, 1L);
     curl_easy_setopt(__curlPtr, CURLOPT_WRITEFUNCTION, &write_callback);
+    curl_easy_setopt(__curlPtr, CURLOPT_WRITEDATA, self);
     return true;
 }
 
@@ -152,36 +157,56 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     
     //step one - get headers
     result = [self getUrlInfo:url withError:err];
-    if(!result) return false;
+    if(!result){
+        NSLog(@"Header download failed");
+        return false;
+    }
     
     //step two - open file
-    MMappedFile *file = [[MMappedFile alloc] initWithFile:filePath];
+    _currentFile = [[MMappedFile alloc] initWithFile:filePath];
     //O_EXCL means "fail if creating and the file already exists"
-    result = [file open:O_CREAT|O_EXCL|O_EXLOCK withSize:[[_headInfo size] longLongValue] withError:err];
-    if(!result) return false;
+    result = [_currentFile open:O_CREAT|O_EXCL|O_EXLOCK|O_RDWR withSize:[[_headInfo size] longLongValue] withError:err];
+    if(!result) {
+        NSLog(@"file open failed");
+        return false;
+    }
     
-    
-    //_downloadBuffer = [file dataForMap];
-    if(!_downloadBuffer) return false;
-    
+    [self setBytesDownloaded:[NSNumber numberWithLongLong:0]];
+    [self setTotalSize:[_headInfo size]];
+
     //step three - set up download
     [self internalSetupDownload:[url absoluteString] withError:err];
     
+    NSLog(@"Download for %@ of type %@ to %@ with size %@ starting", url, [_headInfo contentType], filePath,[self totalSize]);
     //step four - run it
     curl_easy_perform(__curlPtr);
+    NSLog(@"Download for %@ completed", url);
     
     //step five - teardown
     curl_easy_cleanup(__curlPtr);
     __curlPtr=NULL;
     
     //step six - unmap and close file
-    result = [file close];
+    result = [_currentFile close];
     if(!result){
         NSLog(@"Warning: error closing file");
     }
     
     return true;
 }
+
+- (size_t) gotBytes:(char *)ptr withSize:(size_t)size withCount:(int)nmemb
+{
+    size_t offset = [[self bytesDownloaded] longLongValue];
+    [_currentFile write:ptr withLength:size*nmemb withOffset:offset];
+    [self setBytesDownloaded:[NSNumber numberWithLongLong:offset+(size*nmemb)]];
+    
+    //NSLog(@"Got %lu bytes", size*nmemb);
+    
+    if([self progressCb]) _progressCb([self bytesDownloaded], [self totalSize], self);
+    return size*nmemb;
+}
+
 @end
 
 

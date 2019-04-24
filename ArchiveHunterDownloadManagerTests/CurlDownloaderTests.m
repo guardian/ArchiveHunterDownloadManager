@@ -18,11 +18,13 @@
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    [[NSFileManager defaultManager] removeItemAtPath:@"/tmp/download-test" error:nil];
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+    [[NSFileManager defaultManager] removeItemAtPath:@"/tmp/download-test" error:nil];
 }
 
 /**
@@ -73,6 +75,39 @@
     XCTAssertNotEqual([downloader headInfo], NULL);
     NSLog(@"etag is %@", [[downloader headInfo] eTag]);
     XCTAssertEqual([[[downloader headInfo] eTag] compare:@"\"some-etag\""], NSOrderedSame);
+}
+
+- (NSString*) getShaForFile:(NSString*) filename
+{
+    NSTask *task = [[NSTask alloc] init];
+    [task setLaunchPath:@"/usr/bin/shasum"];
+    [task setArguments:[NSArray arrayWithObjects:@"-a", @"256", filename, nil]];
+    NSPipe *pipe = [NSPipe pipe];
+    [task setStandardOutput:pipe];
+    [task launch];
+    NSData *returnedBytes = [[pipe fileHandleForReading] readDataToEndOfFile];
+    [task waitUntilExit];
+    NSString *returnedString = [[NSString alloc] initWithData:returnedBytes encoding:NSUTF8StringEncoding];
+    NSLog(@"got %@", returnedString);
+    NSRange firstSpace = [returnedString rangeOfString:@" "];
+    return [returnedString substringToIndex:firstSpace.location];
+}
+
+/**
+ integration test that a whole file is downloaded
+ */
+- (void) testIntegrationTest {
+    NSError *err=nil;
+    CurlDownloader *downloader = [[CurlDownloader alloc] initWithChunkSize:4096];
+    XCTAssertNotEqual([downloader headInfo], NULL);
+    
+    bool result = [downloader startDownloadSync:[NSURL URLWithString:@"https://s3-eu-west-1.amazonaws.com/gnm-multimedia-cdn/interactive/speedtest/testfile.dat"]
+                                     toFilePath:@"/tmp/download-test"
+                                      withError:&err];
+    
+    XCTAssertEqual(result, true);
+    XCTAssertNil(err);
+    XCTAssertEqual([[self getShaForFile:@"/tmp/download-test"] compare:@"a1e8b80d0f147e994d5a9d9ab6e8981c8494e79e0a6cdd1b867c4bfe0df97844"], NSOrderedSame);
 }
 
 @end
