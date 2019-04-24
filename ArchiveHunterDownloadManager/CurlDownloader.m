@@ -7,9 +7,9 @@
 //
 
 #import "CurlDownloader.h"
+#import "MMappedFile.h"
 
 //libcurl callbacks
-
 /**
  called when we encounter a header.  Extracts key and value then pushes them back to the main class.
  */
@@ -45,6 +45,16 @@ size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *use
             return [data length];
         }
     }
+}
+
+/**
+ called when data needs to be saved. We just push it across to the mapped file and let the OS take care of flushing to disk.
+ */
+size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    CurlDownloader* downloaderPtr=(__bridge CurlDownloader *)userdata;
+    
+    return [downloaderPtr gotBytes:ptr withSize:size withCount:nmemb];
 }
 
 @implementation CurlDownloader
@@ -125,14 +135,52 @@ size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *use
    
 }
 
-- (NSMutableData *) mapFileForWrite:(NSString *)filePath
+- (bool) internalSetupDownload:(NSString *)url withError:(NSError **)err
 {
-    __writeFd = [NSNumber numberWithInt:open([filePath cStringUsingEncoding:NSUTF8StringEncoding],O_WRONLY)];
+    __curlPtr = curl_easy_init();
+    curl_easy_setopt(__curlPtr, CURLOPT_URL, [url cStringUsingEncoding:NSUTF8StringEncoding]);
+    curl_easy_setopt(__curlPtr, CURLOPT_HTTPGET, 1L);
+    curl_easy_setopt(__curlPtr, CURLOPT_WRITEFUNCTION, &write_callback);
+    return true;
+}
+
+- (bool) startDownloadSync:(NSURL *)url
+            toFilePath:(NSString *)filePath
+             withError:(NSError **)err
+{
+    bool result;
     
-    void *rawPtr = mmap(NULL, [[_headInfo size] longLongValue], PROT_WRITE, MAP_FILE|MAP_PRIVATE, [__writeFd intValue], 0);
+    //step one - get headers
+    result = [self getUrlInfo:url withError:err];
+    if(!result) return false;
     
-    return [NSMutableData dataWithBytes:rawPtr length:[[_headInfo size] longLongValue]];
-                                       
+    //step two - open file
+    MMappedFile *file = [[MMappedFile alloc] initWithFile:filePath];
+    //O_EXCL means "fail if creating and the file already exists"
+    result = [file open:O_CREAT|O_EXCL|O_EXLOCK withSize:[[_headInfo size] longLongValue] withError:err];
+    if(!result) return false;
+    
+    
+    //_downloadBuffer = [file dataForMap];
+    if(!_downloadBuffer) return false;
+    
+    //step three - set up download
+    [self internalSetupDownload:[url absoluteString] withError:err];
+    
+    //step four - run it
+    curl_easy_perform(__curlPtr);
+    
+    //step five - teardown
+    curl_easy_cleanup(__curlPtr);
+    __curlPtr=NULL;
+    
+    //step six - unmap and close file
+    result = [file close];
+    if(!result){
+        NSLog(@"Warning: error closing file");
+    }
+    
+    return true;
 }
 @end
 

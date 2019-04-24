@@ -24,6 +24,7 @@ size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *use
 @property NSNumber* _writeFd;
 @property NSMutableData* _writeBuffer;
 @property CURL* _curlPtr;
+@property NSMutableData* downloadBuffer;
 
 //public methods
 - (id) initWithChunkSize:(NSInteger)chunkSize;
@@ -32,10 +33,14 @@ size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *use
              withError:(NSError **)err
          onCompleted:(void (^)(NSString*,id)) completionBlock;
 
+- (bool) startDownloadSync:(NSURL *)url
+            toFilePath:(NSString *)filePath
+                 withError:(NSError **)err;
 //internal methods
 - (bool)getUrlInfo:(NSURL *)url withError:(NSError **)err;
 - (NSMutableData *) mapFileForWrite:(NSString *)filePath;
 - (void) downloadNextChunk:(NSURL *)url forRange:(NSRange)range toBuffer:(NSMutableData *)data;
 
-- (void)gotNewHeader:(NSString *)headerName withValue:(NSString *)headerValue;
+- (void) gotNewHeader:(NSString *)headerName withValue:(NSString *)headerValue;
+- (size_t) gotBytes:(char *)ptr withSize:(size_t)size withCount:(int)nmemb;
 @end
