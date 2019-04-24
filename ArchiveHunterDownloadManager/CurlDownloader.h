@@ -1,0 +1,41 @@
+//
+//  CurlDownloader.h
+//  ArchiveHunterDownloadManager
+//
+//  Created by Local Home on 24/04/2019.
+//  Copyright © 2019 Guardian News and Media. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "HttpHeadInfo.h"
+#include <curl/curl.h>
+
+size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *userdata);
+
+@interface CurlDownloader : NSObject
+//public properties
+@property NSNumber* chunkSize;
+@property NSURL* url;
+@property NSString* filePath;
+@property NSNumber* skipVerification;   //actually boolean
+@property HttpHeadInfo* headInfo;
+
+//internal properties
+@property NSNumber* _writeFd;
+@property NSMutableData* _writeBuffer;
+@property CURL* _curlPtr;
+
+//public methods
+- (id) initWithChunkSize:(NSInteger)chunkSize;
+- (bool) startDownload:(NSURL *)url
+            toFilePath:(NSString *)filePath
+             withError:(NSError **)err
+         onCompleted:(void (^)(NSString*,id)) completionBlock;
+
+//internal methods
+- (bool)getUrlInfo:(NSURL *)url withError:(NSError **)err;
+- (NSMutableData *) mapFileForWrite:(NSString *)filePath;
+- (void) downloadNextChunk:(NSURL *)url forRange:(NSRange)range toBuffer:(NSMutableData *)data;
+
+- (void)gotNewHeader:(NSString *)headerName withValue:(NSString *)headerValue;
+@end
