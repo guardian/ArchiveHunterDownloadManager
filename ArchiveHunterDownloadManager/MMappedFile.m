@@ -8,6 +8,7 @@
 
 #import "MMappedFile.h"
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <errno.h>
 extern int errno;
 
@@ -22,11 +23,29 @@ extern int errno;
 
 - (int) mProtForOpenFlag:(int)oFlag
 {
-    if(oFlag&O_WRONLY) return PROT_WRITE;
-    if(oFlag&O_RDWR) return PROT_READ|PROT_WRITE;
-    if(oFlag&O_RDONLY) return PROT_READ;
-    //if(oFlag&O_CREAT) return PROT_WRITE;
-    return 0;
+    switch(oFlag&O_ACCMODE){
+        case O_WRONLY:
+            return PROT_WRITE;
+        case O_RDWR:
+            return PROT_READ|PROT_WRITE;
+        case O_RDONLY:
+            return PROT_READ;
+        default:
+            return 0;
+    }
+}
+
+/**
+ helper function, get size from filesystem if opening a pre-existing file
+ */
+- (bool) open:(int)oFlag withError:(NSError **)err
+{
+    struct stat statinfo;
+    if(stat([[self fileName] cStringUsingEncoding:NSUTF8StringEncoding],&statinfo)<0){
+        if(err) *err = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+        return false;
+    }
+    return [self open:oFlag withSize:statinfo.st_size withError:err];
 }
 
 /**
@@ -48,13 +67,15 @@ extern int errno;
     }
 
     //extend file to given length. This is necessary when to avoid memory protection errors.
-    if(ftruncate(__fd, size)==-1){
-        close(__fd);
-        __fd=0;
-        if(err){
-            *err = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+    if(oFlag!=O_RDONLY){
+        if(ftruncate(__fd, size)==-1){
+            close(__fd);
+            __fd=0;
+            if(err){
+                *err = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+            }
+            return false;
         }
-        return false;
     }
     
     _raw_ptr = (char *)mmap(NULL, size, [self mProtForOpenFlag:oFlag], MAP_SHARED|MAP_NOCACHE, __fd, 0);    //MAP_NOCACHE tells the OS it can reclaim these pages early
@@ -107,5 +128,22 @@ extern int errno;
     
     memcpy(_raw_ptr + off, bytes, len);
     return true;
+}
+
+/**
+ get an NSData buffer of data from the mapped file
+ */
+- (NSData *) read:(size_t)len fromOffset:(size_t)off withError:(NSError **)err
+{
+    if(!_raw_ptr) return nil;
+    if(off+len > __size) return nil;
+    return [NSData dataWithBytes:_raw_ptr + off length:len];
+}
+
+- (const char *) peekBytesAtOffset:(size_t)off
+{
+    if(!_raw_ptr) return nil;
+    if(off > __size) return nil;
+    return (const char*)&_raw_ptr[off];
 }
 @end

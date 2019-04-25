@@ -34,7 +34,7 @@
     MMappedFile *f = [[MMappedFile alloc] initWithFile:@"/tmp/testfile.2"];
     XCTAssertEqual([f mProtForOpenFlag:O_CREAT|O_EXCL|O_WRONLY], PROT_WRITE);
     XCTAssertEqual([f mProtForOpenFlag:O_CREAT], 0);
-    //XCTAssertEqual([f mProtForOpenFlag:O_RDONLY], PROT_READ);
+    XCTAssertEqual([f mProtForOpenFlag:O_RDONLY], PROT_READ);
     XCTAssertEqual([f mProtForOpenFlag:O_WRONLY], PROT_WRITE);
     XCTAssertEqual([f mProtForOpenFlag:O_RDWR], PROT_WRITE|PROT_READ);
 }
