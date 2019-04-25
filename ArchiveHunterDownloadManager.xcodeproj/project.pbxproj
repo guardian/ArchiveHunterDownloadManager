@@ -33,6 +33,7 @@
 		9BA935C7222E8C700066812F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9BA935C5222E8C700066812F /* Main.storyboard */; };
 		9BA935D2222E8C700066812F /* ArchiveHunterDownloadManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935D1222E8C700066812F /* ArchiveHunterDownloadManagerTests.m */; };
 		9BA935DD222E8C700066812F /* ArchiveHunterDownloadManagerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935DC222E8C700066812F /* ArchiveHunterDownloadManagerUITests.m */; };
+		9BB9C2F822723AB5009729D3 /* StatusIconTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BB9C2F722723AB5009729D3 /* StatusIconTransformer.m */; };
 		9BCA366022300B41004799F4 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA365F22300B41004799F4 /* PreferencesController.m */; };
 		9BCA366B22312F6F004799F4 /* ServerComms.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA366A22312F6F004799F4 /* ServerComms.m */; };
 		9BE0C5D622370876000B0277 /* NotificationsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BE0C5D522370876000B0277 /* NotificationsHelper.m */; };
@@ -106,6 +107,8 @@
 		9BA935D8222E8C700066812F /* ArchiveHunterDownloadManagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArchiveHunterDownloadManagerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA935DC222E8C700066812F /* ArchiveHunterDownloadManagerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArchiveHunterDownloadManagerUITests.m; sourceTree = "<group>"; };
 		9BA935DE222E8C700066812F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9BB9C2F622723AB5009729D3 /* StatusIconTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatusIconTransformer.h; sourceTree = "<group>"; };
+		9BB9C2F722723AB5009729D3 /* StatusIconTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatusIconTransformer.m; sourceTree = "<group>"; };
 		9BCA365E22300B41004799F4 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
 		9BCA365F22300B41004799F4 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
 		9BCA366922312F6F004799F4 /* ServerComms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerComms.h; sourceTree = "<group>"; };
@@ -256,6 +259,8 @@
 		9BE8592D2236B6DC001D586A /* UITransformers */ = {
 			isa = PBXGroup;
 			children = (
+				9BB9C2F622723AB5009729D3 /* StatusIconTransformer.h */,
+				9BB9C2F722723AB5009729D3 /* StatusIconTransformer.m */,
 				9B24A17F22346CB000349A6C /* NegateTransformer.h */,
 				9B24A18022346CB000349A6C /* NegateTransformer.m */,
 				9B1044BA22329123001E637B /* FileSizeTransformer.h */,
@@ -440,6 +445,7 @@
 				9B34F1ED22380487005952BA /* DownloadQueueManager.m in Sources */,
 				9B1044BF223296C9001E637B /* BulkOperations.m in Sources */,
 				9BA935BC222E8C700066812F /* main.m in Sources */,
+				9BB9C2F822723AB5009729D3 /* StatusIconTransformer.m in Sources */,
 				9B07F6C722704ED900A899E7 /* EtagCalculator.m in Sources */,
 				9B24A18122346CB000349A6C /* NegateTransformer.m in Sources */,
 				9B1044C22232B47C001E637B /* BulkObjectStatusTransformer.m in Sources */,

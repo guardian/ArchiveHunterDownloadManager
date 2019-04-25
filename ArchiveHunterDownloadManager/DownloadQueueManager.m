@@ -148,7 +148,10 @@ ServerComms *serverComms;
     NSString *retrievalToken = [parent valueForKey:@"retrievalToken"];
     NSURL *retrievalLink = [self getRetrievalLinkUrl:[entry valueForKey:@"fileId"] withRetrievalToken:retrievalToken];
     
-    if(!retrievalLink) return FALSE;
+    if(!retrievalLink) {
+        NSLog(@"Could not get retrieval URL for %@", [entry valueForKey:@"name"]);
+        return FALSE;
+    }
     
     NSURLSessionDataTask *retrievalTask = [serverComms itemRetrievalTask:retrievalLink forEntry:entry manager:self];
     
@@ -174,7 +177,7 @@ ServerComms *serverComms;
                                       passingTest:^BOOL (NSUInteger idx, BOOL *stop){
                                           DownloadQueueEntry  *indexPtr = [_activeItems objectAtIndex:idx];
                                           
-                                          return [indexPtr managedObject]==entry;
+                                          return [[indexPtr managedObject] valueForKey:@"fileId"]==[entry valueForKey:@"fileId"];
                                       }];
         if(matchingIndex==-1 | matchingIndex>[_activeItems count]){
             NSLog(@"could not find a matching item for %@ in the active items list", entry);

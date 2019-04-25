@@ -41,6 +41,7 @@
         NSLog(@"in completionHandler, response is %@", response);
         
          if(error){
+             NSLog(@"error making initial contact: %@", error);
              dispatch_async(dispatch_get_main_queue(), ^{
                  completionBlock(nil, error);
                  NSAlert *alert = [[NSAlert alloc] init];
@@ -106,8 +107,8 @@
             NSLog(@"%@: could not create: %@", dir, err);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                       @"lastError", [err localizedDescription],
-                                                       @"status", [NSNumber numberWithInt:BO_ERRORED],
+                                                       [err localizedDescription], @"lastError",
+                                                       [NSNumber numberWithInt:BO_ERRORED], @"status",
                                                        nil]];
             });
             return;
@@ -150,21 +151,26 @@
 //    });
 }
 
+/**
+ retrieve the physical download URL from the server. This takes the form of an S3 presigned URL
+ */
 - (NSURLSessionDataTask *) itemRetrievalTask:(NSURL *)retrievalLink
                                     forEntry:(NSManagedObject *)entry
                                      manager:(DownloadQueueManager *)mgr
 {
     NSURLSession *sess = [NSURLSession sharedSession];
     
+    NSLog(@"itemRetrievalTask for %@", [entry valueForKey:@"name"]);
+    
     return [sess dataTaskWithURL:retrievalLink completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSError *parseError=nil;
         
         if(error){
+            NSLog(@"Could not retrieve actual download URL for %@: %@", [entry valueForKey:@"name"], error);
             [self setEntryError:error forEntry:entry];
         } else {
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&parseError];
             if(json){
-                //NSString *actualDownloadUrl = [(NSString *)[json valueForKey:@"entry"] stringByRemovingPercentEncoding];
                 NSString *actualDownloadUrl = [json valueForKey:@"entry"];
                 
                 NSLog(@"Actual download URL for %@ is %@" , retrievalLink, actualDownloadUrl);

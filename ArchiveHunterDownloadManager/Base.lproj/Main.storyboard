@@ -690,7 +690,43 @@
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn width="242.94921875" minWidth="40" maxWidth="1000" id="V0H-T5-h4f">
+                                                <tableColumn identifier="" width="21.96875" minWidth="10" maxWidth="3.4028234663852886e+38" id="fx2-9M-NqJ">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Status">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                    </tableHeaderCell>
+                                                    <imageCell key="dataCell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="qMY-f0-Hhr"/>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.status" id="VIM-Ee-yUp">
+                                                            <dictionary key="options">
+                                                                <string key="NSValueTransformerName">StatusIconTransformer</string>
+                                                            </dictionary>
+                                                        </binding>
+                                                    </connections>
+                                                </tableColumn>
+                                                <tableColumn identifier="" width="57.8828125" minWidth="10" maxWidth="3.4028234663852886e+38" id="F1C-b1-A57">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Status">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="OiL-Eq-YGg">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.status" id="e99-AX-92s">
+                                                            <dictionary key="options">
+                                                                <string key="NSValueTransformerName">BulkObjectStatusTransformer</string>
+                                                            </dictionary>
+                                                        </binding>
+                                                    </connections>
+                                                </tableColumn>
+                                                <tableColumn width="149.2265625" minWidth="40" maxWidth="1000" id="V0H-T5-h4f">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Name">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -740,7 +776,7 @@
                                                         </binding>
                                                     </connections>
                                                 </tableColumn>
-                                                <tableColumn identifier="" width="172.87109375" minWidth="10" maxWidth="3.4028234663852886e+38" id="aDm-Kx-LSb">
+                                                <tableColumn identifier="" width="122.5546875" minWidth="10" maxWidth="3.4028234663852886e+38" id="aDm-Kx-LSb">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Download Path">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -756,24 +792,20 @@
                                                         <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.destinationFile" id="XxL-r1-T54"/>
                                                     </connections>
                                                 </tableColumn>
-                                                <tableColumn identifier="" width="105.5390625" minWidth="10" maxWidth="3.4028234663852886e+38" id="fx2-9M-NqJ">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Status">
+                                                <tableColumn identifier="" width="97.125" minWidth="10" maxWidth="3.4028234663852886e+38" id="wbZ-pv-waK">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Errors">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="T1E-IK-PBA">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="juU-ig-ejx">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <connections>
-                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.status" id="O6T-cJ-1f0">
-                                                            <dictionary key="options">
-                                                                <string key="NSValueTransformerName">BulkObjectStatusTransformer</string>
-                                                            </dictionary>
-                                                        </binding>
+                                                        <binding destination="Dby-bU-mVf" name="value" keyPath="arrangedObjects.lastError" id="7mg-i7-69N"/>
                                                     </connections>
                                                 </tableColumn>
                                             </tableColumns>
