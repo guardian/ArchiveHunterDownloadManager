@@ -17,6 +17,9 @@
     _replyQueue = queue;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
     _entry = nil;
+    _updateDivider=20;
+    __updateCounter=0;
+    
     return self;
 }
 
@@ -27,10 +30,12 @@
     _entry = entry;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
     _downloadQueueManager = downloadQueueManager;
+    _updateDivider=20;
+    __updateCounter=0;
     return self;
 }
 
-- (void)downloadDidBegin:(NSURLDownload *)download
+- (void)downloadDidBegin:(NSURL *)url
 {
     NSLog(@"%@ download started", [[self entry] valueForKey:@"destinationFile"]);
     [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -40,31 +45,35 @@
     
 }
 
-- (void)download:(NSURLDownload *)download didCreateDestination:(NSString *)path
+- (void)download:(NSURL *)url didCreateDestination:(NSString *)path
 {
     NSLog(@"%@ created file for download: %@", [[self entry] valueForKey:@"destinationFile"], path);
 }
 
-- (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length
+- (void)download:(NSURL *)url downloadedBytes:(NSNumber *)bytes fromTotal:(NSNumber *)total withData:(id)data
 {
 //    NSLog(@"download received data of length %lu", length);
-    [self setDownloadedSoFar:[NSNumber numberWithLongLong:[[self downloadedSoFar] longLongValue]+length]];
-    NSNumber *totalSize = (NSNumber *)[[self entry] valueForKey:@"fileSize"];
+//    [self setDownloadedSoFar:[NSNumber numberWithLongLong:[[self downloadedSoFar] longLongValue]+length]];
+//    NSNumber *totalSize = (NSNumber *)[[self entry] valueForKey:@"fileSize"];
     
-    NSNumber *newProgress = [NSNumber numberWithDouble:[[self downloadedSoFar] doubleValue] / [totalSize doubleValue]];
+    NSNumber *newProgress = [NSNumber numberWithDouble:[bytes doubleValue] / [total doubleValue]];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSError *err=NULL;
-        NSManagedObject *bulk = [[self entry] valueForKey:@"parent"];
-        long long currentProgress = [(NSNumber *)[bulk valueForKey:@"amountDownloaded"] longLongValue];
-        
-        [bulk setValue:[NSNumber numberWithLongLong:currentProgress+length] forKey:@"amountDownloaded"];
-        
-        [[bulk managedObjectContext] save:&err];
-        if(err){
-            NSLog(@"Could not save bulk data: %@", err);
-        }
-    });
+    ++__updateCounter;
+    if(__updateCounter>_updateDivider || [bytes longLongValue]==[total longLongValue]){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *err=NULL;
+            NSManagedObject *bulk = [[self entry] valueForKey:@"parent"];
+            long long currentProgress = [(NSNumber *)[bulk valueForKey:@"amountDownloaded"] longLongValue];
+            
+            [bulk setValue:[NSNumber numberWithLongLong:currentProgress+[bytes longLongValue]] forKey:@"amountDownloaded"];
+            
+            [[bulk managedObjectContext] save:&err];
+            if(err){
+                NSLog(@"Could not save bulk data: %@", err);
+            }
+        });
+        if(__updateCounter>_updateDivider) __updateCounter=0;
+    }
     
     //NSLog(@"downloadedSoFar: %@ totalSize %@ newProgress %@", _downloadedSoFar, totalSize, newProgress);
     [[self entry] setValue:newProgress forKey:@"downloadProgress"];
@@ -105,8 +114,6 @@
 
 - (void)downloadDidFinish:(NSURLDownload *)download
 {
-    NSLog(@"Download %@ completed", [download request]);
-    
     [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                                   @"",@"lastError",
                                                   [NSNumber numberWithInt:BO_COMPLETED], @"status"

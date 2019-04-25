@@ -9,6 +9,7 @@
 #import "ServerComms.h"
 #import "DownloadDelegate.h"
 #import "BulkOperations.h"
+#import "CurlDownloader.h"
 
 @implementation ServerComms
 
@@ -104,17 +105,38 @@
         }
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //this must be done on the main thread to get at the primary runloop
-        NSURLDownload *dld = [[NSURLDownload alloc] initWithRequest:req delegate:del];
-        
-        if(!dld){
-            NSLog(@"Error - could not start download.");
+    CurlDownloader *downloader = [[CurlDownloader alloc] initWithChunkSize:4096];
+    [downloader setDownloadDelegate:del];
+    
+//    [downloader setProgressCb:^(NSNumber *bytesDownloaded, NSNumber *totalSize, id userData) {
+//        [del download:downloader downloadedBytes:bytesDownloaded fromTotal:totalSize withData:userData];
+//    }];
+    
+    bool result = [downloader startDownloadAsync:actualDownloadUrl
+                                      toFilePath:[entry valueForKey:@"destinationFile"]
+                                       withError:&err];
+    
+    if(!result){
+        NSLog(@"Could not start download for %@", [entry valueForKey:@"destinationFile"]);
+        if(err){
+            [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                   [err localizedDescription], @"lastError",
+                                                   [NSNumber numberWithInt:BO_ERRORED], @"status",
+                                                   nil]];
         }
-        NSLog(@"Downloading %@ to %@", actualDownloadUrl, [entry valueForKey:@"destinationFile"]);
-        [dld setDestination:[entry valueForKey:@"destinationFile"] allowOverwrite:YES];
-        [dld setDeletesFileUponFailure:YES];
-    });
+    }
+    
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        //this must be done on the main thread to get at the primary runloop
+//        NSURLDownload *dld = [[NSURLDownload alloc] initWithRequest:req delegate:del];
+//        
+//        if(!dld){
+//            NSLog(@"Error - could not start download.");
+//        }
+//        NSLog(@"Downloading %@ to %@", actualDownloadUrl, [entry valueForKey:@"destinationFile"]);
+//        [dld setDestination:[entry valueForKey:@"destinationFile"] allowOverwrite:YES];
+//        [dld setDeletesFileUponFailure:YES];
+//    });
 }
 
 - (NSURLSessionDataTask *) itemRetrievalTask:(NSURL *)retrievalLink

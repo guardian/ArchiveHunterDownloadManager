@@ -19,12 +19,14 @@
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
     [[NSFileManager defaultManager] removeItemAtPath:@"/tmp/download-test" error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:@"/tmp/async-download-test" error:nil];
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
     [[NSFileManager defaultManager] removeItemAtPath:@"/tmp/download-test" error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:@"/tmp/async-download-test" error:nil];
 }
 
 /**
@@ -62,6 +64,28 @@
     XCTAssertEqual([[[err userInfo] valueForKey:@"statusString"] compare:@"Forbidden"], NSOrderedSame);
 }
 
+- (void)testAsyncDownload {
+    XCTestExpectation *expect = [self expectationWithDescription:@"wait for async download to complete"];
+    
+    CurlDownloader *downloader = [[CurlDownloader alloc] initWithChunkSize:4096];
+    
+    bool result = [downloader startDownloadAsync:[NSURL URLWithString:@"https://s3-eu-west-1.amazonaws.com/gnm-multimedia-cdn/interactive/speedtest/testfile.dat"]
+                                      toFilePath:@"/tmp/async-download-test"
+                                    onCompletion:^(NSURL *url, bool result) {
+                                        XCTAssertTrue(result);
+                                        XCTAssertEqual([[self getShaForFile:@"/tmp/async-download-test"] compare:@"a1e8b80d0f147e994d5a9d9ab6e8981c8494e79e0a6cdd1b867c4bfe0df97844"], NSOrderedSame);
+                                        
+                                        [expect fulfill];
+                                    }
+                                       withError:nil];
+    XCTAssertTrue(result);
+    
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
+        if (error != nil) {
+            NSLog(@"Error: %@", error.localizedDescription);
+        }
+    }];
+}
 /**
  the header callback should extract key and value from the header then call back to the main class to set the relevant value in headInfo
  */

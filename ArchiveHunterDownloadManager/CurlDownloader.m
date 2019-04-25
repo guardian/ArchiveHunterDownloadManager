@@ -57,6 +57,22 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     return [downloaderPtr gotBytes:ptr withSize:size withCount:nmemb];
 }
 
+/**
+ dummy write callback that causes an immediate abort, if we are not interested in content body
+ */
+size_t dummy_write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    return 0;
+}
+
+/**
+ dummy callback to make curl abort the download
+ */
+int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   double ultotal,   double ulnow)
+{
+    return 1;
+}
+
 @implementation CurlDownloader
 //public methods
 - (id) initWithChunkSize:(NSInteger)chunkSize
@@ -66,7 +82,7 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     _skipVerification = [NSNumber numberWithBool:NO];
     __curlPtr = NULL;
     _headInfo = [[HttpHeadInfo alloc] init];
-    
+    _downloadDelegate = nil;
     _totalSize = nil;
     _bytesDownloaded = nil;
     
@@ -80,18 +96,25 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     return [[NSError alloc] initWithDomain:@"libcurl" code:result userInfo:NULL];
 }
 
+//this performs a GET rather than a HEAD, because S3 is annoying and won't generate a presigned URL that accepts both HEAD and GET
 - (bool)getUrlInfo:(NSURL *)url withError:(NSError **)err
 {
     __curlPtr = curl_easy_init();
     curl_easy_setopt(__curlPtr, CURLOPT_URL, [[url absoluteString] cStringUsingEncoding:NSUTF8StringEncoding]);
-    curl_easy_setopt(__curlPtr, CURLOPT_NOBODY, 1L);
+    //curl_easy_setopt(__curlPtr, CURLOPT_NOBODY, 1L);
     curl_easy_setopt(__curlPtr, CURLOPT_HEADERFUNCTION, &header_callback);
     curl_easy_setopt(__curlPtr, CURLOPT_HEADERDATA, self);
-    
+    curl_easy_setopt(__curlPtr, CURLOPT_WRITEFUNCTION, &dummy_write_callback);
     CURLcode result = curl_easy_perform(__curlPtr);
     
     //[_headInfo dumpForDebug];
+    if(result==CURLE_WRITE_ERROR) result=CURLE_OK;  //we expect to be aborted by callback, it's not an error.
     
+    return [self handleCurlResult:result forUrl:url withError:err];
+}
+
+- (bool) handleCurlResult:(CURLcode)result forUrl:(NSURL*)url withError:(NSError **)err
+{
     if(result!=CURLE_OK){
         if(err) *err = [self curlErrorToNSError:result];
         return false;
@@ -141,6 +164,7 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 
 - (bool) internalSetupDownload:(NSString *)url withError:(NSError **)err
 {
+    if(__curlPtr) return false;
     __curlPtr = curl_easy_init();
     curl_easy_setopt(__curlPtr, CURLOPT_URL, [url cStringUsingEncoding:NSUTF8StringEncoding]);
     curl_easy_setopt(__curlPtr, CURLOPT_HTTPGET, 1L);
@@ -149,9 +173,59 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     return true;
 }
 
+- (bool) startDownloadAsync:(NSURL *)url
+                 toFilePath:(NSString *)filePath
+                  withError:(NSError **)err
+{
+    bool result = [self setupDownload:url toFilePath:filePath withError:err];
+    if(!result) return false;   //err is already set
+
+    NSDictionary *threadParams = [NSDictionary dictionaryWithObjectsAndKeys:url, @"url", filePath, @"filePath", nil];
+    
+    NSThread *t = [[NSThread alloc] initWithTarget:self selector:@selector(internalDownloadAsync:) object:threadParams];
+    [t start];
+    return true;
+}
+
+/**
+ internal method that forms a thread, running to perform a download and then executing a callback on the main thread
+ */
+- (void) internalDownloadAsync:(id)param
+{
+    NSError *err=nil;
+    NSDictionary *threadParams = (NSDictionary *)param;
+    NSURL *url = [threadParams valueForKey:@"url"];
+    NSString *filePath = [threadParams valueForKey:@"filePath"];
+    
+    bool result = [self performDownload:url toFilePath:filePath withError:&err];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(_downloadDelegate){
+            if(result){
+                [_downloadDelegate downloadDidFinish:url];
+            } else {
+                [_downloadDelegate download:url didFailWithError:err];
+            }
+        }
+    });
+}
+
 - (bool) startDownloadSync:(NSURL *)url
             toFilePath:(NSString *)filePath
              withError:(NSError **)err
+{
+    bool result;
+    result = [self setupDownload:url toFilePath:filePath withError:err];
+    if(!result) return false;   //err is already set
+    
+    return [self performDownload:url toFilePath:filePath withError:err];
+}
+
+/**
+ internal method to set up parameters for a download, including opening the local file and initialising counters
+ */
+- (bool)setupDownload:(NSURL *)url
+           toFilePath:(NSString *)filePath
+            withError:(NSError **)err
 {
     bool result;
     
@@ -167,7 +241,7 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     //O_EXCL means "fail if creating and the file already exists"
     result = [_currentFile open:O_CREAT|O_EXCL|O_EXLOCK|O_RDWR withSize:[[_headInfo size] longLongValue] withError:err];
     if(!result) {
-        NSLog(@"file open failed");
+        NSLog(@"file open failed: %@", [*err localizedDescription]);
         return false;
     }
     
@@ -176,14 +250,27 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 
     //step three - set up download
     [self internalSetupDownload:[url absoluteString] withError:err];
+    return true;
+}
+
+/**
+ internal method to perform a download that has been set up.
+ */
+- (bool)performDownload:(NSURL*)url toFilePath:(NSString *)filePath withError:(NSError **)err
+{
+    bool result, rtn;
+    
+    if(_downloadDelegate) [_downloadDelegate downloadDidBegin:url];
     
     NSLog(@"Download for %@ of type %@ to %@ with size %@ starting", url, [_headInfo contentType], filePath,[self totalSize]);
     //step four - run it
-    curl_easy_perform(__curlPtr);
-    NSLog(@"Download for %@ completed", url);
+    CURLcode dlresult = curl_easy_perform(__curlPtr);
+    NSLog(@"Download for %@ completed, return code %d", url, result);
+    
+    if(_downloadDelegate) [_downloadDelegate downloadDidFinish:url];
     
     //step five - teardown
-    curl_easy_cleanup(__curlPtr);
+    rtn = [self handleCurlResult:dlresult forUrl:url withError:err];
     __curlPtr=NULL;
     
     //step six - unmap and close file
@@ -192,7 +279,7 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
         NSLog(@"Warning: error closing file");
     }
     
-    return true;
+    return rtn;
 }
 
 - (size_t) gotBytes:(char *)ptr withSize:(size_t)size withCount:(int)nmemb
@@ -204,6 +291,7 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
     //NSLog(@"Got %lu bytes", size*nmemb);
     
     if([self progressCb]) _progressCb([self bytesDownloaded], [self totalSize], self);
+    if(_downloadDelegate) [_downloadDelegate download:nil downloadedBytes:[self bytesDownloaded] fromTotal:[self totalSize] withData:nil];
     return size*nmemb;
 }
 

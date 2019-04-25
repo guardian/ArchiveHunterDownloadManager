@@ -9,7 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "HttpHeadInfo.h"
 #import "MMappedFile.h"
+#import "DownloadDelegate.h"
 #include <curl/curl.h>
+
 
 size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *userdata);
 
@@ -26,6 +28,7 @@ size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *use
 @property NSNumber* bytesDownloaded;
 
 @property (nonatomic, copy) void (^progressCb)(NSNumber* bytesDownloaded, NSNumber* totalSize, id userData);
+@property (atomic,strong) DownloadDelegate* downloadDelegate;
 
 //internal properties
 @property NSNumber* _writeFd;
@@ -35,19 +38,19 @@ size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *use
 
 //public methods
 - (id) initWithChunkSize:(NSInteger)chunkSize;
-- (bool) startDownload:(NSURL *)url
-            toFilePath:(NSString *)filePath
-             withError:(NSError **)err
-         onCompleted:(void (^)(NSString*,id)) completionBlock;
 
 - (bool) startDownloadSync:(NSURL *)url
             toFilePath:(NSString *)filePath
                  withError:(NSError **)err;
+
+- (bool) startDownloadAsync:(NSURL *)url
+                 toFilePath:(NSString *)filePath
+                  withError:(NSError **)err;
+
 //internal methods
 - (bool)getUrlInfo:(NSURL *)url withError:(NSError **)err;
-- (NSMutableData *) mapFileForWrite:(NSString *)filePath;
-- (void) downloadNextChunk:(NSURL *)url forRange:(NSRange)range toBuffer:(NSMutableData *)data;
 
 - (void) gotNewHeader:(NSString *)headerName withValue:(NSString *)headerValue;
 - (size_t) gotBytes:(char *)ptr withSize:(size_t)size withCount:(int)nmemb;
+
 @end
