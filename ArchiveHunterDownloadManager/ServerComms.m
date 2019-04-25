@@ -41,17 +41,20 @@
         NSLog(@"in completionHandler, response is %@", response);
         
          if(error){
-             completionBlock(nil, error);
-             NSAlert *alert = [[NSAlert alloc] init];
-             [alert setMessageText:@"Network Error"];
-             [alert setInformativeText:@"A network error occured. Please check if the server domain name is set correctly in the Preferences window."];
-             [alert addButtonWithTitle:@"Okay"];
-             [alert runModal];
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 completionBlock(nil, error);
+                 NSAlert *alert = [[NSAlert alloc] init];
+                 [alert setMessageText:@"Network Error"];
+                 [alert setInformativeText:@"A network error occured. Please check if the server domain name is set correctly in the Preferences window."];
+                 [alert addButtonWithTitle:@"Okay"];
+                 [alert runModal];
+             });
          } else {
              
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&parseError];
-            
-            completionBlock(json, parseError);
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 completionBlock(json, parseError);
+             });
          }
     }];
     [t resume];
@@ -64,10 +67,12 @@
 }
 
 - (void)setEntryError:(NSError *)err forEntry:(NSManagedObject *)entry {
-    [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                  [err localizedDescription],@"lastError",
-                                                  [NSNumber numberWithInt:BO_ERRORED], @"status"
-                                                  ,nil]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                      [err localizedDescription],@"lastError",
+                                                      [NSNumber numberWithInt:BO_ERRORED], @"status"
+                                                      ,nil]];
+    });
 }
 
 - (void)performItemDownload:(NSURL *)actualDownloadUrl
@@ -87,20 +92,24 @@
     if([fileManager fileExistsAtPath:dir isDirectory:&isDir]){
         if(!isDir){
             NSLog(@"%@ already exists and isn't a directory", dir);
-            [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                   [NSString stringWithFormat:@"A file already exists at %@", dir],@"lastError", 
-                                                   [NSNumber numberWithInteger:BO_ERRORED], @"status",
-                                                   nil]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                       [NSString stringWithFormat:@"A file already exists at %@", dir],@"lastError", 
+                                                       [NSNumber numberWithInteger:BO_ERRORED], @"status",
+                                                       nil]];
+            });
             return;
         }
     } else {
         [fileManager createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&err];
         if(err){
             NSLog(@"%@: could not create: %@", dir, err);
-            [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                   @"lastError", [err localizedDescription],
-                                                   @"status", [NSNumber numberWithInt:BO_ERRORED],
-                                                   nil]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                       @"lastError", [err localizedDescription],
+                                                       @"status", [NSNumber numberWithInt:BO_ERRORED],
+                                                       nil]];
+            });
             return;
         }
     }
@@ -119,10 +128,12 @@
     if(!result){
         NSLog(@"Could not start download for %@", [entry valueForKey:@"destinationFile"]);
         if(err){
-            [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                   [err localizedDescription], @"lastError",
-                                                   [NSNumber numberWithInt:BO_ERRORED], @"status",
-                                                   nil]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                       [err localizedDescription], @"lastError",
+                                                       [NSNumber numberWithInt:BO_ERRORED], @"status",
+                                                       nil]];
+            });
         }
     }
     
