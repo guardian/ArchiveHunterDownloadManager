@@ -17,4 +17,6 @@
 + (BOOL)allowsReverseTransformation;
 - (id)transformedValue:(id)value;
 
+- (NSArray<NSString*>*) sizeTokens;
+
 @end

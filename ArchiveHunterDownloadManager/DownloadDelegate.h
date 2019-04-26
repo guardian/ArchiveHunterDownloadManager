@@ -22,9 +22,9 @@
 - (id)init:(dispatch_queue_t)queue;
 - (id)initWithEntry:(NSManagedObject *)entry dispatchQueue:(dispatch_queue_t)queue withManager:(id)downloadQueueManager;
 
-- (void)downloadDidBegin:(NSURL *)url;
+- (void)downloadDidBegin:(NSURL *)url withEtag:(NSString *)etag;
 - (void)download:(NSURL *)url didCreateDestination:(NSString *)path;
 - (void)download:(NSURL *)url downloadedBytes:(NSNumber *)bytes fromTotal:(NSNumber *)total inSeconds:(time_t)seconds withData:(id)data;
 - (void)download:(NSURL *)url didFailWithError:(NSError *)error;
-- (void)downloadDidFinish:(NSURL *)url;
+- (void)downloadDidFinish:(NSURL *)url toFilePath:(NSString *)filePath;
 @end

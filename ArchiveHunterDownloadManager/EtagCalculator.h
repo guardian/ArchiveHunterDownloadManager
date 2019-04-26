@@ -12,6 +12,9 @@
 #import "ChunkDigest.h"
 
 @interface EtagCalculator : NSObject
++ (NSInteger)estimateLikelyChunksizeForFilesize:(NSNumber *)fileSize andChunkCount:(NSUInteger)chunkCount;
++ (NSInteger)estimateLikelyChunksizeForFilesize:(NSNumber *)fileSize andExistingEtag:(NSString*)eTag;
+
 - (id)initForFilepath:(NSString *)filePath forChunkSize:(NSInteger)chunkSize withThreads:(NSInteger)threads;
 - (NSString *)executeWithError:(NSError **)err;
 

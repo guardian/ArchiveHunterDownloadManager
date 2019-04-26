@@ -40,6 +40,12 @@
             return @"Invalid file";
         case BO_PARTIAL:
             return @"Some errors";
+        case BO_VALIDAION_FAILED:
+            return @"Validation failed";
+        case BO_WAITING_CHECKSUM:
+            return @"Awaiting validation";
+        case BO_VALIDATING_CHECKSUM:
+            return @"Validating checksum";
         default:
             return @"unknown";
     }

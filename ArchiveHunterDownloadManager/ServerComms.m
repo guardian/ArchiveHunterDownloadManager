@@ -118,10 +118,6 @@
     CurlDownloader *downloader = [[CurlDownloader alloc] initWithChunkSize:4096];
     [downloader setDownloadDelegate:del];
     
-//    [downloader setProgressCb:^(NSNumber *bytesDownloaded, NSNumber *totalSize, id userData) {
-//        [del download:downloader downloadedBytes:bytesDownloaded fromTotal:totalSize withData:userData];
-//    }];
-    
     bool result = [downloader startDownloadAsync:actualDownloadUrl
                                       toFilePath:[entry valueForKey:@"destinationFile"]
                                        withError:&err];

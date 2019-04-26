@@ -35,14 +35,15 @@
     return self;
 }
 
-- (void)downloadDidBegin:(NSURL *)url
+- (void)downloadDidBegin:(NSURL *)url withEtag:(NSString *)etag
 {
     NSLog(@"%@ download started", [[self entry] valueForKey:@"destinationFile"]);
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                                       @"",@"lastError",
-                                                      [NSNumber numberWithInt:BO_RUNNING], @"status"
-                                                      ,nil]];
+                                                      [NSNumber numberWithInt:BO_RUNNING], @"status",
+                                                      etag, @"eTag",
+                                                      nil]];
     });
     
 }
@@ -117,18 +118,19 @@
     
 }
 
-- (void)downloadDidFinish:(NSURLDownload *)download
+- (void)downloadDidFinish:(NSURLDownload *)download toFilePath:(NSString *)filePath
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                                       @"",@"lastError",
-                                                      [NSNumber numberWithInt:BO_COMPLETED], @"status",
+                                                      [NSNumber numberWithInt:BO_WAITING_CHECKSUM], @"status",
                                                       nil, @"downloadSpeedBytes",
                                                       nil]];
     });
     
     [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
-                                               bulkOperationStatus:BO_COMPLETED
+                                                        toFilePath:filePath
+                                               bulkOperationStatus:BO_WAITING_CHECKSUM
                                                        shouldRetry:FALSE];
     dispatch_async(_replyQueue, ^{
         [BulkOperations updateMasterOnItemComplete:[self entry]];

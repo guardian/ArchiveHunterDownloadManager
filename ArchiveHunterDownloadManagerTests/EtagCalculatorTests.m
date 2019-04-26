@@ -25,7 +25,8 @@
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
-    
+    [[NSFileManager defaultManager] removeItemAtPath:@"/tmp/testfile.3" error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:@"/tmp/testfile.4" error:nil];
 }
 
 - (void)testEtagCalculatorMT {

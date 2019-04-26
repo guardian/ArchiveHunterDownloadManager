@@ -8,8 +8,54 @@
 
 #import "EtagCalculator.h"
 #import "MMappedChunk.h"
+#import "FileSizeTransformer.h"
 
 @implementation EtagCalculator
++ (NSInteger)estimateLikelyChunksizeForFilesize:(NSNumber *)fileSize andChunkCount:(NSUInteger)chunkCount
+{
+    FileSizeTransformer *transformer = [[FileSizeTransformer alloc] init];
+    
+    NSArray *potentialSizeNames = [NSArray arrayWithObjects:
+                                    @"MrPushy",
+                                    @"AWS CLI",
+                                    @"1Mbit custom",
+                                   nil];
+    NSArray *knownPotentialSizes = [NSArray arrayWithObjects:
+                                    [NSNumber numberWithInteger:52428800],  //mr pushy uses 50Mb as the default upload size
+                                    [NSNumber numberWithInteger:8388608],   //AWS CLI uses 8Mb as the default upload size
+                                    [NSNumber numberWithInteger:1048576],   //1MB download chunk may also be common
+                                    nil];
+    
+    double firstEstimate = ceil([fileSize doubleValue]/(double)chunkCount);
+    NSLog(@"estimate for chunk size based on %lu chunks in %@ is %@", chunkCount, fileSize,
+          [transformer transformedValue:[NSNumber numberWithDouble:firstEstimate]]);
+    
+    int i=0;
+    
+    for(NSNumber *testSize in knownPotentialSizes){
+        if(ceil([fileSize doubleValue]/[testSize doubleValue])==chunkCount){
+            NSLog(@"Found a match for %@ (%@) ", [potentialSizeNames objectAtIndex:i], [knownPotentialSizes objectAtIndex:i]);
+            return [[knownPotentialSizes objectAtIndex:i] integerValue];
+        }
+        ++i;
+    }
+    NSLog(@"Could not find a known match, using estimate for chunk size; etag verification may fail");
+    return (NSInteger) firstEstimate;
+}
+
++ (NSInteger)estimateLikelyChunksizeForFilesize:(NSNumber *)fileSize andExistingEtag:(NSString*)eTag;
+{
+    NSArray<NSString*> *parts = [eTag componentsSeparatedByString:@"-"];
+    
+    if(!parts || [parts count]<2){  //this was not a multi-part upload, so chunk size is fairly irrelevant
+        NSLog(@"debug: %@ does not represent a multipart upload", eTag);
+        return 52428800;
+    } else {
+        NSLog(@"debug: got %@ chunks", [parts objectAtIndex:1]);
+        return [EtagCalculator estimateLikelyChunksizeForFilesize:fileSize andChunkCount:[[parts objectAtIndex:1] integerValue]];
+    }
+}
+
 - (id)initForFilepath:(NSString *)filePath forChunkSize:(NSInteger)chunkSize withThreads:(NSInteger)threads
 {
     self = [super init];
@@ -61,8 +107,10 @@
     
     NSInteger idx=0;
     
+    NSLog(@"MT etag calculation: file size is %llu with chunk size of %@", [__mappedFile _size], [self chunkSize]);
+    
     //adding chunks of file to queue and let it roll....
-    for(off_t offset; offset<[__mappedFile _size];offset+=[[self chunkSize] longLongValue]){
+    for(off_t offset=0; offset<[__mappedFile _size];offset+=[[self chunkSize] longLongValue]){
         NSUInteger chunkSize;
         
         chunkSize = [[self chunkSize] integerValue];
@@ -80,11 +128,12 @@
         idx+=1;
     }
     [self setChunkCount:[NSNumber numberWithInteger:idx]];
+    NSLog(@"MT etag calculation: chunk count is %@", [self chunkCount]);
     
     //wait until we have the expected number of outputs
     NSUInteger currentCount;
     while(1){
-        sleep(5);
+        sleep(1);
         [__outputArrayMutex lock];
         currentCount = [_chunkDigests count];
         [__outputArrayMutex unlock];
@@ -130,7 +179,7 @@
         [__inputArrayMutex unlock];
         
         if(chunk==nil){ //nothing on the queue
-            NSLog(@"thread waiting for data");
+//            NSLog(@"thread waiting for data");
             usleep(500000); //sleep 1/2 second and try again
             continue;
         }

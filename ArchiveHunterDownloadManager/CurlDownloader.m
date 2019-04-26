@@ -139,7 +139,7 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     //NSLog(@"Got header: %@ with value %@", headerName, headerValue);
     
     if([headerName compare:@"ETag"]==NSOrderedSame){
-        [_headInfo setETag:headerValue];
+        [_headInfo setETag:[headerValue stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\" "]]];
     } else if([headerName compare:@"Content-Type"]==NSOrderedSame){
         [_headInfo setContentType:headerValue];
     } else if([headerName compare:@"Accept-Ranges"]==NSOrderedSame){
@@ -205,7 +205,7 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     dispatch_async(dispatch_get_main_queue(), ^{
         if(_downloadDelegate){
             if(result){
-                [_downloadDelegate downloadDidFinish:url];
+                [_downloadDelegate downloadDidFinish:url toFilePath:filePath];
             } else {
                 [_downloadDelegate download:url didFailWithError:err];
             }
@@ -264,7 +264,7 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
 {
     bool result, rtn;
     
-    if(_downloadDelegate) [_downloadDelegate downloadDidBegin:url];
+    if(_downloadDelegate) [_downloadDelegate downloadDidBegin:url withEtag:[_headInfo eTag]];
     [self set_startTimestamp:time(NULL)];
     NSLog(@"Download for %@ of type %@ to %@ with size %@ starting", url, [_headInfo contentType], filePath,[self totalSize]);
     
@@ -272,7 +272,7 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     CURLcode dlresult = curl_easy_perform(__curlPtr);
     NSLog(@"Download for %@ completed, return code %d", url, result);
     
-    if(_downloadDelegate) [_downloadDelegate downloadDidFinish:url];
+    if(_downloadDelegate) [_downloadDelegate downloadDidFinish:url toFilePath:filePath];
     
     //step five - teardown
     rtn = [self handleCurlResult:dlresult forUrl:url withError:err];
