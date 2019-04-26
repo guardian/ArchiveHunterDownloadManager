@@ -86,6 +86,10 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     _totalSize = nil;
     _bytesDownloaded = nil;
     
+    __startTimestamp=-1;
+    __finishTimestamp=-1;
+    _downloadRate=nil;
+    
     return self;
 }
 
@@ -261,8 +265,9 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     bool result, rtn;
     
     if(_downloadDelegate) [_downloadDelegate downloadDidBegin:url];
-    
+    [self set_startTimestamp:time(NULL)];
     NSLog(@"Download for %@ of type %@ to %@ with size %@ starting", url, [_headInfo contentType], filePath,[self totalSize]);
+    
     //step four - run it
     CURLcode dlresult = curl_easy_perform(__curlPtr);
     NSLog(@"Download for %@ completed, return code %d", url, result);
@@ -290,8 +295,15 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     
     //NSLog(@"Got %lu bytes", size*nmemb);
     
+    time_t elapsed;
+    if(__startTimestamp>0){
+        elapsed = time(NULL)-__startTimestamp;
+    } else {
+        elapsed = -1;
+    }
+    
     if([self progressCb]) _progressCb([self bytesDownloaded], [self totalSize], self);
-    if(_downloadDelegate) [_downloadDelegate download:nil downloadedBytes:[self bytesDownloaded] fromTotal:[self totalSize] withData:nil];
+    if(_downloadDelegate) [_downloadDelegate download:nil downloadedBytes:[self bytesDownloaded] fromTotal:[self totalSize] inSeconds:elapsed withData:nil];
     return size*nmemb;
 }
 

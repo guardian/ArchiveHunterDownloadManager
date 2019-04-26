@@ -24,8 +24,7 @@
 
 - (void)downloadDidBegin:(NSURL *)url;
 - (void)download:(NSURL *)url didCreateDestination:(NSString *)path;
-- (void)download:(NSURL *)url downloadedBytes:(NSNumber *)bytes fromTotal:(NSNumber *)total withData:(id)data;
-- (BOOL)download:(NSURL *)url shouldDecodeSourceDataOfMIMEType:(NSString *)encodingType;
+- (void)download:(NSURL *)url downloadedBytes:(NSNumber *)bytes fromTotal:(NSNumber *)total inSeconds:(time_t)seconds withData:(id)data;
 - (void)download:(NSURL *)url didFailWithError:(NSError *)error;
 - (void)downloadDidFinish:(NSURL *)url;
 @end

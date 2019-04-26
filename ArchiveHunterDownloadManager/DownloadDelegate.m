@@ -54,13 +54,17 @@
     });
 }
 
-- (void)download:(NSURL *)url downloadedBytes:(NSNumber *)bytes fromTotal:(NSNumber *)total withData:(id)data
+- (void)download:(NSURL *)url downloadedBytes:(NSNumber *)bytes fromTotal:(NSNumber *)total inSeconds:(time_t)seconds withData:(id)data
 {
-//    NSLog(@"download received data of length %lu", length);
-//    [self setDownloadedSoFar:[NSNumber numberWithLongLong:[[self downloadedSoFar] longLongValue]+length]];
-//    NSNumber *totalSize = (NSNumber *)[[self entry] valueForKey:@"fileSize"];
-    
+
     NSNumber *newProgress = [NSNumber numberWithDouble:[bytes doubleValue] / [total doubleValue]];
+    
+    NSNumber *newBps;
+    if(seconds>0){
+        newBps = [NSNumber numberWithDouble:[bytes doubleValue]/(double)seconds];
+    } else {
+        newBps = nil;
+    }
     
     ++__updateCounter;
     if(__updateCounter>_updateDivider || [bytes longLongValue]==[total longLongValue]){
@@ -71,6 +75,8 @@
             
             [bulk setValue:[NSNumber numberWithLongLong:currentProgress+[bytes longLongValue]] forKey:@"amountDownloaded"];
             
+            [[self entry] setValue:newProgress forKey:@"downloadProgress"];
+            [[self entry] setValue:newBps forKey:@"downloadSpeedBytes"];
             [[bulk managedObjectContext] save:&err];
             if(err){
                 NSLog(@"Could not save bulk data: %@", err);
@@ -78,11 +84,6 @@
         });
         if(__updateCounter>_updateDivider) __updateCounter=0;
     }
-    
-    //NSLog(@"downloadedSoFar: %@ totalSize %@ newProgress %@", _downloadedSoFar, totalSize, newProgress);
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[self entry] setValue:newProgress forKey:@"downloadProgress"];
-    });
 }
 
 
@@ -101,8 +102,9 @@
     
         [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                                       [error localizedDescription],@"lastError",
-                                                      [NSNumber numberWithInt:BO_ERRORED], @"status"
-                                                      ,nil]];
+                                                      [NSNumber numberWithInt:BO_ERRORED], @"status",
+                                                      nil, @"downloadSpeedBytes",
+                                                      nil]];
         [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
                                                    bulkOperationStatus:BO_ERRORED
                                                            shouldRetry:FALSE];
@@ -120,8 +122,9 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
                                                       @"",@"lastError",
-                                                      [NSNumber numberWithInt:BO_COMPLETED], @"status"
-                                                      ,nil]];
+                                                      [NSNumber numberWithInt:BO_COMPLETED], @"status",
+                                                      nil, @"downloadSpeedBytes",
+                                                      nil]];
     });
     
     [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]

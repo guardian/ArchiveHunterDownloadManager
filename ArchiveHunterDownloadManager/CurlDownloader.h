@@ -24,17 +24,21 @@ size_t header_callback(char *buffer,   size_t size,   size_t nitems,   void *use
 @property HttpHeadInfo* headInfo;
 @property MMappedFile* currentFile;
 
-@property NSNumber* totalSize;
-@property NSNumber* bytesDownloaded;
+@property (atomic, strong, nullable) NSNumber* totalSize;
+@property (atomic, strong, nullable) NSNumber* bytesDownloaded;
+@property (atomic, strong, nullable) NSNumber* downloadRate;
 
-@property (nonatomic, copy) void (^progressCb)(NSNumber* bytesDownloaded, NSNumber* totalSize, id userData);
-@property (atomic,strong) DownloadDelegate* downloadDelegate;
+@property (nonatomic, copy) void (^_Nullable progressCb)(NSNumber *_Nonnull bytesDownloaded, NSNumber *_Nonnull totalSize, id _Nullable userData);
+@property (atomic, strong, nullable) DownloadDelegate* downloadDelegate;
+
 
 //internal properties
-@property NSNumber* _writeFd;
-@property NSMutableData* _writeBuffer;
-@property CURL* _curlPtr;
-@property NSMutableData* downloadBuffer;
+@property NSNumber* _Nullable _writeFd;
+@property NSMutableData* _Nullable _writeBuffer;
+@property CURL* _Nullable _curlPtr;
+@property NSMutableData* _Nullable downloadBuffer;
+@property time_t _startTimestamp;
+@property time_t _finishTimestamp;
 
 //public methods
 - (id) initWithChunkSize:(NSInteger)chunkSize;
