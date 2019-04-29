@@ -17,7 +17,14 @@
     _replyQueue = queue;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
     _entry = nil;
-    _updateDivider=100;
+    
+    NSNumber* updateDividerCurrentValue = [[NSUserDefaults standardUserDefaults] valueForKey:@"uiUpdateDivider"];
+    if(updateDividerCurrentValue){
+        _updateDivider = [updateDividerCurrentValue integerValue];
+    } else {
+        _updateDivider = 100;
+    }
+    NSLog(@"UI update divider is %lu", _updateDivider);
     __updateCounter=0;
     
     return self;
@@ -30,7 +37,14 @@
     _entry = entry;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
     _downloadQueueManager = downloadQueueManager;
-    _updateDivider=20;
+    NSNumber* updateDividerCurrentValue = [[NSUserDefaults standardUserDefaults] valueForKey:@"uiUpdateDivider"];
+    if(updateDividerCurrentValue){
+        _updateDivider = [updateDividerCurrentValue integerValue];
+    } else {
+        _updateDivider = 100;
+    }
+    NSLog(@"UI update divider is %lu", _updateDivider);
+    
     __updateCounter=0;
     return self;
 }
@@ -78,10 +92,10 @@
             
             [[self entry] setValue:newProgress forKey:@"downloadProgress"];
             [[self entry] setValue:newBps forKey:@"downloadSpeedBytes"];
-            [[bulk managedObjectContext] save:&err];
-            if(err){
-                NSLog(@"Could not save bulk data: %@", err);
-            }
+//            [[bulk managedObjectContext] save:&err];
+//            if(err){
+//                NSLog(@"Could not save bulk data: %@", err);
+//            }
         });
         if(__updateCounter>_updateDivider) __updateCounter=0;
     }

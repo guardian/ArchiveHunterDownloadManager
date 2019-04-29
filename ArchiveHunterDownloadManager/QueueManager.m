@@ -54,8 +54,9 @@
                                                      
                                                      return [[indexPtr managedObject] valueForKey:@"fileId"]==[entry valueForKey:@"fileId"];
                                                  }];
-        NSLog(@"removeFromQueue: index is %d for %@", matchingIndex, [entry valueForKey:@"name"]);
-        [[self _activeItems] removeObjectAtIndex:matchingIndex];
+        
+        NSLog(@"removeFromQueue: index is %lu for %@", matchingIndex, [entry valueForKey:@"name"]);
+        if(matchingIndex!=-1) [[self _activeItems] removeObjectAtIndex:matchingIndex];
     });
 }
 

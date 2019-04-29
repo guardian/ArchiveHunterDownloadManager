@@ -1135,12 +1135,12 @@
         <scene sceneID="asm-ug-GA0">
             <objects>
                 <viewController id="umw-qB-Rhc" customClass="PreferencesController" sceneMemberID="viewController">
-                    <view key="view" id="Nu2-dl-zZk">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                    <view key="view" misplaced="YES" id="Nu2-dl-zZk">
+                        <rect key="frame" x="0.0" y="0.0" width="546" height="281"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WnS-pV-pbp">
-                                <rect key="frame" x="231" y="230" width="229" height="22"/>
+                                <rect key="frame" x="231" y="241" width="229" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" bezelStyle="round" id="FWz-cX-YKa">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1150,16 +1150,16 @@
                                     <binding destination="fdz-vs-Tfq" name="value" keyPath="values.serverHost" id="Z4q-w1-gU6"/>
                                 </connections>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eQf-uU-VJE">
-                                <rect key="frame" x="18" y="233" width="132" height="17"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eQf-uU-VJE">
+                                <rect key="frame" x="18" y="244" width="132" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Archivehunter Server" id="LIy-sG-ggC">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ndY-P7-UZ7">
-                                <rect key="frame" x="391" y="13" width="75" height="32"/>
+                            <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ndY-P7-UZ7">
+                                <rect key="frame" x="391" y="24" width="75" height="32"/>
                                 <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6fK-bn-hbV">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1169,7 +1169,7 @@
                                 </connections>
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HJL-2f-wHj">
-                                <rect key="frame" x="209" y="60" width="196" height="18"/>
+                                <rect key="frame" x="209" y="71" width="196" height="18"/>
                                 <buttonCell key="cell" type="radio" title="Don't download existing files" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="4Zk-yC-62Q">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1184,7 +1184,7 @@
                                 </connections>
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="leM-a7-eoj">
-                                <rect key="frame" x="19" y="60" width="166" height="18"/>
+                                <rect key="frame" x="19" y="71" width="166" height="18"/>
                                 <buttonCell key="cell" type="radio" title="Over-write existing files" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="jzf-hD-Iw1">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1194,18 +1194,8 @@
                                     <binding destination="fdz-vs-Tfq" name="value" keyPath="values.overwriteSelected" id="Fhj-xC-HUw"/>
                                 </connections>
                             </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Ke-ZA-oaY">
-                                <rect key="frame" x="18" y="162" width="368" height="18"/>
-                                <buttonCell key="cell" type="check" title="Automatically start downloads as soon as they are added" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="5TF-DJ-xsX">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <binding destination="a36-ZE-KhO" name="value" keyPath="values.autoStart" id="0ia-rQ-fIp"/>
-                                </connections>
-                            </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jBC-kz-LJb">
-                                <rect key="frame" x="18" y="202" width="201" height="17"/>
+                                <rect key="frame" x="18" y="213" width="201" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Maximum concurrent downloads" id="G5H-w4-ug1">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1213,7 +1203,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Z9-5c-tOD">
-                                <rect key="frame" x="231" y="199" width="96" height="22"/>
+                                <rect key="frame" x="231" y="210" width="96" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" bezelStyle="round" id="GkH-8K-QVl">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="Jiz-fe-4xa"/>
                                     <font key="font" metaFont="system"/>
@@ -1224,6 +1214,36 @@
                                     <binding destination="a36-ZE-KhO" name="value" keyPath="values.maxConcurrentDownloads" id="kNF-kK-k72"/>
                                 </connections>
                             </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LEH-AO-JKq">
+                                <rect key="frame" x="18" y="144" width="213" height="58"/>
+                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Update divider (increase for more responsive UI at the cost of less frequent updates)" id="RSe-xK-Rp7">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9RA-C3-ukZ">
+                                <rect key="frame" x="231" y="173" width="96" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" bezelStyle="round" id="m3j-Ox-dZG">
+                                    <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="qzb-O6-XIY"/>
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="a36-ZE-KhO" name="value" keyPath="values.uiUpdateDivider" id="zFq-kX-Hsj"/>
+                                </connections>
+                            </textField>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Ke-ZA-oaY">
+                                <rect key="frame" x="18" y="120" width="368" height="18"/>
+                                <buttonCell key="cell" type="check" title="Automatically start downloads as soon as they are added" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="5TF-DJ-xsX">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="a36-ZE-KhO" name="value" keyPath="values.autoStart" id="0ia-rQ-fIp"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="ndY-P7-UZ7" secondAttribute="trailing" constant="20" id="0zA-1Z-yeh"/>
@@ -1243,7 +1263,7 @@
                 <userDefaultsController id="cSU-RD-kfr"/>
                 <userDefaultsController id="a36-ZE-KhO"/>
             </objects>
-            <point key="canvasLocation" x="771" y="385"/>
+            <point key="canvasLocation" x="804" y="390.5"/>
         </scene>
     </scenes>
     <resources>
