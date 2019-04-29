@@ -43,14 +43,19 @@
     });
 }
 
-- (void)removeFromQueue:(NSManagedObject *)entry
+- (void) removeFromQueue:(NSManagedObject *)entry
 {
-    dispatch_async(__commandDispatchQueue, ^{
-        NSLog(@"removeFromQueue");
-        DownloadQueueEntry *ent = [self findDownloadEntry:entry];
-        if(ent){
-            [__waitingQueue removeObject:ent];
-        }
+    dispatch_async([self _commandDispatchQueue], ^{
+        NSLog(@"removeFromQueue for %@", [entry valueForKey:@"name"]);
+        NSIndexSet* fullSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [[self _activeItems] count])];
+        NSUInteger matchingIndex = [fullSet indexWithOptions:NSEnumerationConcurrent
+                                                 passingTest:^BOOL (NSUInteger idx, BOOL *stop){
+                                                     DownloadQueueEntry  *indexPtr = [[self _activeItems] objectAtIndex:idx];
+                                                     
+                                                     return [[indexPtr managedObject] valueForKey:@"fileId"]==[entry valueForKey:@"fileId"];
+                                                 }];
+        NSLog(@"removeFromQueue: index is %d for %@", matchingIndex, [entry valueForKey:@"name"]);
+        [[self _activeItems] removeObjectAtIndex:matchingIndex];
     });
 }
 
@@ -58,16 +63,16 @@
  find a DownloadQueueEntry for the provided archive entry
  returns Null if there is not one in the queue
  */
-- (DownloadQueueEntry *_Nullable)findDownloadEntry:(NSManagedObject *)forSource
-{
-    NSString *sourceFileId = [forSource valueForKey:@"fileId"];
-    
-    for(DownloadQueueEntry *ent in __waitingQueue){
-        NSString *otherFileId = [[ent managedObject] valueForKey:@"fileId"];
-        if([otherFileId compare:sourceFileId]==NSOrderedSame) return ent;
-    }
-    return NULL;
-}
+//- (DownloadQueueEntry *_Nullable)findDownloadEntry:(NSManagedObject *)forSource
+//{
+//    NSString *sourceFileId = [forSource valueForKey:@"fileId"];
+//    
+//    for(DownloadQueueEntry *ent in __waitingQueue){
+//        NSString *otherFileId = [[ent managedObject] valueForKey:@"fileId"];
+//        if([otherFileId compare:sourceFileId]==NSOrderedSame) return ent;
+//    }
+//    return NULL;
+//}
 
 /**
  check how many jobs are running and pull from queue if necessary

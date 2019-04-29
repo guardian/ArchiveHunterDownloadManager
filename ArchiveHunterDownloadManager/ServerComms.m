@@ -76,7 +76,7 @@
     });
 }
 
-- (void)performItemDownload:(NSURL *)actualDownloadUrl
+- (BOOL)performItemDownload:(NSURL *)actualDownloadUrl
                    forEntry:(NSManagedObject *)entry
                     manager:(DownloadQueueManager *)mgr
 {
@@ -99,7 +99,7 @@
                                                        [NSNumber numberWithInteger:BO_ERRORED], @"status",
                                                        nil]];
             });
-            return;
+            return FALSE;
         }
     } else {
         [fileManager createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&err];
@@ -111,7 +111,7 @@
                                                        [NSNumber numberWithInt:BO_ERRORED], @"status",
                                                        nil]];
             });
-            return;
+            return FALSE;
         }
     }
     
@@ -132,19 +132,9 @@
                                                        nil]];
             });
         }
+        return FALSE;
     }
-    
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        //this must be done on the main thread to get at the primary runloop
-//        NSURLDownload *dld = [[NSURLDownload alloc] initWithRequest:req delegate:del];
-//        
-//        if(!dld){
-//            NSLog(@"Error - could not start download.");
-//        }
-//        NSLog(@"Downloading %@ to %@", actualDownloadUrl, [entry valueForKey:@"destinationFile"]);
-//        [dld setDestination:[entry valueForKey:@"destinationFile"] allowOverwrite:YES];
-//        [dld setDeletesFileUponFailure:YES];
-//    });
+    return TRUE;
 }
 
 /**
@@ -152,7 +142,7 @@
  */
 - (NSURLSessionDataTask *) itemRetrievalTask:(NSURL *)retrievalLink
                                     forEntry:(NSManagedObject *)entry
-                                     manager:(DownloadQueueManager *)mgr
+                           completionHandler:(void (^ _Nonnull)(NSURL *downloadUrl, NSError *_Nullable err))completionBlock
 {
     NSURLSession *sess = [NSURLSession sharedSession];
     
@@ -164,16 +154,17 @@
         if(error){
             NSLog(@"Could not retrieve actual download URL for %@: %@", [entry valueForKey:@"name"], error);
             [self setEntryError:error forEntry:entry];
+            completionBlock(nil, error);
         } else {
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&parseError];
             if(json){
                 NSString *actualDownloadUrl = [json valueForKey:@"entry"];
                 
-                NSLog(@"Actual download URL for %@ is %@" , retrievalLink, actualDownloadUrl);
+                //NSLog(@"Actual download URL for %@ is %@" , retrievalLink, actualDownloadUrl);
                 NSURL *downloadURL = [NSURL URLWithString:actualDownloadUrl];
                 
                 if(downloadURL){
-                    [self performItemDownload:downloadURL forEntry:entry manager:mgr];
+                    completionBlock(downloadURL,nil);
                 } else {
                     NSLog(@"Could not create NSURL from %@", actualDownloadUrl);
                 }
@@ -181,6 +172,7 @@
                 NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 NSLog(@"Could not parse JSON from server: %@", parseError);
                 [self setEntryError:parseError forEntry:entry];
+                completionBlock(nil, parseError);
             }
         }
     }];

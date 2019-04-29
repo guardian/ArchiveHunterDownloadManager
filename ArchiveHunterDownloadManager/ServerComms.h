@@ -7,19 +7,24 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "DownloadQueueManager.h"
 
 @interface ServerComms : NSObject
 
-- (id)init;
+- (id _Nonnull)init;
 
 - (BOOL) initiateDownload:(NSString * _Nonnull)token
                 withError:(NSError *_Nullable *_Nullable)err
         completionHandler:(void (^ _Nonnull)(NSDictionary *_Nullable data, NSError *_Nullable err))completionBlock;
 
 - (NSURLSessionDataTask *_Nullable) itemRetrievalTask:(NSURL *_Nonnull)retrievalLink
-                                             forEntry:(NSManagedObject *_Nonnull)entry
-                                              manager:(id)mgr;
+                                             forEntry:(NSManagedObject* _Nonnull)entry
+                                    completionHandler:(void (^ _Nonnull)(NSURL* _Nullable downloadUrl, NSError* _Nullable err)) completionBlock;
 
-@property (atomic, strong) NSURLSession *session;
-@property (readonly, strong) dispatch_queue_t replyQueue;
+- (BOOL)performItemDownload:(NSURL* _Nonnull)actualDownloadUrl
+                   forEntry:(NSManagedObject* _Nonnull )entry
+                    manager:(DownloadQueueManager* _Nonnull )mgr;
+
+@property (atomic, strong) NSURLSession* _Nonnull session;
+@property (readonly, strong) dispatch_queue_t _Nonnull replyQueue;
 @end

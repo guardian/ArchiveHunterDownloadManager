@@ -46,6 +46,8 @@ ServerComms *serverComms;
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulk/%@/get/%@", hostName, retrievalToken, entryId]];
 }
 
+
+
 /**
  actually do an item download
  */
@@ -66,7 +68,22 @@ ServerComms *serverComms;
         return FALSE;
     }
     
-    NSURLSessionDataTask *retrievalTask = [serverComms itemRetrievalTask:retrievalLink forEntry:entry manager:self];
+    NSURLSessionDataTask *retrievalTask = [serverComms itemRetrievalTask:retrievalLink forEntry:entry
+                                                       completionHandler:^(NSURL * _Nullable downloadUrl, NSError * _Nullable err) {
+                                                           if(err){
+                                                               NSLog(@"failed to start download: %@", err);
+                                                               [self removeFromQueue:entry];
+                                                               [self pullNextItem];
+                                                           } else {
+                                                               BOOL result = [serverComms performItemDownload:downloadUrl forEntry:entry manager:self];
+                                                               if(!result){
+                                                                   NSLog(@"Failed to start download.");
+                                                                   [self removeFromQueue:entry];
+                                                                   [self pullNextItem];
+                                                               }
+                                                           }
+    
+    }];
     
     [retrievalTask resume];
     return TRUE;
