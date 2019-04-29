@@ -56,7 +56,7 @@
                                                  }];
         
         NSLog(@"removeFromQueue: index is %lu for %@", matchingIndex, [entry valueForKey:@"name"]);
-        if(matchingIndex!=-1) [[self _activeItems] removeObjectAtIndex:matchingIndex];
+        if(matchingIndex>[[self _activeItems] count]) [[self _activeItems] removeObjectAtIndex:matchingIndex];
     });
 }
 
