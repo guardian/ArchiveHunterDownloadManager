@@ -203,7 +203,7 @@
             [[[self appDelegate] queueManager] removeFromQueue:entry];
         }];
         
-        if([[selectedBulk valueForKey:@"stats"] intValue]!=BO_COMPLETED){
+        if([[selectedBulk valueForKey:@"status"] intValue]!=BO_COMPLETED){
             [selectedBulk setValue:[NSNumber numberWithInteger:BO_PARTIAL] forKey:@"status"];
         }
         [moc save:nil];
