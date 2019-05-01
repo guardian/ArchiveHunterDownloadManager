@@ -111,7 +111,10 @@
         NSString *errorString = [NSString stringWithFormat:@"%@", error];
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setMessageText:@"File Download Error"];
-        [alert setInformativeText:[NSString stringWithFormat:@"A file download error occured: %@", [errorString substringToIndex:256]]];
+        
+        NSString *truncatedErrorString = [errorString length]>256 ? [errorString substringToIndex:256] : errorString;
+        
+        [alert setInformativeText:[NSString stringWithFormat:@"A file download error occured: %@", truncatedErrorString]];
         [alert addButtonWithTitle:@"Okay"];
         [alert runModal];
     

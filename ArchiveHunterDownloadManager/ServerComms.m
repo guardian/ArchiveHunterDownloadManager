@@ -115,6 +115,31 @@
         }
     }
     
+    if([fileManager fileExistsAtPath:[entry valueForKey:@"destinationFile"]]){
+        NSNumber* shouldOverwrite = [[NSUserDefaults standardUserDefaults] valueForKey:@"overwriteSelected"];
+        if(!shouldOverwrite || ![shouldOverwrite boolValue]){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                       @"The file already exists", @"lastError",
+                                                       [NSNumber numberWithInt:BO_ERRORED], @"status",
+                                                       nil]];
+            });
+            return FALSE;
+        } else {
+            NSLog(@"Deleting existing file %@ because user prefs say we can", [entry valueForKey:@"destinationFile"]);
+            BOOL result = [fileManager removeItemAtPath:[entry valueForKey:@"destinationFile"] error:&err];
+            if(!result){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                           [err localizedDescription], @"lastError",
+                                                           [NSNumber numberWithInt:BO_ERRORED], @"status",
+                                                           nil]];
+                });
+                return FALSE;
+            }
+        }
+    }
+
     CurlDownloader *downloader = [[CurlDownloader alloc] initWithChunkSize:4096];
     [downloader setDownloadDelegate:del];
     
@@ -135,6 +160,7 @@
         return FALSE;
     }
     return TRUE;
+
 }
 
 /**
