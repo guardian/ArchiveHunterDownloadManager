@@ -40,7 +40,8 @@
     
     XCTAssertEqual(result, true);
     XCTAssertEqual(err, NULL);
-    XCTAssertEqual([[[downloader headInfo] eTag] compare:@"\"fb16181d067d2dd96368d52d2de3fe2d\""], NSOrderedSame);
+           
+    XCTAssertEqual([[[downloader headInfo] eTag] compare:@"fb16181d067d2dd96368d52d2de3fe2d"], NSOrderedSame);
     XCTAssertEqual([[downloader headInfo] size], [NSNumber numberWithLongLong:102400]);
     XCTAssertEqual([[[downloader headInfo] acceptRanges] compare:@"bytes"], NSOrderedSame);
     XCTAssertEqual([[[downloader headInfo] contentType] compare:@"application/x-ns-proxy-autoconfig"], NSOrderedSame);
@@ -99,7 +100,7 @@
     
     XCTAssertNotEqual([downloader headInfo], NULL);
     NSLog(@"etag is %@", [[downloader headInfo] eTag]);
-    XCTAssertEqual([[[downloader headInfo] eTag] compare:@"\"some-etag\""], NSOrderedSame);
+    XCTAssertEqual([[[downloader headInfo] eTag] compare:@"some-etag"], NSOrderedSame);
 }
 
 - (NSString*) getShaForFile:(NSString*) filename

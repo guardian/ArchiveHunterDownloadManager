@@ -50,8 +50,24 @@
                  [alert addButtonWithTitle:@"Okay"];
                  [alert runModal];
              });
+         } else if([(NSHTTPURLResponse*)response statusCode]!=200){
+             NSLog(@"Error making initial contact: server returned %@", response);
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 NSError *ownError = [[NSError alloc] initWithDomain:@"servercomms"
+                                                                code:[(NSHTTPURLResponse*)response statusCode]
+                                                            userInfo:nil];
+                 
+                 completionBlock(nil, ownError);
+                 
+                 NSAlert *alert = [[NSAlert alloc] init];
+                 [alert setMessageText:@"Server Error"];
+                 NSString *errorString = [NSString stringWithFormat:@"A server error occurred with code %lu. Please retry, if this continues to occur inform multimediatech@theguardian.com", [(NSHTTPURLResponse*)response statusCode]];
+                 
+                 [alert setInformativeText:errorString];
+                 [alert addButtonWithTitle:@"Okay"];
+                 [alert runModal];
+             });
          } else {
-             
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&parseError];
              dispatch_async(dispatch_get_main_queue(), ^{
                  completionBlock(json, parseError);

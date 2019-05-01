@@ -48,4 +48,13 @@
     NSLog(@"stripCommonPathComponents: %@",result);
     XCTAssertEqual([result compare:@"/path/to/my/downloads/projectname/media"], NSOrderedSame);
 }
+
+- (void)testStripCommonPathComonentsBucketRoot {
+    BulkOperations *op = [[BulkOperations alloc] init];
+    
+    NSString *result = [op stripCommonPathComponents:@"/path/to/my" forEntryPath:@""];
+    NSLog(@"stripCommonPathComponents: %@",result);
+    XCTAssertEqual([result compare:@"/path/to/my"], NSOrderedSame);
+}
+
 @end

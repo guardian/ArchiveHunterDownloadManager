@@ -144,12 +144,17 @@ ensure that the Notification Center pops-up our notifications
             if(err){
                 NSLog(@"Download error: %@", err);
                 
-                NSString *errorString = [NSString stringWithFormat:@"%@", err];
-                NSAlert *alert = [[NSAlert alloc] init];
-                [alert setMessageText:@"Download Error"];
-                [alert setInformativeText:[NSString stringWithFormat:@"A download error occured: %@", [errorString substringToIndex:256]]];
-                [alert addButtonWithTitle:@"Okay"];
-                [alert runModal];
+                if([[err domain] compare:@"servercomms"]!=NSOrderedSame){
+                    NSString *errorString = [NSString stringWithFormat:@"%@", err];
+                    NSAlert *alert = [[NSAlert alloc] init];
+                    [alert setMessageText:@"Download Error"];
+                    
+                    NSString *truncatedErrorString = [errorString length]>256 ? [errorString substringToIndex:256] : errorString;
+                    
+                    [alert setInformativeText:[NSString stringWithFormat:@"A download error occured: %@", truncatedErrorString]];
+                    [alert addButtonWithTitle:@"Okay"];
+                    [alert runModal];
+                }
             } else {
                 //NSLog(@"Got data: %@", data);
                 NSDictionary *metadata = [data objectForKey:@"metadata"];
@@ -164,6 +169,7 @@ ensure that the Notification Center pops-up our notifications
                     
                     for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
                         [self createNewEntry:entrySynop parent:bulk];
+                        NSLog(@"entry synopsis is %@", entrySynop);
                         NSNumber *fileSize = [entrySynop valueForKey:@"fileSize"];
                         //NSLog(@"File Size: %@", fileSize);
                         //NSLog(@"File Size Long Long: %lld", [fileSize longLongValue]);
