@@ -687,13 +687,13 @@
                                     <action selector="editClicked:" target="XfG-lQ-9wD" id="aCg-Yi-40f"/>
                                 </connections>
                             </button>
-                            <button toolTip="Start downloading everything" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="srv-x1-N3e">
+                            <button toolTip="Restart queue" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="srv-x1-N3e">
                                 <rect key="frame" x="692" y="253" width="24" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="24" id="dQb-Ja-W5b"/>
                                     <constraint firstAttribute="height" constant="19" id="o7S-dC-qsP"/>
                                 </constraints>
-                                <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSRefreshTemplate" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JgW-LH-Srl">
+                                <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSStatusAvailable" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JgW-LH-Srl">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -1054,7 +1054,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
-                            <button toolTip="Retry" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rm1-Mz-lxu">
+                            <button toolTip="Retry failed downloads" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rm1-Mz-lxu">
                                 <rect key="frame" x="632" y="253" width="22" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="22" id="BiJ-y5-yZh"/>
@@ -1286,8 +1286,8 @@
         <image name="NSCaution" width="32" height="32"/>
         <image name="NSFolder" width="32" height="32"/>
         <image name="NSRefreshFreestandingTemplate" width="14" height="14"/>
-        <image name="NSRefreshTemplate" width="11" height="15"/>
         <image name="NSRemoveTemplate" width="11" height="11"/>
+        <image name="NSStatusAvailable" width="16" height="16"/>
         <image name="NSStopProgressFreestandingTemplate" width="14" height="14"/>
     </resources>
 </document>
