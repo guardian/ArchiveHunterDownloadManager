@@ -188,7 +188,6 @@ ensure that the Notification Center pops-up our notifications
                         [alert runModal];
                         [[self managedObjectContext] deleteObject:bulk];
                     } else {
-                        //NSLog(@"Total File Size: %lld", totalSize);
                         [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
                     
                         [[self managedObjectContext] save:&err];
