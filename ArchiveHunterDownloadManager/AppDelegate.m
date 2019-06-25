@@ -176,6 +176,13 @@ ensure that the Notification Center pops-up our notifications
                         totalSize = [fileSize longLongValue] + totalSize;
                     }
                     
+                    [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
+                    
+                    [[self managedObjectContext] save:&err];
+                    if(err){
+                        NSLog(@"could not save data store: %@", err);
+                    }
+                    
                     NSDictionary *entryDict = [data objectForKey:@"entries"];
                     NSUInteger keyCount = [entryDict count];
                     
@@ -188,14 +195,9 @@ ensure that the Notification Center pops-up our notifications
                         [alert runModal];
                         [[self managedObjectContext] deleteObject:bulk];
                     } else {
-                        [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
-                    
-                        [[self managedObjectContext] save:&err];
-                        if(err){
-                            NSLog(@"could not save data store: %@", err);
-                        }
                         [self asyncSetupDownload:bulk];
                     }
+                    
                 }
             }
         }];
