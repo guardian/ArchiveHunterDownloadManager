@@ -17,6 +17,16 @@
     _replyQueue = queue;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
     _entry = nil;
+    
+    NSNumber* updateDividerCurrentValue = [[NSUserDefaults standardUserDefaults] valueForKey:@"uiUpdateDivider"];
+    if(updateDividerCurrentValue){
+        _updateDivider = [updateDividerCurrentValue integerValue];
+    } else {
+        _updateDivider = 100;
+    }
+    NSLog(@"UI update divider is %lu", _updateDivider);
+    __updateCounter=0;
+    
     return self;
 }
 
@@ -27,74 +37,96 @@
     _entry = entry;
     _downloadedSoFar = [NSNumber numberWithLongLong:0];
     _downloadQueueManager = downloadQueueManager;
+    NSNumber* updateDividerCurrentValue = [[NSUserDefaults standardUserDefaults] valueForKey:@"uiUpdateDivider"];
+    if(updateDividerCurrentValue){
+        _updateDivider = [updateDividerCurrentValue integerValue];
+    } else {
+        _updateDivider = 100;
+    }
+    NSLog(@"UI update divider is %lu", _updateDivider);
+    
+    __updateCounter=0;
     return self;
 }
 
-- (void)downloadDidBegin:(NSURLDownload *)download
+- (void)downloadDidBegin:(NSURL *)url withEtag:(NSString *)etag
 {
     NSLog(@"%@ download started", [[self entry] valueForKey:@"destinationFile"]);
-    [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                  @"",@"lastError",
-                                                  [NSNumber numberWithInt:BO_RUNNING], @"status"
-                                                  ,nil]];
-    
-}
-
-- (void)download:(NSURLDownload *)download didCreateDestination:(NSString *)path
-{
-    NSLog(@"%@ created file for download: %@", [[self entry] valueForKey:@"destinationFile"], path);
-}
-
-- (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length
-{
-//    NSLog(@"download received data of length %lu", length);
-    [self setDownloadedSoFar:[NSNumber numberWithLongLong:[[self downloadedSoFar] longLongValue]+length]];
-    NSNumber *totalSize = (NSNumber *)[[self entry] valueForKey:@"fileSize"];
-    
-    NSNumber *newProgress = [NSNumber numberWithDouble:[[self downloadedSoFar] doubleValue] / [totalSize doubleValue]];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSError *err=NULL;
-        NSManagedObject *bulk = [[self entry] valueForKey:@"parent"];
-        long long currentProgress = [(NSNumber *)[bulk valueForKey:@"amountDownloaded"] longLongValue];
-        
-        [bulk setValue:[NSNumber numberWithLongLong:currentProgress+length] forKey:@"amountDownloaded"];
-        
-        [[bulk managedObjectContext] save:&err];
-        if(err){
-            NSLog(@"Could not save bulk data: %@", err);
-        }
+        [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                      @"",@"lastError",
+                                                      [NSNumber numberWithInt:BO_RUNNING], @"status",
+                                                      etag, @"eTag",
+                                                      nil]];
     });
     
-    //NSLog(@"downloadedSoFar: %@ totalSize %@ newProgress %@", _downloadedSoFar, totalSize, newProgress);
-    [[self entry] setValue:newProgress forKey:@"downloadProgress"];
 }
 
-//we don't want to decode anything automatically
-- (BOOL)download:(NSURLDownload *)download shouldDecodeSourceDataOfMIMEType:(NSString *)encodingType
+- (void)download:(NSURL *)url didCreateDestination:(NSString *)path
 {
-    NSLog(@"%@ shouldDecode", [[self entry] valueForKey:@"destinationFile"]);
-    return NO;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"%@ created file for download: %@", [[self entry] valueForKey:@"destinationFile"], path);
+    });
 }
+
+- (void)download:(NSURL *)url downloadedBytes:(NSNumber *)bytes fromTotal:(NSNumber *)total inSeconds:(time_t)seconds withData:(id)data
+{
+
+    NSNumber *newProgress = [NSNumber numberWithDouble:[bytes doubleValue] / [total doubleValue]];
+    
+    NSNumber *newBps;
+    if(seconds>0){
+        newBps = [NSNumber numberWithDouble:[bytes doubleValue]/(double)seconds];
+    } else {
+        newBps = nil;
+    }
+    
+    ++__updateCounter;
+    if(__updateCounter>_updateDivider || [bytes longLongValue]==[total longLongValue]){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *err=NULL;
+            NSManagedObject *bulk = [[self entry] valueForKey:@"parent"];
+            long long currentProgress = [(NSNumber *)[bulk valueForKey:@"amountDownloaded"] longLongValue];
+            
+            [bulk setValue:[NSNumber numberWithLongLong:currentProgress+[bytes longLongValue]] forKey:@"amountDownloaded"];
+            
+            [[self entry] setValue:newProgress forKey:@"downloadProgress"];
+            [[self entry] setValue:newBps forKey:@"downloadSpeedBytes"];
+//            [[bulk managedObjectContext] save:&err];
+//            if(err){
+//                NSLog(@"Could not save bulk data: %@", err);
+//            }
+        });
+        if(__updateCounter>_updateDivider) __updateCounter=0;
+    }
+}
+
 
 - (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error
 {
-    NSLog(@"Download %@ failed with error %@", [[self entry] valueForKey:@"destinationFile"], error);
-
-    NSString *errorString = [NSString stringWithFormat:@"%@", error];
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:@"File Download Error"];
-    [alert setInformativeText:[NSString stringWithFormat:@"A file download error occured: %@", [errorString substringToIndex:256]]];
-    [alert addButtonWithTitle:@"Okay"];
-    [alert runModal];
     
-    [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                  [error localizedDescription],@"lastError",
-                                                  [NSNumber numberWithInt:BO_ERRORED], @"status"
-                                                  ,nil]];
-    [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
-                                               bulkOperationStatus:BO_ERRORED
-                                                       shouldRetry:FALSE];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"Download %@ failed with error %@", [[self entry] valueForKey:@"destinationFile"], error);
+        NSString *errorString = [NSString stringWithFormat:@"%@", error];
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:@"File Download Error"];
+        
+        NSString *truncatedErrorString = [errorString length]>256 ? [errorString substringToIndex:256] : errorString;
+        
+        [alert setInformativeText:[NSString stringWithFormat:@"A file download error occured: %@", truncatedErrorString]];
+        [alert addButtonWithTitle:@"Okay"];
+        [alert runModal];
+    
+        [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                      [error localizedDescription],@"lastError",
+                                                      [NSNumber numberWithInt:BO_ERRORED], @"status",
+                                                      nil, @"downloadSpeedBytes",
+                                                      nil]];
+        [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
+                                                   bulkOperationStatus:BO_ERRORED
+                                                           shouldRetry:FALSE];
+    });
     
     dispatch_async(_replyQueue, ^{
         //this should perform the MOC save
@@ -103,17 +135,19 @@
     
 }
 
-- (void)downloadDidFinish:(NSURLDownload *)download
+- (void)downloadDidFinish:(NSURLDownload *)download toFilePath:(NSString *)filePath
 {
-    NSLog(@"Download %@ completed", [download request]);
-    
-    [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                  @"",@"lastError",
-                                                  [NSNumber numberWithInt:BO_COMPLETED], @"status"
-                                                  ,nil]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[self entry] setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                      @"",@"lastError",
+                                                      [NSNumber numberWithInt:BO_WAITING_CHECKSUM], @"status",
+                                                      nil, @"downloadSpeedBytes",
+                                                      nil]];
+    });
     
     [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
-                                               bulkOperationStatus:BO_COMPLETED
+                                                        toFilePath:filePath
+                                               bulkOperationStatus:BO_WAITING_CHECKSUM
                                                        shouldRetry:FALSE];
     dispatch_async(_replyQueue, ^{
         [BulkOperations updateMasterOnItemComplete:[self entry]];

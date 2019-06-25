@@ -16,7 +16,10 @@ typedef enum BulkOperationStatus {
     BO_ERRORED,
     BO_PARTIAL,
     BO_WAITING_USER_INPUT,
-    BO_INVALID
+    BO_INVALID,
+    BO_WAITING_CHECKSUM,
+    BO_VALIDATING_CHECKSUM,
+    BO_VALIDAION_FAILED,
 } BulkOperationStatus;
 
 @interface BulkOperations : NSObject

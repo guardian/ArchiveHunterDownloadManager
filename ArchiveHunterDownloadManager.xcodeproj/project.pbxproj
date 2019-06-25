@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9B07F6C122704DC200A899E7 /* CurlDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6C022704DC200A899E7 /* CurlDownloader.m */; };
+		9B07F6C422704E2400A899E7 /* HttpHeadInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6C322704E2400A899E7 /* HttpHeadInfo.m */; };
+		9B07F6C722704ED900A899E7 /* EtagCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6C622704ED900A899E7 /* EtagCalculator.m */; };
+		9B07F6C922705CC800A899E7 /* libcurl.4.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B07F6C822705CC800A899E7 /* libcurl.4.tbd */; };
+		9B07F6CB2270629700A899E7 /* CurlDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6CA2270629700A899E7 /* CurlDownloaderTests.m */; };
+		9B07F6CE2270727500A899E7 /* MMappedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6CD2270727500A899E7 /* MMappedFile.m */; };
+		9B07F6D02270799200A899E7 /* MMappedFileTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6CF2270799200A899E7 /* MMappedFileTests.m */; };
+		9B07F6D32270A6A600A899E7 /* MMappedChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6D22270A6A600A899E7 /* MMappedChunk.m */; };
+		9B07F6D62270AD3900A899E7 /* ChunkDigest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6D52270AD3900A899E7 /* ChunkDigest.m */; };
+		9B07F6D82270B7F700A899E7 /* EtagCalculatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F6D72270B7F700A899E7 /* EtagCalculatorTests.m */; };
 		9B1044BC22329123001E637B /* FileSizeTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B1044BB22329123001E637B /* FileSizeTransformer.m */; };
 		9B1044BF223296C9001E637B /* BulkOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B1044BE223296C9001E637B /* BulkOperations.m */; };
 		9B1044C22232B47C001E637B /* BulkObjectStatusTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B1044C12232B47C001E637B /* BulkObjectStatusTransformer.m */; };
@@ -23,6 +33,9 @@
 		9BA935C7222E8C700066812F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9BA935C5222E8C700066812F /* Main.storyboard */; };
 		9BA935D2222E8C700066812F /* ArchiveHunterDownloadManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935D1222E8C700066812F /* ArchiveHunterDownloadManagerTests.m */; };
 		9BA935DD222E8C700066812F /* ArchiveHunterDownloadManagerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935DC222E8C700066812F /* ArchiveHunterDownloadManagerUITests.m */; };
+		9BB9C2F822723AB5009729D3 /* StatusIconTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BB9C2F722723AB5009729D3 /* StatusIconTransformer.m */; };
+		9BB9C2FE2272F791009729D3 /* QueueManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BB9C2FD2272F791009729D3 /* QueueManager.m */; };
+		9BB9C30122730708009729D3 /* DownloadRateTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BB9C30022730708009729D3 /* DownloadRateTransformer.m */; };
 		9BCA366022300B41004799F4 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA365F22300B41004799F4 /* PreferencesController.m */; };
 		9BCA366B22312F6F004799F4 /* ServerComms.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA366A22312F6F004799F4 /* ServerComms.m */; };
 		9BE0C5D622370876000B0277 /* NotificationsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BE0C5D522370876000B0277 /* NotificationsHelper.m */; };
@@ -48,6 +61,22 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9B07F6BF22704DC200A899E7 /* CurlDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurlDownloader.h; sourceTree = "<group>"; };
+		9B07F6C022704DC200A899E7 /* CurlDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CurlDownloader.m; sourceTree = "<group>"; };
+		9B07F6C222704E2400A899E7 /* HttpHeadInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpHeadInfo.h; sourceTree = "<group>"; };
+		9B07F6C322704E2400A899E7 /* HttpHeadInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpHeadInfo.m; sourceTree = "<group>"; };
+		9B07F6C522704ED900A899E7 /* EtagCalculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EtagCalculator.h; sourceTree = "<group>"; };
+		9B07F6C622704ED900A899E7 /* EtagCalculator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EtagCalculator.m; sourceTree = "<group>"; };
+		9B07F6C822705CC800A899E7 /* libcurl.4.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurl.4.tbd; path = usr/lib/libcurl.4.tbd; sourceTree = SDKROOT; };
+		9B07F6CA2270629700A899E7 /* CurlDownloaderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CurlDownloaderTests.m; sourceTree = "<group>"; };
+		9B07F6CC2270727500A899E7 /* MMappedFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMappedFile.h; sourceTree = "<group>"; };
+		9B07F6CD2270727500A899E7 /* MMappedFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMappedFile.m; sourceTree = "<group>"; };
+		9B07F6CF2270799200A899E7 /* MMappedFileTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMappedFileTests.m; sourceTree = "<group>"; };
+		9B07F6D12270A6A600A899E7 /* MMappedChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMappedChunk.h; sourceTree = "<group>"; };
+		9B07F6D22270A6A600A899E7 /* MMappedChunk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMappedChunk.m; sourceTree = "<group>"; };
+		9B07F6D42270AD3900A899E7 /* ChunkDigest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChunkDigest.h; sourceTree = "<group>"; };
+		9B07F6D52270AD3900A899E7 /* ChunkDigest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChunkDigest.m; sourceTree = "<group>"; };
+		9B07F6D72270B7F700A899E7 /* EtagCalculatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EtagCalculatorTests.m; sourceTree = "<group>"; };
 		9B1044BA22329123001E637B /* FileSizeTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSizeTransformer.h; sourceTree = "<group>"; };
 		9B1044BB22329123001E637B /* FileSizeTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileSizeTransformer.m; sourceTree = "<group>"; };
 		9B1044BD223296C9001E637B /* BulkOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BulkOperations.h; sourceTree = "<group>"; };
@@ -80,6 +109,12 @@
 		9BA935D8222E8C700066812F /* ArchiveHunterDownloadManagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArchiveHunterDownloadManagerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA935DC222E8C700066812F /* ArchiveHunterDownloadManagerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArchiveHunterDownloadManagerUITests.m; sourceTree = "<group>"; };
 		9BA935DE222E8C700066812F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9BB9C2F622723AB5009729D3 /* StatusIconTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatusIconTransformer.h; sourceTree = "<group>"; };
+		9BB9C2F722723AB5009729D3 /* StatusIconTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatusIconTransformer.m; sourceTree = "<group>"; };
+		9BB9C2FC2272F791009729D3 /* QueueManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueManager.h; sourceTree = "<group>"; };
+		9BB9C2FD2272F791009729D3 /* QueueManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueueManager.m; sourceTree = "<group>"; };
+		9BB9C2FF22730708009729D3 /* DownloadRateTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadRateTransformer.h; sourceTree = "<group>"; };
+		9BB9C30022730708009729D3 /* DownloadRateTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadRateTransformer.m; sourceTree = "<group>"; };
 		9BCA365E22300B41004799F4 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
 		9BCA365F22300B41004799F4 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
 		9BCA366922312F6F004799F4 /* ServerComms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerComms.h; sourceTree = "<group>"; };
@@ -96,6 +131,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B07F6C922705CC800A899E7 /* libcurl.4.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,6 +152,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9B07F6BE22704DAE00A899E7 /* Downloader */ = {
+			isa = PBXGroup;
+			children = (
+				9B07F6BF22704DC200A899E7 /* CurlDownloader.h */,
+				9B07F6C022704DC200A899E7 /* CurlDownloader.m */,
+				9B07F6C222704E2400A899E7 /* HttpHeadInfo.h */,
+				9B07F6C322704E2400A899E7 /* HttpHeadInfo.m */,
+				9B07F6C522704ED900A899E7 /* EtagCalculator.h */,
+				9B07F6C622704ED900A899E7 /* EtagCalculator.m */,
+				9B07F6CC2270727500A899E7 /* MMappedFile.h */,
+				9B07F6CD2270727500A899E7 /* MMappedFile.m */,
+				9B07F6D12270A6A600A899E7 /* MMappedChunk.h */,
+				9B07F6D22270A6A600A899E7 /* MMappedChunk.m */,
+				9B07F6D42270AD3900A899E7 /* ChunkDigest.h */,
+				9B07F6D52270AD3900A899E7 /* ChunkDigest.m */,
+			);
+			name = Downloader;
+			sourceTree = "<group>";
+		};
 		9B24A17E2233BE8C00349A6C /* NotNeeded */ = {
 			isa = PBXGroup;
 			children = (
@@ -132,6 +187,8 @@
 				9B34F1EC22380487005952BA /* DownloadQueueManager.m */,
 				9B34F1EE223804EB005952BA /* DownloadQueueEntry.h */,
 				9B34F1EF223804EB005952BA /* DownloadQueueEntry.m */,
+				9BB9C2FC2272F791009729D3 /* QueueManager.h */,
+				9BB9C2FD2272F791009729D3 /* QueueManager.m */,
 			);
 			name = Managers;
 			sourceTree = "<group>";
@@ -139,6 +196,7 @@
 		9BA935AB222E8C700066812F = {
 			isa = PBXGroup;
 			children = (
+				9B07F6C822705CC800A899E7 /* libcurl.4.tbd */,
 				9BA935B6222E8C700066812F /* ArchiveHunterDownloadManager */,
 				9BA935D0222E8C700066812F /* ArchiveHunterDownloadManagerTests */,
 				9BA935DB222E8C700066812F /* ArchiveHunterDownloadManagerUITests */,
@@ -159,6 +217,7 @@
 		9BA935B6222E8C700066812F /* ArchiveHunterDownloadManager */ = {
 			isa = PBXGroup;
 			children = (
+				9B07F6BE22704DAE00A899E7 /* Downloader */,
 				9B34F1EA22380473005952BA /* Managers */,
 				9BE8592F2236B707001D586A /* Helpers */,
 				9BE8592E2236B6F4001D586A /* Controllers */,
@@ -189,6 +248,9 @@
 				9BA935D1222E8C700066812F /* ArchiveHunterDownloadManagerTests.m */,
 				9BA935D3222E8C700066812F /* Info.plist */,
 				9BE859302236C5AC001D586A /* BulkOperationsTests.m */,
+				9B07F6CA2270629700A899E7 /* CurlDownloaderTests.m */,
+				9B07F6CF2270799200A899E7 /* MMappedFileTests.m */,
+				9B07F6D72270B7F700A899E7 /* EtagCalculatorTests.m */,
 			);
 			path = ArchiveHunterDownloadManagerTests;
 			sourceTree = "<group>";
@@ -205,12 +267,16 @@
 		9BE8592D2236B6DC001D586A /* UITransformers */ = {
 			isa = PBXGroup;
 			children = (
+				9BB9C2F622723AB5009729D3 /* StatusIconTransformer.h */,
+				9BB9C2F722723AB5009729D3 /* StatusIconTransformer.m */,
 				9B24A17F22346CB000349A6C /* NegateTransformer.h */,
 				9B24A18022346CB000349A6C /* NegateTransformer.m */,
 				9B1044BA22329123001E637B /* FileSizeTransformer.h */,
 				9B1044BB22329123001E637B /* FileSizeTransformer.m */,
 				9B1044C02232B47C001E637B /* BulkObjectStatusTransformer.h */,
 				9B1044C12232B47C001E637B /* BulkObjectStatusTransformer.m */,
+				9BB9C2FF22730708009729D3 /* DownloadRateTransformer.h */,
+				9BB9C30022730708009729D3 /* DownloadRateTransformer.m */,
 			);
 			name = UITransformers;
 			sourceTree = "<group>";
@@ -373,17 +439,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				9BCA366022300B41004799F4 /* PreferencesController.m in Sources */,
+				9BB9C2FE2272F791009729D3 /* QueueManager.m in Sources */,
 				9B1044C52232D0E9001E637B /* DownloadTaskDelegate.m in Sources */,
 				9B1044BC22329123001E637B /* FileSizeTransformer.m in Sources */,
+				9B07F6C122704DC200A899E7 /* CurlDownloader.m in Sources */,
 				9BA935C2222E8C700066812F /* ArchiveHunterDownloadManager.xcdatamodeld in Sources */,
 				9BE8592C223696E2001D586A /* BulkDownloadStats.m in Sources */,
+				9B07F6D32270A6A600A899E7 /* MMappedChunk.m in Sources */,
 				9B1044C82233022C001E637B /* DownloadDelegate.m in Sources */,
+				9B07F6C422704E2400A899E7 /* HttpHeadInfo.m in Sources */,
+				9B07F6CE2270727500A899E7 /* MMappedFile.m in Sources */,
 				9BE0C5D622370876000B0277 /* NotificationsHelper.m in Sources */,
 				9BCA366B22312F6F004799F4 /* ServerComms.m in Sources */,
 				9BA935BF222E8C700066812F /* ViewController.m in Sources */,
+				9B07F6D62270AD3900A899E7 /* ChunkDigest.m in Sources */,
 				9B34F1ED22380487005952BA /* DownloadQueueManager.m in Sources */,
 				9B1044BF223296C9001E637B /* BulkOperations.m in Sources */,
+				9BB9C30122730708009729D3 /* DownloadRateTransformer.m in Sources */,
 				9BA935BC222E8C700066812F /* main.m in Sources */,
+				9BB9C2F822723AB5009729D3 /* StatusIconTransformer.m in Sources */,
+				9B07F6C722704ED900A899E7 /* EtagCalculator.m in Sources */,
 				9B24A18122346CB000349A6C /* NegateTransformer.m in Sources */,
 				9B1044C22232B47C001E637B /* BulkObjectStatusTransformer.m in Sources */,
 				9B34F1F0223804EB005952BA /* DownloadQueueEntry.m in Sources */,
@@ -395,8 +470,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B07F6D02270799200A899E7 /* MMappedFileTests.m in Sources */,
+				9B07F6D82270B7F700A899E7 /* EtagCalculatorTests.m in Sources */,
 				9BA935D2222E8C700066812F /* ArchiveHunterDownloadManagerTests.m in Sources */,
 				9BE859312236C5AC001D586A /* BulkOperationsTests.m in Sources */,
+				9B07F6CB2270629700A899E7 /* CurlDownloaderTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

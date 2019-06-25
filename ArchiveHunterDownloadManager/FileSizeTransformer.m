@@ -18,6 +18,11 @@
 {
     return NO;
 }
+
+- (NSArray<NSString*>*) sizeTokens {
+    return [NSArray arrayWithObjects:@"B",@"KB",@"MB",@"GB",@"TB",nil];
+}
+
 - (id)transformedValue:(id)value;
 {
     if (![value isKindOfClass:[NSNumber class]])
@@ -26,7 +31,7 @@
     double convertedValue = [value doubleValue];
     int multiplyFactor = 0;
     
-    NSArray *tokens = [NSArray arrayWithObjects:@"B",@"KB",@"MB",@"GB",@"TB",nil];
+    NSArray *tokens = [self sizeTokens];
     
     while (convertedValue > 1024) {
         convertedValue /= 1024;

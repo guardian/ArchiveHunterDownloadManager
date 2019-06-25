@@ -7,7 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#include <curl/curl.h>
 
 int main(int argc, const char * argv[]) {
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     return NSApplicationMain(argc, argv);
 }

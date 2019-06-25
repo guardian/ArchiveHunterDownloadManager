@@ -10,13 +10,10 @@
 #import "DownloadQueueEntry.h"
 #import "BulkOperations.h"
 #import "ServerComms.h"
+#import "EtagCalculator.h"
 
 @implementation DownloadQueueManager
-NSMutableArray<DownloadQueueEntry *> *_waitingQueue;
-NSMutableArray<DownloadQueueEntry *> *_activeItems;
-
-//we use a serial queue to ensure that multithreaded options don't screw us up
-dispatch_queue_t commandDispatchQueue;
+dispatch_queue_t checksumQueue;
 
 ServerComms *serverComms;
 
@@ -24,11 +21,7 @@ ServerComms *serverComms;
 {
     self = [super init];
     serverComms = [[ServerComms alloc] init];
-    _waitingQueue = [NSMutableArray array];
-    _activeItems = [NSMutableArray array];
-    _status = Q_WAITING;
-    _concurrency = 4;
-    commandDispatchQueue = dispatch_queue_create("DownloadQueueManager",nil);
+    checksumQueue = dispatch_queue_create("ChecksumQueue", nil);
     return self;
 }
 
@@ -36,88 +29,8 @@ ServerComms *serverComms;
 {
     self = [super init];
     serverComms = [[ServerComms alloc] init];
-    _waitingQueue = [NSMutableArray array];
-    _activeItems = [NSMutableArray array];
-    _status = Q_WAITING;
-    _concurrency = concurrency;
-    commandDispatchQueue = dispatch_queue_create("DownloadQueueManager",nil);
+    checksumQueue = dispatch_queue_create("ChecksumQueue", nil);
     return self;
-}
-
-- (void)addToQueue:(NSManagedObject *)entry
-{
-    dispatch_async(commandDispatchQueue, ^{
-        NSLog(@"addToQueue");
-        [_waitingQueue addObject:[[DownloadQueueEntry alloc] initWithEntry:entry]];
-        [self pullNextItem];
-    });
-}
-
-- (void)removeFromQueue:(NSManagedObject *)entry
-{
-    dispatch_async(commandDispatchQueue, ^{
-        NSLog(@"removeFromQueue");
-        DownloadQueueEntry *ent = [self findDownloadEntry:entry];
-        if(ent){
-            [_waitingQueue removeObject:ent];
-        }
-    });
-}
-
-/**
- find a DownloadQueueEntry for the provided archive entry
- returns Null if there is not one in the queue
- */
-- (DownloadQueueEntry *_Nullable)findDownloadEntry:(NSManagedObject *)forSource
-{
-    NSString *sourceFileId = [forSource valueForKey:@"fileId"];
-    
-    for(DownloadQueueEntry *ent in _waitingQueue){
-        NSString *otherFileId = [[ent managedObject] valueForKey:@"fileId"];
-        if([otherFileId compare:sourceFileId]==NSOrderedSame) return ent;
-    }
-    return NULL;
-}
-
-/**
- check how many jobs are running and pull from queue if necessary
- */
-- (void)pullNextItem
-{
-    NSLog(@"pullNextItem");
-    NSInteger spareCapacity = [self concurrency] - [_activeItems count];
-    NSLog(@"spareCapacity: %lu", spareCapacity);
-    
-    //we are already running at capacity
-    if(spareCapacity<=0){   //spareCapacity could be negative, if the user has reduced the capacity in prefs while downloads are active.
-        NSLog(@"No spare capacity available");
-        if(_status!=Q_FULL){
-            [self willChangeValueForKey:@"status"];
-            _status = Q_FULL;
-            [self didChangeValueForKey:@"status"];
-        }
-    } else { //we have spare capacity
-        if([_waitingQueue count]==0){
-            [self willChangeValueForKey:@"status"];
-            _status = Q_WAITING;
-            [self didChangeValueForKey:@"status"];
-        } else {
-            [self willChangeValueForKey:@"status"];
-            _status = Q_BUSY;
-            [self didChangeValueForKey:@"status"];
-            NSUInteger jobsToPull = [_waitingQueue count]>spareCapacity ? spareCapacity : [_waitingQueue count];
-            
-            for(NSUInteger n=0;n<jobsToPull;++n){
-                DownloadQueueEntry *entry = [_waitingQueue objectAtIndex:0];
-                [_waitingQueue removeObjectAtIndex:0];
-                if([self performItemDownload:[entry managedObject]]){
-                    [_activeItems addObject:entry];
-                } else {
-                    NSLog(@"unable to start download");
-                }
-            }
-        }
-    }
 }
 
 /**
@@ -133,10 +46,12 @@ ServerComms *serverComms;
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulk/%@/get/%@", hostName, retrievalToken, entryId]];
 }
 
+
+
 /**
  actually do an item download
  */
-- (BOOL) performItemDownload:(NSManagedObject *)entry {
+- (BOOL) performItemAction:(NSManagedObject *)entry {
     NSLog(@"performItemDownload");
     BulkOperationStatus entryStatus = (BulkOperationStatus)[(NSNumber *)[entry valueForKey:@"status"] integerValue];
     if(entryStatus!=BO_READY && entryStatus!=BO_ERRORED){
@@ -148,9 +63,27 @@ ServerComms *serverComms;
     NSString *retrievalToken = [parent valueForKey:@"retrievalToken"];
     NSURL *retrievalLink = [self getRetrievalLinkUrl:[entry valueForKey:@"fileId"] withRetrievalToken:retrievalToken];
     
-    if(!retrievalLink) return FALSE;
+    if(!retrievalLink) {
+        NSLog(@"Could not get retrieval URL for %@", [entry valueForKey:@"name"]);
+        return FALSE;
+    }
     
-    NSURLSessionDataTask *retrievalTask = [serverComms itemRetrievalTask:retrievalLink forEntry:entry manager:self];
+    NSURLSessionDataTask *retrievalTask = [serverComms itemRetrievalTask:retrievalLink forEntry:entry
+                                                       completionHandler:^(NSURL * _Nullable downloadUrl, NSError * _Nullable err) {
+                                                           if(err){
+                                                               NSLog(@"failed to start download: %@", err);
+                                                               [self removeFromQueue:entry];
+                                                               [self pullNextItem];
+                                                           } else {
+                                                               BOOL result = [serverComms performItemDownload:downloadUrl forEntry:entry manager:self];
+                                                               if(!result){
+                                                                   NSLog(@"Failed to start download.");
+                                                                   [self removeFromQueue:entry];
+                                                                   [self pullNextItem];
+                                                               }
+                                                           }
+    
+    }];
     
     [retrievalTask resume];
     return TRUE;
@@ -160,37 +93,43 @@ ServerComms *serverComms;
  called by BulkOperations to inform us that something finished
  */
 - (void)informCompleted:(NSManagedObject *)entry
+             toFilePath:(NSString *)filePath
     bulkOperationStatus:(BulkOperationStatus)status
             shouldRetry:(BOOL)shouldRetry
 {
-    dispatch_async(commandDispatchQueue, ^{
+    dispatch_async([self _commandDispatchQueue], ^{
         NSUInteger matchingIndex;
         NSIndexSet *fullSet;
         DownloadQueueEntry *queueEntry;
         
-        fullSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [_activeItems count])];
+        fullSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [[self _activeItems] count])];
         
         matchingIndex = [fullSet indexWithOptions:NSEnumerationConcurrent
                                       passingTest:^BOOL (NSUInteger idx, BOOL *stop){
-                                          DownloadQueueEntry  *indexPtr = [_activeItems objectAtIndex:idx];
+                                          DownloadQueueEntry  *indexPtr = [[self _activeItems] objectAtIndex:idx];
                                           
-                                          return [indexPtr managedObject]==entry;
+                                          return [[indexPtr managedObject] valueForKey:@"fileId"]==[entry valueForKey:@"fileId"];
                                       }];
-        if(matchingIndex==-1 | matchingIndex>[_activeItems count]){
+        if(matchingIndex==-1 | matchingIndex>[[self _activeItems] count]){
             NSLog(@"could not find a matching item for %@ in the active items list", entry);
             [self pullNextItem];
             return;
         }
         
         switch(status){
+            case BO_WAITING_CHECKSUM:
+                [[self _activeItems] removeObjectAtIndex:matchingIndex];
+                [self startChecksum:entry forFilePath:filePath];
+                break;
             case BO_COMPLETED:
                 //completed, just remove from the active queue
-                [_activeItems removeObjectAtIndex:matchingIndex];
+                [[self _activeItems] removeObjectAtIndex:matchingIndex];
+            
                 break;
             case BO_ERRORED:
                 //errored, if we want to retry bump the retry index and requeue
-                queueEntry = (DownloadQueueEntry *)[_activeItems objectAtIndex:matchingIndex];
-                [_activeItems removeObjectAtIndex:matchingIndex];
+                queueEntry = (DownloadQueueEntry *)[[self _activeItems] objectAtIndex:matchingIndex];
+                [[self _activeItems] removeObjectAtIndex:matchingIndex];
                 if(shouldRetry){
                     [queueEntry setRetryCount:[NSNumber numberWithInteger:[[queueEntry retryCount] integerValue]+1]];
                 }
@@ -199,6 +138,53 @@ ServerComms *serverComms;
                 NSLog(@"informCompleted called for an object in state %d which is not completed!", status);
         }
         [self pullNextItem];
+    });
+}
+
+- (NSUInteger) getChecksumThreads
+{
+    NSNumber *prefsValue = [[NSUserDefaults standardUserDefaults] valueForKey:@"checksumThreads"];
+    if(prefsValue){
+        return [prefsValue unsignedIntegerValue];
+    } else {
+        return 4;
+    }
+}
+
+- (void)startChecksum:(NSManagedObject *)entry forFilePath:(NSString *)filePath
+{
+    dispatch_async(checksumQueue, ^{
+        NSError *err=nil;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [entry setValue:[NSNumber numberWithInt:BO_VALIDATING_CHECKSUM] forKey:@"status"];
+        });
+        
+        NSInteger likelyChunkSize = [EtagCalculator estimateLikelyChunksizeForFilesize:[entry valueForKey:@"fileSize"]
+                                                                       andExistingEtag:[entry valueForKey:@"eTag"]];
+        NSLog(@"likely chunk size is %lu", likelyChunkSize);
+        
+        EtagCalculator *calc = [[EtagCalculator alloc] initForFilepath:filePath
+                                                          forChunkSize:likelyChunkSize
+                                                           withThreads:[self getChecksumThreads]];
+        NSString *etag = [calc executeWithError:&err];
+        if(!etag){
+            NSLog(@"eTag verification on %@ failed: %@", filePath, err);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                     [err localizedDescription], @"lastError",
+                                                     [NSNumber numberWithInt:BO_VALIDAION_FAILED], @"status",
+                                                     nil]];
+            });
+        } else {
+            NSLog(@"Calculated etag %@ for %@", etag, [entry valueForKey:@"path"]);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                       [NSString stringWithFormat:@"%@/%@", [entry valueForKey:@"eTag"], etag], @"eTag",
+                                                       [NSNumber numberWithInt:BO_COMPLETED], @"status",
+                                                       nil]];
+            });
+        }
     });
 }
 @end

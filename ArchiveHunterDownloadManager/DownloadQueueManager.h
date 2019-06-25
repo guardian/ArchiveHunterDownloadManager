@@ -7,20 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "QueueManager.h"
 
-typedef enum queueStatus {
-    Q_WAITING=0,
-    Q_BUSY,
-    Q_FULL
-} QueueStatus;
 
-@interface DownloadQueueManager : NSObject
-@property (readonly) QueueStatus status;
-@property (readwrite) NSUInteger concurrency;
-
+@interface DownloadQueueManager : QueueManager
 - (id) init;
 - (id) initWithConcurrency:(NSUInteger) concurrency;
-- (void)addToQueue:(NSManagedObject *)entry;
-- (void)removeFromQueue:(NSManagedObject *)entry;
-- (void)informCompleted:(NSManagedObject *)entry bulkOperationStatus:(NSUInteger)status shouldRetry:(BOOL)shouldRetry;
+
+- (void)informCompleted:(NSManagedObject *)entry toFilePath:(NSString *)filePath bulkOperationStatus:(NSUInteger)status shouldRetry:(BOOL)shouldRetry;
 @end
