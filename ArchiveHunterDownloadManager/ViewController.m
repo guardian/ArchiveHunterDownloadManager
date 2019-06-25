@@ -269,5 +269,27 @@
     [alrt beginSheetModalForWindow:window completionHandler:nil];
 }
 
+/**
+ User has clicked the "Retry" button
+ */
+- (IBAction)retryClicked:(id)sender
+{
+    NSWindow *window = [[self view] window];
+    [self withSelectedBulk:@"You must select a bulk entry" block:^(NSManagedObject *selectedBulk) {
+        NSError *iterationError=nil;
+        NSManagedObjectContext *moc = [[self appDelegate] managedObjectContext];
+        
+        [BulkOperations bulkForEach:selectedBulk managedObjectContext:moc withError:&iterationError block:^(NSManagedObject *entry) {
+            [[[self appDelegate] bulkOperations] startBulk:selectedBulk autoStart:TRUE];
+        }];
+        
+        if(iterationError){
+            NSAlert *alrt = [NSAlert alertWithError:iterationError];
+            [alrt beginSheetModalForWindow:window completionHandler:nil];
+        }
+        [moc save:nil];
+
+    }];
+}
 
 @end

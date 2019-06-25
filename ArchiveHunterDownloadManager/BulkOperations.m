@@ -100,7 +100,13 @@
 
 - (BOOL) prepareBulkEntries:(NSManagedObject *)bulk withError:(NSError **)err {
     return [BulkOperations bulkForEach:bulk managedObjectContext:_moc withError:err block:^(NSManagedObject *entry){
-        [self setupDownloadEntry:entry withBulk:bulk];
+        BulkOperationStatus itemStatus = [[entry valueForKey:@"status"] intValue];
+        if(itemStatus==BO_READY) {
+            [self setupDownloadEntry:entry withBulk:bulk];
+        } else {
+            NSString *fileName = [entry valueForKey:@"name"];
+            NSLog(@"Could not download file %@ because it has status %u",fileName,itemStatus);
+        }
     }];
 }
 

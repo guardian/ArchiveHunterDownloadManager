@@ -176,14 +176,28 @@ ensure that the Notification Center pops-up our notifications
                         totalSize = [fileSize longLongValue] + totalSize;
                     }
                     
-                    //NSLog(@"Total File Size: %lld", totalSize);
                     [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
                     
                     [[self managedObjectContext] save:&err];
                     if(err){
                         NSLog(@"could not save data store: %@", err);
                     }
-                    [self asyncSetupDownload:bulk];
+                    
+                    NSDictionary *entryDict = [data objectForKey:@"entries"];
+                    NSUInteger keyCount = [entryDict count];
+                    
+                    if(keyCount==0) {
+                        NSLog(@"There are no items to download!");
+                        NSAlert *alert = [[NSAlert alloc] init];
+                        [alert setMessageText:@"Download Error"];
+                        [alert setInformativeText:[NSString stringWithFormat:@"There are no items to download!"]];
+                        [alert addButtonWithTitle:@"Okay"];
+                        [alert runModal];
+                        [[self managedObjectContext] deleteObject:bulk];
+                    } else {
+                        [self asyncSetupDownload:bulk];
+                    }
+                    
                 }
             }
         }];
