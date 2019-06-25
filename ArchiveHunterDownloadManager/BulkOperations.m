@@ -103,6 +103,9 @@
         BulkOperationStatus itemStatus = [[entry valueForKey:@"status"] intValue];
         if(itemStatus==BO_READY) {
             [self setupDownloadEntry:entry withBulk:bulk];
+        } else {
+            NSString *fileName = [entry valueForKey:@"name"];
+            NSLog(@"Could not download file %@ because it has status %u",fileName,itemStatus);
         }
     }];
 }
