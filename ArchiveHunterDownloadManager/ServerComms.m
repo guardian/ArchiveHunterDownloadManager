@@ -211,34 +211,42 @@ enum ArchiveRestoreStatus {
         case MEDIA_AVAILABLE:
             actualDownloadUrlString = [json valueForKey:@"downloadLink"];
 
-            downloadUrl = [NSURL URLWithString:actualDownloadUrlString];
+            downloadUrl = nil;
+            if(actualDownloadUrlString==nil){
+                NSLog(@"invalid data - no downloadLink in reply? Got %@", json);
+                downloadUrl = [NSURL URLWithString:actualDownloadUrlString];
+            }
             
             if(downloadUrl){
                 completionBlock(downloadUrl,nil);
             } else {
                 NSLog(@"Could not create NSURL from %@", actualDownloadUrlString);
+                errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Media is not yet available from archive. Try again later.", @"localizedDescription", nil];
+                err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_RESTORING userInfo:errorUserInfo];
+                [self setEntryError:err forEntry:entry];
             }
+            
             break;
         case MEDIA_NOT_REQUESTED:
             errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Media has not been requested back from Glacier. Redo the restore in the Lightbox interface", @"localizedDescription", nil];
-            err = [NSError errorWithDomain:@"ArchiveHunter" code:1 userInfo:errorUserInfo];
+            err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_NOT_REQUESTED userInfo:errorUserInfo];
             [self setEntryError:err forEntry:entry];
             break;
         case MEDIA_RESTORING:
             errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Media is not yet available from archive. Try again later.", @"localizedDescription", nil];
-            err = [NSError errorWithDomain:@"ArchiveHunter" code:1 userInfo:errorUserInfo];
+            err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_RESTORING userInfo:errorUserInfo];
             [self setEntryError:err forEntry:entry];
             break;
         case MEDIA_ERROR:
             errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"A restore error occurred. Consult server logs", @"localizedDescription", nil];
-            err = [NSError errorWithDomain:@"ArchiveHunter" code:1 userInfo:errorUserInfo];
+            err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_ERROR userInfo:errorUserInfo];
             [self setEntryError:err forEntry:entry];
             break;
         case UNKNOWN:
             NSLog(@"Received invalid response from server: %@", json);
             
             errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Received invalid response from server", @"localizedDescription", nil];
-            err = [NSError errorWithDomain:@"ArchiveHunter" code:1 userInfo:errorUserInfo];
+            err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_ERROR userInfo:errorUserInfo];
             [self setEntryError:err forEntry:entry];
             break;
     }
