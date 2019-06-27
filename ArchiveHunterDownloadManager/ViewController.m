@@ -26,13 +26,33 @@
         NSManagedObject *entry = (NSManagedObject *)evaluatedObject;
         NSManagedObject *parent = [entry valueForKey:@"parent"];
         BOOL shouldHideCompleted = [[self hideCompleted] boolValue];
+        NSString *currentDisplayOption = [self selectedDisplayOption];
         
         enum BulkOperationStatus itemStatus = (enum BulkOperationStatus)[[entry valueForKey:@"status"] integerValue];
 
+//        BO_READY=0,
+//        BO_RUNNING,
+//        BO_COMPLETED,
+//        BO_ERRORED,
+//        BO_PARTIAL,
+//        BO_WAITING_USER_INPUT,
+//        BO_INVALID,
+//        BO_WAITING_CHECKSUM,
+//        BO_VALIDATING_CHECKSUM,
+//        BO_VALIDAION_FAILED,
+
         if (shouldHideCompleted && (itemStatus == BO_COMPLETED)) {
             return false;
+        } else if([parent valueForKey:@"id"] != [[[self bulkArrayController] selection] valueForKey:@"id"]){
+            return false;
+        } else if([currentDisplayOption compare:@"Only show running and errors"]==NSOrderedSame && (itemStatus==BO_PARTIAL||itemStatus==BO_ERRORED||itemStatus==BO_RUNNING||itemStatus==BO_VALIDATING_CHECKSUM||itemStatus==BO_VALIDAION_FAILED)){
+            return true;
+        } else if([currentDisplayOption compare:@"Show everything"]==NSOrderedSame){
+            return true;
+        } else if([currentDisplayOption compare:@"Only show completed"]==NSOrderedSame && itemStatus==BO_COMPLETED){
+            return true;
         } else {
-            return [parent valueForKey:@"id"]== [[[self bulkArrayController] selection] valueForKey:@"id"];
+            return false;
         }
     }];
 }
@@ -46,14 +66,21 @@
         [self setDownloadEntryFilterPredicate:[self getUpdatedPredicate]];
     } else if([keyPath compare:@"hideCompleted"]==NSOrderedSame){
         [self setDownloadEntryFilterPredicate:[self getUpdatedPredicate]];
+    } else if([keyPath compare:@"selectedDisplayOption"]==NSOrderedSame){
+        NSLog(@"updated display option: %@", [change valueForKey:NSKeyValueChangeNewKey]);
+        [self setDownloadEntryFilterPredicate:[self getUpdatedPredicate]];
     }
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self setDisplayOptions:[NSArray arrayWithObjects:@"Show everything",@"Only show running and errors",@"Only show completed", nil]];
+    [self setSelectedDisplayOption:@"Show everything"];
+    
     [_bulkArrayController addObserver:self forKeyPath:@"selectionIndex" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionInitial context:nil];
     [self addObserver:self forKeyPath:@"hideCompleted" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionInitial context:nil];
     
+    [self addObserver:self forKeyPath:@"selectedDisplayOption" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionInitial context:nil];
     // Do any additional setup after loading the view.
 }
 
