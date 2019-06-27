@@ -190,7 +190,7 @@ enum ArchiveRestoreStatus {
 - (enum ArchiveRestoreStatus) restoreStatusFromString:(NSString *)restoreStatus withRequestStatus:(NSString *)requestStatus{
     if(!restoreStatus) return UNKNOWN;
     
-    if([restoreStatus compare:@"RS_UNNEEDED"]==NSOrderedSame || [restoreStatus compare:@"RS_ALREADY"]==NSOrderedSame || [restoreStatus compare:@"RS_SUCCESS"]) return MEDIA_AVAILABLE;
+    if([restoreStatus compare:@"RS_UNNEEDED"]==NSOrderedSame || [restoreStatus compare:@"RS_ALREADY"]==NSOrderedSame || [restoreStatus compare:@"RS_SUCCESS"]==NSOrderedSame) return MEDIA_AVAILABLE;
     if([restoreStatus compare:@"RS_UNDERWAY"]==NSOrderedSame) return MEDIA_RESTORING;
     if([restoreStatus compare:@"RS_ERROR"]==NSOrderedSame && [requestStatus compare:@"not_requested"]==NSOrderedSame) return MEDIA_NOT_REQUESTED;
     if([restoreStatus compare:@"RS_ERROR"]==NSOrderedSame) return MEDIA_ERROR;
