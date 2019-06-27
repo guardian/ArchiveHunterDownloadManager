@@ -27,5 +27,7 @@
 - (void) askUserForPath:(NSManagedObject *)bulk;
 - (void) showErrorBox:(NSString *)msg;
 
+- (void) forceDownloadItemListRefresh;
+
 @end
 

@@ -143,15 +143,17 @@
                                                       [NSNumber numberWithInt:BO_WAITING_CHECKSUM], @"status",
                                                       nil, @"downloadSpeedBytes",
                                                       nil]];
+        [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
+                                                            toFilePath:filePath
+                                                   bulkOperationStatus:BO_WAITING_CHECKSUM
+                                                           shouldRetry:FALSE];
+        dispatch_async(_replyQueue, ^{
+            [BulkOperations updateMasterOnItemComplete:[self entry]];
+        });
+        
     });
     
-    [(DownloadQueueManager *)_downloadQueueManager informCompleted:[self entry]
-                                                        toFilePath:filePath
-                                               bulkOperationStatus:BO_WAITING_CHECKSUM
-                                                       shouldRetry:FALSE];
-    dispatch_async(_replyQueue, ^{
-        [BulkOperations updateMasterOnItemComplete:[self entry]];
-    });
+
 }
 
 @end

@@ -219,6 +219,7 @@ enum ArchiveRestoreStatus {
             downloadUrl = nil;
             if(actualDownloadUrlString==nil){
                 NSLog(@"invalid data - no downloadLink in reply? Got %@", json);
+            } else {
                 downloadUrl = [NSURL URLWithString:actualDownloadUrlString];
             }
             
@@ -229,6 +230,7 @@ enum ArchiveRestoreStatus {
                 errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Media is not yet available from archive. Try again later.", @"localizedDescription", nil];
                 err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_RESTORING userInfo:errorUserInfo];
                 [self setEntryError:err forEntry:entry];
+                completionBlock(nil, err);
             }
             
             break;

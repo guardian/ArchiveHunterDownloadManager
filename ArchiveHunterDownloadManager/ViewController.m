@@ -45,7 +45,13 @@
             return false;
         } else if([parent valueForKey:@"id"] != [[[self bulkArrayController] selection] valueForKey:@"id"]){
             return false;
-        } else if([currentDisplayOption compare:@"Only show running and errors"]==NSOrderedSame && (itemStatus==BO_PARTIAL||itemStatus==BO_ERRORED||itemStatus==BO_RUNNING||itemStatus==BO_VALIDATING_CHECKSUM||itemStatus==BO_VALIDAION_FAILED)){
+        } else if([currentDisplayOption compare:@"Only show running and errors"]==NSOrderedSame &&
+                  (itemStatus==BO_PARTIAL||
+                   itemStatus==BO_ERRORED||
+                   itemStatus==BO_RUNNING||
+                   itemStatus==BO_VALIDATING_CHECKSUM||
+                   itemStatus==BO_WAITING_CHECKSUM||
+                   itemStatus==BO_VALIDAION_FAILED)){
             return true;
         } else if([currentDisplayOption compare:@"Show everything"]==NSOrderedSame){
             return true;
@@ -74,6 +80,15 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [[[self appDelegate] queueManager] setCompletedCallback:
+        ^(NSManagedObject *entry, NSString *filepath, NSUInteger status, BOOL shouldRetry) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self forceDownloadItemListRefresh];
+            });
+        }
+     ];
+    
     [self setDisplayOptions:[NSArray arrayWithObjects:@"Show everything",@"Only show running and errors",@"Only show completed", nil]];
     [self setSelectedDisplayOption:@"Show everything"];
     
@@ -319,4 +334,9 @@
     }];
 }
 
+- (void) forceDownloadItemListRefresh
+{
+    //[[[self appDelegate] managedObjectContext] reset];
+    [[self bulkArrayController] fetch:self];
+}
 @end

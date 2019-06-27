@@ -15,4 +15,6 @@
 - (id) initWithConcurrency:(NSUInteger) concurrency;
 
 - (void)informCompleted:(NSManagedObject *)entry toFilePath:(NSString *)filePath bulkOperationStatus:(NSUInteger)status shouldRetry:(BOOL)shouldRetry;
+
+@property (nonatomic, copy, nullable) void (^completedCallback)(NSManagedObject *, NSString *, NSUInteger, BOOL);
 @end
