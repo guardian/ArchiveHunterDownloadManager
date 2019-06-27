@@ -85,8 +85,13 @@
 
 - (void)setEntryError:(NSError *)err forEntry:(NSManagedObject *)entry {
     dispatch_async(dispatch_get_main_queue(), ^{
+        NSDictionary *userInfoDict = (NSDictionary *)[err userInfo];
+        NSString *actualDescription = nil;
+        if(userInfoDict) actualDescription = [userInfoDict valueForKey:@"localizedDescription"];
+        
+        if(!actualDescription) actualDescription = [err localizedDescription];
         [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                      [err localizedDescription],@"lastError",
+                                                      actualDescription,@"lastError",
                                                       [NSNumber numberWithInt:BO_ERRORED], @"status"
                                                       ,nil]];
     });

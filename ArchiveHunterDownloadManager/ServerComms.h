@@ -25,6 +25,8 @@
                    forEntry:(NSManagedObject* _Nonnull )entry
                     manager:(DownloadQueueManager* _Nonnull )mgr;
 
+- (void)setEntryError:(NSError *)err forEntry:(NSManagedObject *)entry;
+
 @property (atomic, strong) NSURLSession* _Nonnull session;
 @property (readonly, strong) dispatch_queue_t _Nonnull replyQueue;
 @end
