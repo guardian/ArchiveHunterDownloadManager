@@ -1071,6 +1071,25 @@
                                     <action selector="runClicked:" target="XfG-lQ-9wD" id="CJW-69-TVP"/>
                                 </connections>
                             </button>
+                            <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5d6-4H-UCD">
+                                <rect key="frame" x="103" y="248" width="274" height="26"/>
+                                <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="mT2-UH-yVN" id="3So-x3-7sS">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="menu"/>
+                                    <menu key="menu" id="F7A-kg-LNr">
+                                        <items>
+                                            <menuItem title="Item 1" state="on" id="mT2-UH-yVN"/>
+                                            <menuItem title="Item 2" id="Xb3-0I-Qlz"/>
+                                            <menuItem title="Item 3" id="myD-KW-SJe"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <binding destination="XfG-lQ-9wD" name="content" keyPath="displayOptions" id="sgO-qb-00E"/>
+                                    <binding destination="XfG-lQ-9wD" name="contentValues" keyPath="displayOptions" previousBinding="sgO-qb-00E" id="4jN-gV-ePY"/>
+                                    <binding destination="XfG-lQ-9wD" name="selectedObject" keyPath="selectedDisplayOption" previousBinding="4jN-gV-ePY" id="B1W-x7-aTk"/>
+                                </connections>
+                            </popUpButton>
                         </subviews>
                         <constraints>
                             <constraint firstItem="3VR-GB-fVR" firstAttribute="trailing" secondItem="RO2-xp-HhW" secondAttribute="trailing" id="2XR-3J-Z61"/>

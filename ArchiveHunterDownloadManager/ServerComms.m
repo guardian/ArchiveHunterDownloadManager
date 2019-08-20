@@ -85,8 +85,13 @@
 
 - (void)setEntryError:(NSError *)err forEntry:(NSManagedObject *)entry {
     dispatch_async(dispatch_get_main_queue(), ^{
+        NSDictionary *userInfoDict = (NSDictionary *)[err userInfo];
+        NSString *actualDescription = nil;
+        if(userInfoDict) actualDescription = [userInfoDict valueForKey:@"localizedDescription"];
+        
+        if(!actualDescription) actualDescription = [err localizedDescription];
         [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                      [err localizedDescription],@"lastError",
+                                                      actualDescription,@"lastError",
                                                       [NSNumber numberWithInt:BO_ERRORED], @"status"
                                                       ,nil]];
     });
@@ -179,6 +184,80 @@
 
 }
 
+enum ArchiveRestoreStatus {
+    UNKNOWN=0,
+    MEDIA_AVAILABLE,
+    MEDIA_RESTORING,
+    MEDIA_ERROR,
+    MEDIA_NOT_REQUESTED
+};
+
+- (enum ArchiveRestoreStatus) restoreStatusFromString:(NSString *)restoreStatus withRequestStatus:(NSString *)requestStatus{
+    if(!restoreStatus) return UNKNOWN;
+    
+    if([restoreStatus compare:@"RS_UNNEEDED"]==NSOrderedSame || [restoreStatus compare:@"RS_ALREADY"]==NSOrderedSame || [restoreStatus compare:@"RS_SUCCESS"]==NSOrderedSame) return MEDIA_AVAILABLE;
+    if([restoreStatus compare:@"RS_UNDERWAY"]==NSOrderedSame) return MEDIA_RESTORING;
+    if([restoreStatus compare:@"RS_ERROR"]==NSOrderedSame && [requestStatus compare:@"not_requested"]==NSOrderedSame) return MEDIA_NOT_REQUESTED;
+    if([restoreStatus compare:@"RS_ERROR"]==NSOrderedSame) return MEDIA_ERROR;
+    return UNKNOWN;
+}
+
+- (void) handleResponse:(NSDictionary *)json forEntry:(NSManagedObject *)entry completionHandler:(void (^ _Nonnull)(NSURL *downloadUrl, NSError *_Nullable err))completionBlock
+{
+    NSString *actualDownloadUrlString=nil;
+    NSError *err=nil;
+    NSDictionary *errorUserInfo=nil;
+    NSURL *downloadUrl=nil;
+    
+    NSLog(@"got received data %@", json);
+    
+    NSString *restoreStatus = [json valueForKey:@"restoreStatus"];
+    switch([self restoreStatusFromString:restoreStatus withRequestStatus:[json valueForKey:@"status"]]){
+        case MEDIA_AVAILABLE:
+            actualDownloadUrlString = [json valueForKey:@"downloadLink"];
+
+            downloadUrl = nil;
+            if(actualDownloadUrlString==nil){
+                NSLog(@"invalid data - no downloadLink in reply? Got %@", json);
+            } else {
+                downloadUrl = [NSURL URLWithString:actualDownloadUrlString];
+            }
+            
+            if(downloadUrl){
+                completionBlock(downloadUrl,nil);
+            } else {
+                NSLog(@"Could not create NSURL from %@", actualDownloadUrlString);
+                errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Media is not yet available from archive. Try again later.", @"localizedDescription", nil];
+                err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_RESTORING userInfo:errorUserInfo];
+                [self setEntryError:err forEntry:entry];
+                completionBlock(nil, err);
+            }
+            
+            break;
+        case MEDIA_NOT_REQUESTED:
+            errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Media has not been requested back from Glacier. Redo the restore in the Lightbox interface", @"localizedDescription", nil];
+            err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_NOT_REQUESTED userInfo:errorUserInfo];
+            [self setEntryError:err forEntry:entry];
+            break;
+        case MEDIA_RESTORING:
+            errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Media is not yet available from archive. Try again later.", @"localizedDescription", nil];
+            err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_RESTORING userInfo:errorUserInfo];
+            [self setEntryError:err forEntry:entry];
+            break;
+        case MEDIA_ERROR:
+            errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"A restore error occurred. Consult server logs", @"localizedDescription", nil];
+            err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_ERROR userInfo:errorUserInfo];
+            [self setEntryError:err forEntry:entry];
+            break;
+        case UNKNOWN:
+            NSLog(@"Received invalid response from server: %@", json);
+            
+            errorUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Received invalid response from server", @"localizedDescription", nil];
+            err = [NSError errorWithDomain:@"ArchiveHunter" code:MEDIA_ERROR userInfo:errorUserInfo];
+            [self setEntryError:err forEntry:entry];
+            break;
+    }
+}
 /**
  retrieve the physical download URL from the server. This takes the form of an S3 presigned URL
  */
@@ -192,6 +271,7 @@
     
     return [sess dataTaskWithURL:retrievalLink completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSError *parseError=nil;
+
         
         if(error){
             NSLog(@"Could not retrieve actual download URL for %@: %@", [entry valueForKey:@"name"], error);
@@ -200,16 +280,7 @@
         } else {
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&parseError];
             if(json){
-                NSString *actualDownloadUrl = [json valueForKey:@"entry"];
-                
-                //NSLog(@"Actual download URL for %@ is %@" , retrievalLink, actualDownloadUrl);
-                NSURL *downloadURL = [NSURL URLWithString:actualDownloadUrl];
-                
-                if(downloadURL){
-                    completionBlock(downloadURL,nil);
-                } else {
-                    NSLog(@"Could not create NSURL from %@", actualDownloadUrl);
-                }
+                [self handleResponse:json forEntry:entry completionHandler:completionBlock];
             } else {
                 NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 NSLog(@"Could not parse JSON from server: %@", parseError);

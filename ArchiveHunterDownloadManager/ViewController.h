@@ -21,8 +21,13 @@
 @property (strong, atomic) NSIndexSet *bulkSelectionIndices;
 @property (strong, atomic) NSNumber* hideCompleted;
 
+@property (strong, atomic) NSArray<NSString *>* displayOptions;
+@property (strong, atomic) NSString *selectedDisplayOption;
+
 - (void) askUserForPath:(NSManagedObject *)bulk;
 - (void) showErrorBox:(NSString *)msg;
+
+- (void) forceDownloadItemListRefresh;
 
 @end
 

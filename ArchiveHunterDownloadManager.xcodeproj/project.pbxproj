@@ -25,6 +25,7 @@
 		9B24A18122346CB000349A6C /* NegateTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B24A18022346CB000349A6C /* NegateTransformer.m */; };
 		9B34F1ED22380487005952BA /* DownloadQueueManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B34F1EC22380487005952BA /* DownloadQueueManager.m */; };
 		9B34F1F0223804EB005952BA /* DownloadQueueEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B34F1EF223804EB005952BA /* DownloadQueueEntry.m */; };
+		9BA6EFD722C4DB70003F3D71 /* ServerCommsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA6EFD622C4DB70003F3D71 /* ServerCommsTests.m */; };
 		9BA935B9222E8C700066812F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935B8222E8C700066812F /* AppDelegate.m */; };
 		9BA935BC222E8C700066812F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935BB222E8C700066812F /* main.m */; };
 		9BA935BF222E8C700066812F /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BA935BE222E8C700066812F /* ViewController.m */; };
@@ -93,6 +94,7 @@
 		9B34F1EC22380487005952BA /* DownloadQueueManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadQueueManager.m; sourceTree = "<group>"; };
 		9B34F1EE223804EB005952BA /* DownloadQueueEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadQueueEntry.h; sourceTree = "<group>"; };
 		9B34F1EF223804EB005952BA /* DownloadQueueEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadQueueEntry.m; sourceTree = "<group>"; };
+		9BA6EFD622C4DB70003F3D71 /* ServerCommsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerCommsTests.m; sourceTree = "<group>"; };
 		9BA935B4222E8C700066812F /* ArchiveHunterDownloadManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ArchiveHunterDownloadManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA935B7222E8C700066812F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		9BA935B8222E8C700066812F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -251,6 +253,7 @@
 				9B07F6CA2270629700A899E7 /* CurlDownloaderTests.m */,
 				9B07F6CF2270799200A899E7 /* MMappedFileTests.m */,
 				9B07F6D72270B7F700A899E7 /* EtagCalculatorTests.m */,
+				9BA6EFD622C4DB70003F3D71 /* ServerCommsTests.m */,
 			);
 			path = ArchiveHunterDownloadManagerTests;
 			sourceTree = "<group>";
@@ -470,6 +473,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BA6EFD722C4DB70003F3D71 /* ServerCommsTests.m in Sources */,
 				9B07F6D02270799200A899E7 /* MMappedFileTests.m in Sources */,
 				9B07F6D82270B7F700A899E7 /* EtagCalculatorTests.m in Sources */,
 				9BA935D2222E8C700066812F /* ArchiveHunterDownloadManagerTests.m in Sources */,

@@ -102,6 +102,8 @@ ServerComms *serverComms;
         NSIndexSet *fullSet;
         DownloadQueueEntry *queueEntry;
         
+        if([self completedCallback]) [self completedCallback](entry, filePath, status, shouldRetry);
+        
         fullSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [[self _activeItems] count])];
         
         matchingIndex = [fullSet indexWithOptions:NSEnumerationConcurrent
