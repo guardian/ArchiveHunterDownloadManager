@@ -24,6 +24,9 @@
 @property (strong, atomic) NSArray<NSString *>* displayOptions;
 @property (strong, atomic) NSString *selectedDisplayOption;
 
+@property (strong, atomic) NSNumber *showSetupProgressbar;
+@property (strong, atomic) NSNumber *setupProgress;
+
 - (void) askUserForPath:(NSManagedObject *)bulk;
 - (void) showErrorBox:(NSString *)msg;
 

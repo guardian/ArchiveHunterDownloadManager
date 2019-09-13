@@ -697,7 +697,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="GMa-s4-bER" id="Raz-8u-reE">
-                                            <rect key="frame" x="0.0" y="0.0" width="739" height="76"/>
+                                            <rect key="frame" x="1" y="0.0" width="739" height="76"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -805,7 +805,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="GMa-s4-bER">
-                                    <rect key="frame" x="0.0" y="0.0" width="739" height="23"/>
+                                    <rect key="frame" x="1" y="0.0" width="739" height="23"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -866,7 +866,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="nOl-7H-qgY" id="YK1-wV-e8q">
-                                            <rect key="frame" x="0.0" y="0.0" width="739" height="190"/>
+                                            <rect key="frame" x="1" y="0.0" width="739" height="190"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1039,7 +1039,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="nOl-7H-qgY">
-                                    <rect key="frame" x="0.0" y="0.0" width="739" height="23"/>
+                                    <rect key="frame" x="1" y="0.0" width="739" height="23"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -1085,11 +1085,22 @@
                                     </menu>
                                 </popUpButtonCell>
                                 <connections>
-                                    <binding destination="XfG-lQ-9wD" name="content" keyPath="displayOptions" id="sgO-qb-00E"/>
                                     <binding destination="XfG-lQ-9wD" name="contentValues" keyPath="displayOptions" previousBinding="sgO-qb-00E" id="4jN-gV-ePY"/>
+                                    <binding destination="XfG-lQ-9wD" name="content" keyPath="displayOptions" id="sgO-qb-00E"/>
                                     <binding destination="XfG-lQ-9wD" name="selectedObject" keyPath="selectedDisplayOption" previousBinding="4jN-gV-ePY" id="B1W-x7-aTk"/>
                                 </connections>
                             </popUpButton>
+                            <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="1" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="YWS-Qa-6tv">
+                                <rect key="frame" x="390" y="254" width="234" height="20"/>
+                                <connections>
+                                    <binding destination="XfG-lQ-9wD" name="hidden" keyPath="showSetupProgressbar" id="6mO-9C-QTS">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NegateTransformer</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="setupProgress" id="q1a-aZ-ryA"/>
+                                </connections>
+                            </progressIndicator>
                         </subviews>
                         <constraints>
                             <constraint firstItem="3VR-GB-fVR" firstAttribute="trailing" secondItem="RO2-xp-HhW" secondAttribute="trailing" id="2XR-3J-Z61"/>

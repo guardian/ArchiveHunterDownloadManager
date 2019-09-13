@@ -17,6 +17,9 @@
     self = [super init];
     _downloadEntryFilterPredicate = [NSPredicate predicateWithValue:FALSE];
     _hideCompleted = [NSNumber numberWithBool:YES];
+    _showSetupProgressbar = [NSNumber numberWithBool:NO];
+    _setupProgress = [NSNumber numberWithFloat:0.0];
+    
     [self setPossiblePriotities:[NSArray arrayWithObjects:@"High",@"Normal",@"Low",@"Ignore", nil]];
     return self;
 }
@@ -311,26 +314,48 @@
     [alrt beginSheetModalForWindow:window completionHandler:nil];
 }
 
+- (NSUInteger) countEntriesForBulk:(NSManagedObject *)bulk {
+    NSArray *entries = [bulk valueForKey:@"entities"];
+    return [entries count];
+}
+
 /**
  User has clicked the "Retry" button
  */
 - (IBAction)retryClicked:(id)sender
 {
     NSWindow *window = [[self view] window];
+    
+    
+//    NSUInteger total_count = [[_bulkArrayController content] count];
+//    NSLog(@"Got total count %lu", (unsigned long)total_count);
+    
+    
     [self withSelectedBulk:@"You must select a bulk entry" block:^(NSManagedObject *selectedBulk) {
-        NSError *iterationError=nil;
-        NSManagedObjectContext *moc = [[self appDelegate] managedObjectContext];
+        NSUInteger total_count = [self countEntriesForBulk:selectedBulk];
+        NSLog(@"Got total count %lu", (unsigned long)total_count);
+        [self setShowSetupProgressbar:[NSNumber numberWithBool:YES]];
         
-        [BulkOperations bulkForEach:selectedBulk managedObjectContext:moc withError:&iterationError block:^(NSManagedObject *entry) {
-            [[[self appDelegate] bulkOperations] startBulk:selectedBulk autoStart:TRUE];
-        }];
         
-        if(iterationError){
-            NSAlert *alrt = [NSAlert alertWithError:iterationError];
-            [alrt beginSheetModalForWindow:window completionHandler:nil];
-        }
-        [moc save:nil];
-
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSError *iterationError=nil;
+            NSManagedObjectContext *moc = [[self appDelegate] managedObjectContext];
+            
+            [BulkOperations bulkForEach:selectedBulk managedObjectContext:moc withError:&iterationError block:^(NSManagedObject *entry) {
+                NSUInteger count=0;
+                [[[self appDelegate] bulkOperations] startBulk:selectedBulk autoStart:TRUE];
+                [self setSetupProgress:[NSNumber numberWithDouble:(double)count/(double)total_count]];
+                ++count;
+            }];
+            
+            if(iterationError){
+                NSAlert *alrt = [NSAlert alertWithError:iterationError];
+                dispatch_async(dispatch_get_main_queue(),^{
+                    [alrt beginSheetModalForWindow:window completionHandler:nil];
+                });
+            }
+            [moc save:nil];
+        });
     }];
 }
 
