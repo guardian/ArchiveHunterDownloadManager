@@ -142,11 +142,11 @@
     NSArray <NSString *> *entryPathParts = [entryPath pathComponents];
     
     if([entryPath compare:@""]==NSOrderedSame){
-        NSLog(@"stripCommonPathComponents: file is from bucket root so it goes to download root");
+        //NSLog(@"stripCommonPathComponents: file is from bucket root so it goes to download root");
         return bulkPath;
     }
     
-    NSLog(@"stripCommonPathComponents: bulk path is %@ entry path is %@", bulkPath, entryPath);
+    //NSLog(@"stripCommonPathComponents: bulk path is %@ entry path is %@", bulkPath, entryPath);
     if([[entryPathParts objectAtIndex:0] compare:@"/"]==NSOrderedSame){
         NSRange stripRange;
         stripRange.location=1;
@@ -189,17 +189,18 @@
     if([(NSNumber *)[entry valueForKey:@"status"] integerValue]==BO_COMPLETED ||
        [(NSNumber *)[entry valueForKey:@"status"] integerValue]==BO_RUNNING) return;
     
-    NSLog(@"setupDownloadEntry: path %@ name %@ status %@ fileId %@",[entry valueForKey:@"path"], [entry valueForKey:@"name"], [entry valueForKey:@"status"], [entry valueForKey:@"fileId"]);
+    //NSLog(@"setupDownloadEntry: path %@ name %@ status %@ fileId %@",[entry valueForKey:@"path"], [entry valueForKey:@"name"], [entry valueForKey:@"status"], [entry valueForKey:@"fileId"]);
     
     NSString *localDestString = [
                                  [self stripCommonPathComponents:[bulk valueForKey:@"destinationPath"] forEntryPath:[entry valueForKey:@"path"]
                                   ] stringByAppendingPathComponent:[entry valueForKey:@"name"]];
     
-    [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                           localDestString, @"destinationFile",
-                                           [NSNumber numberWithInteger:BO_READY], @"status",
-                                           [NSNumber numberWithFloat:0.0], @"downloadProgress", nil]];
-    
+    dispatch_async(dispatch_get_main_queue(),^{
+        [entry setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                               localDestString, @"destinationFile",
+                                               [NSNumber numberWithInteger:BO_READY], @"status",
+                                               [NSNumber numberWithFloat:0.0], @"downloadProgress", nil]];
+    });
     
 }
 
@@ -225,11 +226,7 @@
         });
     }];
     
-    if(result){
-        return BO_RUNNING;
-    } else {
-        return BO_ERRORED;
-    }
+    return BO_RUNNING;  //bulkForEach does not have a useful return value
 }
 
 

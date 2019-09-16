@@ -72,14 +72,12 @@ ServerComms *serverComms;
                                                        completionHandler:^(NSURL * _Nullable downloadUrl, NSError * _Nullable err) {
                                                            if(err){
                                                                NSLog(@"failed to start download: %@", err);
-                                                               [self removeFromQueue:entry];
-                                                               [self pullNextItem];
+                                                               [self removeFromQueue:entry];    //removeFromQueue automatcially pulls item
                                                            } else {
                                                                BOOL result = [serverComms performItemDownload:downloadUrl forEntry:entry manager:self];
                                                                if(!result){
                                                                    NSLog(@"Failed to start download.");
                                                                    [self removeFromQueue:entry];
-                                                                   [self pullNextItem];
                                                                }
                                                            }
     

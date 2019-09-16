@@ -20,6 +20,7 @@
     _status = Q_WAITING;
     _concurrency = 4;
     __commandDispatchQueue = dispatch_queue_create(NULL,nil);
+    _debug = FALSE;
     return self;
 }
 
@@ -37,7 +38,7 @@
 - (void)addToQueue:(NSManagedObject *)entry
 {
     dispatch_async(__commandDispatchQueue, ^{
-        NSLog(@"addToQueue");
+        if(_debug) NSLog(@"addToQueue");
         [__waitingQueue addObject:[[DownloadQueueEntry alloc] initWithEntry:entry]];
         [self pullNextItem];
     });
@@ -46,7 +47,7 @@
 - (void) removeFromQueue:(NSManagedObject *)entry
 {
     dispatch_async([self _commandDispatchQueue], ^{
-        NSLog(@"removeFromQueue for %@", [entry valueForKey:@"name"]);
+        if(_debug) NSLog(@"removeFromQueue for %@", [entry valueForKey:@"name"]);
         NSIndexSet* fullSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [[self _activeItems] count])];
         NSUInteger matchingIndex = [fullSet indexWithOptions:NSEnumerationConcurrent
                                                  passingTest:^BOOL (NSUInteger idx, BOOL *stop){
@@ -55,8 +56,9 @@
                                                      return [[indexPtr managedObject] valueForKey:@"fileId"]==[entry valueForKey:@"fileId"];
                                                  }];
         
-        NSLog(@"removeFromQueue: index is %lu for %@", matchingIndex, [entry valueForKey:@"name"]);
+        if(_debug) NSLog(@"removeFromQueue: index is %lu for %@", matchingIndex, [entry valueForKey:@"name"]);
         if(matchingIndex<[[self _activeItems] count]) [[self _activeItems] removeObjectAtIndex:matchingIndex];
+        [self pullNextItem];
     });
 }
 
@@ -80,13 +82,13 @@
  */
 - (void)pullNextItem
 {
-    NSLog(@"pullNextItem");
+    if(_debug) NSLog(@"pullNextItem");
     NSInteger spareCapacity = [self concurrency] - [__activeItems count];
-    NSLog(@"spareCapacity: %lu", spareCapacity);
+    if(_debug) NSLog(@"spareCapacity: %lu", spareCapacity);
     
     //we are already running at capacity
     if(spareCapacity<=0){   //spareCapacity could be negative, if the user has reduced the capacity in prefs while downloads are active.
-        NSLog(@"No spare capacity available");
+        if(_debug) NSLog(@"No spare capacity available, currently %lu active items", [__activeItems count]);
         if(_status!=Q_FULL){
             [self willChangeValueForKey:@"status"];
             _status = Q_FULL;
@@ -109,7 +111,7 @@
                 if([self performItemAction:[entry managedObject]]){
                     [__activeItems addObject:entry];
                 } else {
-                    NSLog(@"unable to start download");
+                    if(_debug) NSLog(@"unable to start download");
                 }
             }
         }
