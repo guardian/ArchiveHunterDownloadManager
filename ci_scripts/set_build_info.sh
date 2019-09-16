@@ -15,4 +15,4 @@ else
 fi
 
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion Build ${BUILD_NUMBER}${BRANCH_SUFFIX}" "ArchiveHunterDownloadManager/Info.plist"
-
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${BUILD_NUMBER}" "ArchiveHunterDownloadManager/Info.plist"
