@@ -110,15 +110,6 @@ extern int errno;
 }
 
 /**
- return an NSMutableData that can be used to access the map
- */
-//- (NSMutableData *)dataForMap
-//{
-//    if(!_raw_ptr) return nil;
-//    return [NSMutableData dataWithBytes:_raw_ptr length:__size];
-//}
-
-/**
  push some bytes into the mapped file
  */
 - (bool) write:(char *)bytes withLength:(size_t)len withOffset:(size_t)off

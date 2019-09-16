@@ -268,16 +268,25 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     [self set_startTimestamp:time(NULL)];
     NSLog(@"Download for %@ of type %@ to %@ with size %@ starting", url, [_headInfo contentType], filePath,[self totalSize]);
     
-    //step four - run it
-    CURLcode dlresult = curl_easy_perform(__curlPtr);
-    NSLog(@"Download for %@ completed, return code %d", url, result);
-    
-    if(_downloadDelegate) [_downloadDelegate downloadDidFinish:url toFilePath:filePath];
-    
-    //step five - teardown
-    rtn = [self handleCurlResult:dlresult forUrl:url withError:err];
-    __curlPtr=NULL;
-    
+    while(1){
+        //step four - run it
+        CURLcode dlresult = curl_easy_perform(__curlPtr);
+        NSLog(@"Download for %@ completed, return code %d", url, result);
+        
+        if(dlresult==CURLE_SEND_ERROR || dlresult==CURLE_RECV_ERROR){
+            NSLog(@"Received curl send/recv error %d, retrying", dlresult);
+            sleep(1);
+            [self setBytesDownloaded:0];
+        } else {
+            if(_downloadDelegate) [_downloadDelegate downloadDidFinish:url toFilePath:filePath];
+            
+            //step five - teardown
+            rtn = [self handleCurlResult:dlresult forUrl:url withError:err];
+            __curlPtr=NULL;
+            break;
+        }
+    }
+
     //step six - unmap and close file
     result = [_currentFile close];
     if(!result){

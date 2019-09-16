@@ -18,6 +18,7 @@ typedef enum queueStatus {
 @interface QueueManager : NSObject
 @property (readonly) QueueStatus status;
 @property (readwrite) NSUInteger concurrency;
+@property (readwrite) BOOL debug;
 
 //internal properties
 @property NSMutableArray<DownloadQueueEntry *> *_waitingQueue;
