@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 #  package_bundle.sh
 #  ArchiveHunterDownloadManager
@@ -51,13 +51,21 @@ echo Uploading bundle...
 echo -------------------------
 shasum -a 256 ArchiveHunterDownloadManager.zip > ArchiveHunterDownloadManager.zip.sha
 aws s3 cp ArchiveHunterDownloadManager.zip s3://${OUTPUT_BUCKET}/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-${BUILD_NUMBER}.zip
-aws s3 cp ArchiveHunterDownloadManager.zip.sha s3://${OUTPUT_BUCKET}/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-${BUILD_NUMBER}.zip.sha
+if [ "$?" != "0" ]; then
+    echo Could not upload content to S3
+    exit 1
+fi
 
+aws s3 cp ArchiveHunterDownloadManager.zip.sha s3://${OUTPUT_BUCKET}/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-${BUILD_NUMBER}.zip.sha
+if [ "$?" != "0" ]; then
+    echo Could not upload checksum to S3
+    exit 1
+fi
 
 echo -------------------------
 echo Informing version server...
 echo -------------------------
-VERSIONS_JSON='{"event":"newversion","buildId":'${BUILD_NUMBER}',"branch":"'${BUILD_BRANCH}'","productName":"archivehunter-download-manager","downloadUrl":"https://'${OUTPUT_BUCKET}'/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-'${BUILD_NUMBER}'.zip"}'
+VERSIONS_JSON='{"event":"newversion","buildId":'${BUILD_NUMBER}',"branch":"'${BUILD_BRANCH}'","productName":"archivehunter-download-manager","downloadUrl":"https://'${OUTPUT_BUCKET}'.s3.amazonaws.com/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-'${BUILD_NUMBER}'.zip"}'
 echo Version document is ${VERSIONS_JSON}
 curl -X POST https://${DOWNLOAD_VERSION_SERVER}/newversion -d${VERSIONS_JSON} --header "Content-Type: application/json" --header "x-api-key: ${VERSIONS_API_KEY}" -D-
 echo
