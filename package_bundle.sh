@@ -62,10 +62,13 @@ if [ "$?" != "0" ]; then
     exit 1
 fi
 
+BUILD_SHA=$(awk '{print $1}' < ArchiveHunterDownloadManager.zip.sha)
+
 echo -------------------------
 echo Informing version server...
 echo -------------------------
-VERSIONS_JSON='{"event":"newversion","buildId":'${BUILD_NUMBER}',"branch":"'${BUILD_BRANCH}'","productName":"archivehunter-download-manager","downloadUrl":"https://'${OUTPUT_BUCKET}'.s3.amazonaws.com/ArchiveHunterDownloadManager/'${BUILD_NUMBER}'/ArchiveHunterDownloadManager-'${BUILD_NUMBER}'.zip"}'
+VERSIONS_JSON='{"event":"newversion","buildId":'${BUILD_NUMBER}',"branch":"'${BUILD_BRANCH}'","productName":"archivehunter-download-manager","downloadUrl":"https://'${OUTPUT_BUCKET}'.s3.amazonaws.com/ArchiveHunterDownloadManager/'${BUILD_NUMBER}'/ArchiveHunterDownloadManager-'${BUILD_NUMBER}'.zip","buildSHA":"'$BUILD_SHA'"}'
+
 echo Version document is ${VERSIONS_JSON}
 curl -X POST https://${DOWNLOAD_VERSION_SERVER}/newversion -d${VERSIONS_JSON} --header "Content-Type: application/json" --header "x-api-key: ${VERSIONS_API_KEY}" -D-
 echo
