@@ -22,6 +22,7 @@
 		9B1044C22232B47C001E637B /* BulkObjectStatusTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B1044C12232B47C001E637B /* BulkObjectStatusTransformer.m */; };
 		9B1044C52232D0E9001E637B /* DownloadTaskDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B1044C42232D0E9001E637B /* DownloadTaskDelegate.m */; };
 		9B1044C82233022C001E637B /* DownloadDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B1044C72233022C001E637B /* DownloadDelegate.m */; };
+		9B15FC6523703244006C99AF /* VersionChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B15FC6423703244006C99AF /* VersionChecker.m */; };
 		9B24A18122346CB000349A6C /* NegateTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B24A18022346CB000349A6C /* NegateTransformer.m */; };
 		9B34F1ED22380487005952BA /* DownloadQueueManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B34F1EC22380487005952BA /* DownloadQueueManager.m */; };
 		9B34F1F0223804EB005952BA /* DownloadQueueEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B34F1EF223804EB005952BA /* DownloadQueueEntry.m */; };
@@ -88,6 +89,9 @@
 		9B1044C42232D0E9001E637B /* DownloadTaskDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadTaskDelegate.m; sourceTree = "<group>"; };
 		9B1044C62233022C001E637B /* DownloadDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadDelegate.h; sourceTree = "<group>"; };
 		9B1044C72233022C001E637B /* DownloadDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadDelegate.m; sourceTree = "<group>"; };
+		9B15FC6323703244006C99AF /* VersionChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VersionChecker.h; sourceTree = "<group>"; };
+		9B15FC6423703244006C99AF /* VersionChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VersionChecker.m; sourceTree = "<group>"; };
+		9B15FC66237032D3006C99AF /* package_bundle.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = package_bundle.sh; sourceTree = "<group>"; };
 		9B24A17F22346CB000349A6C /* NegateTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NegateTransformer.h; sourceTree = "<group>"; };
 		9B24A18022346CB000349A6C /* NegateTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NegateTransformer.m; sourceTree = "<group>"; };
 		9B34F1EB22380487005952BA /* DownloadQueueManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadQueueManager.h; sourceTree = "<group>"; };
@@ -173,6 +177,15 @@
 			name = Downloader;
 			sourceTree = "<group>";
 		};
+		9B15FC622370322A006C99AF /* VersionCheck */ = {
+			isa = PBXGroup;
+			children = (
+				9B15FC6323703244006C99AF /* VersionChecker.h */,
+				9B15FC6423703244006C99AF /* VersionChecker.m */,
+			);
+			name = VersionCheck;
+			sourceTree = "<group>";
+		};
 		9B24A17E2233BE8C00349A6C /* NotNeeded */ = {
 			isa = PBXGroup;
 			children = (
@@ -198,6 +211,7 @@
 		9BA935AB222E8C700066812F = {
 			isa = PBXGroup;
 			children = (
+				9B15FC66237032D3006C99AF /* package_bundle.sh */,
 				9B07F6C822705CC800A899E7 /* libcurl.4.tbd */,
 				9BA935B6222E8C700066812F /* ArchiveHunterDownloadManager */,
 				9BA935D0222E8C700066812F /* ArchiveHunterDownloadManagerTests */,
@@ -219,6 +233,7 @@
 		9BA935B6222E8C700066812F /* ArchiveHunterDownloadManager */ = {
 			isa = PBXGroup;
 			children = (
+				9B15FC622370322A006C99AF /* VersionCheck */,
 				9B07F6BE22704DAE00A899E7 /* Downloader */,
 				9B34F1EA22380473005952BA /* Managers */,
 				9BE8592F2236B707001D586A /* Helpers */,
@@ -463,6 +478,7 @@
 				9BB9C2F822723AB5009729D3 /* StatusIconTransformer.m in Sources */,
 				9B07F6C722704ED900A899E7 /* EtagCalculator.m in Sources */,
 				9B24A18122346CB000349A6C /* NegateTransformer.m in Sources */,
+				9B15FC6523703244006C99AF /* VersionChecker.m in Sources */,
 				9B1044C22232B47C001E637B /* BulkObjectStatusTransformer.m in Sources */,
 				9B34F1F0223804EB005952BA /* DownloadQueueEntry.m in Sources */,
 				9BA935B9222E8C700066812F /* AppDelegate.m in Sources */,
