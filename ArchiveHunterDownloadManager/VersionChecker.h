@@ -9,5 +9,8 @@
 #import <Foundation/Foundation.h>
 
 @interface VersionChecker : NSObject
+@property NSString *serverPath;
 
+- (id)initWithServerPath:(NSString*)serverPath;
+- (void)performVersionCheck:(void (^)(NSNumber* currentBuildNumber, NSDictionary* remoteBuildInfo))needsUpdateHandler;
 @end

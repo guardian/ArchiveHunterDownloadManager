@@ -10,6 +10,7 @@
 #import "ServerComms.h"
 
 #import "ViewController.h"
+#import "VersionChecker.h"
 
 @interface AppDelegate ()
 
@@ -49,6 +50,54 @@
     if([dfl valueForKey:@"autoStart"]==nil) [dfl setValue:[NSNumber numberWithBool:YES] forKey:@"autoStart"];
     
      [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
+    
+    //FIXME: remove hardcoded URI!
+    VersionChecker *vc = [[VersionChecker alloc] initWithServerPath:@"https://fn8oaqz8c9.execute-api.eu-west-1.amazonaws.com/CODE"];
+    [vc performVersionCheck:^(NSNumber *currentBuildNumber, NSDictionary *remoteBuildInfo) {
+        NSLog(@"Need update to %@", remoteBuildInfo);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSWindow *mainWindow = [[[self mainViewController] view] window];
+            NSLog(@"MainWindow is %@", mainWindow);
+            NSAlert *alert = [[NSAlert alloc] init];
+            NSNumber *remoteVersion = (NSNumber *)[remoteBuildInfo objectForKey:@"buildId"];
+            NSString *remoteBuildTimestamp = (NSString *)[remoteBuildInfo objectForKey:@"timestamp"];
+            
+            NSString *infoString = [NSString stringWithFormat:@"The latest version is build %@ (built %@) but you have build %@", remoteVersion, remoteBuildTimestamp, currentBuildNumber];
+            [alert setInformativeText:infoString];
+            [alert setMessageText:@"Your version of Download Manager is out of date."];
+            [alert addButtonWithTitle:@"Ignore for now"];
+            [alert addButtonWithTitle:@"Download the new version"];
+            NSModalResponse clickedButton = [alert runModal];
+            
+            switch(clickedButton) {
+                case NSAlertFirstButtonReturn:
+                    NSLog(@"user opted to ignore");
+                    break;
+                case NSAlertSecondButtonReturn:
+                    NSLog(@"user wants to update! whoo!");
+                    NSWorkspace *w = [NSWorkspace sharedWorkspace];
+                    NSURL *downloadUrl = [NSURL URLWithString:(NSString *)[remoteBuildInfo objectForKey:@"downloadUrl"]];
+                    BOOL openResult = [w openURL:downloadUrl];
+                    if(!openResult){
+                        NSAlert *openErr = [[NSAlert alloc] init];
+                        [openErr setInformativeText:@"Could not open download URL. Please report this issue to multimediatech@theguardian.com."];
+                        [openErr runModal];
+                    } else {
+                        NSAlert *completionInstructions = [[NSAlert alloc] init];
+                        [completionInstructions setMessageText:@"Downloading in browser"];
+                        [completionInstructions setInformativeText:@"When the ZIP has downloaded, please shut down this app, double-click the ZIP to decompress and then copy the new app to your Applications folder."];
+                        [completionInstructions addButtonWithTitle:@"Wait till later"];
+                        [completionInstructions addButtonWithTitle:@"Shut down this app now"];
+                        NSModalResponse result = [completionInstructions runModal];
+                        
+                        if(result==NSAlertSecondButtonReturn){
+                            [NSApp terminate:nil];
+                        }
+                    }
+                    break;
+            }
+        });
+    }];
 }
 
 - (void)applictionWillTerminate:(NSNotification *)aNotification {

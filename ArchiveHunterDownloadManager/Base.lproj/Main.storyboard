@@ -1093,12 +1093,12 @@
                             <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="1" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="YWS-Qa-6tv">
                                 <rect key="frame" x="390" y="254" width="234" height="20"/>
                                 <connections>
+                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="setupProgress" id="q1a-aZ-ryA"/>
                                     <binding destination="XfG-lQ-9wD" name="hidden" keyPath="showSetupProgressbar" id="6mO-9C-QTS">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NegateTransformer</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="setupProgress" id="q1a-aZ-ryA"/>
                                 </connections>
                             </progressIndicator>
                         </subviews>
