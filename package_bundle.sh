@@ -50,13 +50,13 @@ echo -------------------------
 echo Uploading bundle...
 echo -------------------------
 shasum -a 256 ArchiveHunterDownloadManager.zip > ArchiveHunterDownloadManager.zip.sha
-aws s3 cp ArchiveHunterDownloadManager.zip s3://${OUTPUT_BUCKET}/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-${BUILD_NUMBER}.zip
+aws s3 cp ArchiveHunterDownloadManager.zip s3://${OUTPUT_BUCKET}/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-${BUILD_NUMBER}.zip --acl public-read
 if [ "$?" != "0" ]; then
     echo Could not upload content to S3
     exit 1
 fi
 
-aws s3 cp ArchiveHunterDownloadManager.zip.sha s3://${OUTPUT_BUCKET}/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-${BUILD_NUMBER}.zip.sha
+aws s3 cp ArchiveHunterDownloadManager.zip.sha s3://${OUTPUT_BUCKET}/ArchiveHunterDownloadManager/ArchiveHunterDownloadManager-${BUILD_NUMBER}.zip.sha --acl public-read
 if [ "$?" != "0" ]; then
     echo Could not upload checksum to S3
     exit 1
