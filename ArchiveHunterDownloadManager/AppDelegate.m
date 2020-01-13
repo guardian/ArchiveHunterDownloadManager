@@ -312,7 +312,12 @@ ensure that the Notification Center pops-up our notifications
     
     if (!shouldFail && !error) {
         NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
-        NSURL *url = [applicationDocumentsDirectory URLByAppendingPathComponent:@"OSXCoreDataObjC.storedata"];
+        NSNumber *versionNo = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleShortVersionString"];
+        
+        NSString *dataStoreFilename = [NSString stringWithFormat:@"coredata-%@.storedata", versionNo];
+        NSURL *url = [applicationDocumentsDirectory URLByAppendingPathComponent:dataStoreFilename];
+        NSLog(@"Loading persistent data from %@", url);
+        
         if (![coordinator addPersistentStoreWithType:NSXMLStoreType configuration:nil URL:url options:nil error:&error]) {
             coordinator = nil;
         }
