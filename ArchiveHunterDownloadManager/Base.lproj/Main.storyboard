@@ -1093,12 +1093,12 @@
                             <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="1" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="YWS-Qa-6tv">
                                 <rect key="frame" x="390" y="254" width="234" height="20"/>
                                 <connections>
+                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="setupProgress" id="q1a-aZ-ryA"/>
                                     <binding destination="XfG-lQ-9wD" name="hidden" keyPath="showSetupProgressbar" id="6mO-9C-QTS">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NegateTransformer</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="setupProgress" id="q1a-aZ-ryA"/>
                                 </connections>
                             </progressIndicator>
                         </subviews>
@@ -1187,20 +1187,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="546" height="281"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WnS-pV-pbp">
-                                <rect key="frame" x="231" y="241" width="229" height="22"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" bezelStyle="round" id="FWz-cX-YKa">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                                <connections>
-                                    <binding destination="fdz-vs-Tfq" name="value" keyPath="values.serverHost" id="Z4q-w1-gU6"/>
-                                </connections>
-                            </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eQf-uU-VJE">
-                                <rect key="frame" x="18" y="244" width="132" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Archivehunter Server" id="LIy-sG-ggC">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eQf-uU-VJE">
+                                <rect key="frame" x="18" y="246" width="134" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="ArchiveHunter Server" id="LIy-sG-ggC">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1243,7 +1232,7 @@
                                 </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jBC-kz-LJb">
-                                <rect key="frame" x="18" y="213" width="201" height="17"/>
+                                <rect key="frame" x="18" y="187" width="201" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Maximum concurrent downloads" id="G5H-w4-ug1">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1251,7 +1240,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Z9-5c-tOD">
-                                <rect key="frame" x="231" y="210" width="96" height="22"/>
+                                <rect key="frame" x="231" y="184" width="96" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" bezelStyle="round" id="GkH-8K-QVl">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="Jiz-fe-4xa"/>
                                     <font key="font" metaFont="system"/>
@@ -1263,7 +1252,7 @@
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LEH-AO-JKq">
-                                <rect key="frame" x="18" y="144" width="213" height="58"/>
+                                <rect key="frame" x="18" y="118" width="213" height="58"/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Update divider (increase for more responsive UI at the cost of less frequent updates)" id="RSe-xK-Rp7">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1271,7 +1260,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9RA-C3-ukZ">
-                                <rect key="frame" x="231" y="173" width="96" height="22"/>
+                                <rect key="frame" x="231" y="147" width="96" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" bezelStyle="round" id="m3j-Ox-dZG">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="qzb-O6-XIY"/>
                                     <font key="font" metaFont="system"/>
@@ -1283,7 +1272,7 @@
                                 </connections>
                             </textField>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Ke-ZA-oaY">
-                                <rect key="frame" x="18" y="120" width="368" height="18"/>
+                                <rect key="frame" x="18" y="94" width="368" height="18"/>
                                 <buttonCell key="cell" type="check" title="Automatically start downloads as soon as they are added" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="5TF-DJ-xsX">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1292,16 +1281,47 @@
                                     <binding destination="a36-ZE-KhO" name="value" keyPath="values.autoStart" id="0ia-rQ-fIp"/>
                                 </connections>
                             </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rrY-nt-cxf">
+                                <rect key="frame" x="18" y="218" width="107" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="VaultDoor Server" id="eLS-vd-Xdl">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gUk-ju-k3t">
+                                <rect key="frame" x="231" y="213" width="229" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="fe4-J3-4jz">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="z2q-5R-L8h" name="value" keyPath="values.vaultDoorHost" id="IF8-Q6-CM2"/>
+                                </connections>
+                            </textField>
+                            <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WnS-pV-pbp">
+                                <rect key="frame" x="231" y="241" width="229" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" bezelStyle="round" id="FWz-cX-YKa">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="fdz-vs-Tfq" name="value" keyPath="values.serverHost" id="Z4q-w1-gU6"/>
+                                </connections>
+                            </textField>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="ndY-P7-UZ7" secondAttribute="trailing" constant="20" id="0zA-1Z-yeh"/>
-                            <constraint firstItem="WnS-pV-pbp" firstAttribute="leading" secondItem="eQf-uU-VJE" secondAttribute="trailing" constant="8" id="3YI-H0-t3u"/>
+                            <constraint firstItem="gUk-ju-k3t" firstAttribute="leading" secondItem="rrY-nt-cxf" secondAttribute="trailing" constant="108" id="13Y-r5-80X"/>
                             <constraint firstItem="ndY-P7-UZ7" firstAttribute="top" secondItem="WnS-pV-pbp" secondAttribute="bottom" constant="189" id="9BU-gJ-s2d"/>
                             <constraint firstAttribute="bottom" secondItem="ndY-P7-UZ7" secondAttribute="bottom" constant="20" id="DNA-e5-qZB"/>
                             <constraint firstItem="eQf-uU-VJE" firstAttribute="leading" secondItem="Nu2-dl-zZk" secondAttribute="leading" constant="20" id="GHH-5N-L3f"/>
                             <constraint firstItem="WnS-pV-pbp" firstAttribute="top" secondItem="Nu2-dl-zZk" secondAttribute="top" constant="18" id="LuB-Ef-eVp"/>
-                            <constraint firstItem="eQf-uU-VJE" firstAttribute="top" secondItem="Nu2-dl-zZk" secondAttribute="top" constant="20" id="cTK-X1-lTo"/>
-                            <constraint firstAttribute="trailing" secondItem="WnS-pV-pbp" secondAttribute="trailing" constant="20" id="r1Y-kf-UN6"/>
+                            <constraint firstItem="WnS-pV-pbp" firstAttribute="leading" secondItem="eQf-uU-VJE" secondAttribute="trailing" constant="81" id="hTm-D4-fvT"/>
+                            <constraint firstAttribute="trailing" secondItem="WnS-pV-pbp" secondAttribute="trailing" constant="86" id="iQb-Gr-KUw"/>
+                            <constraint firstAttribute="trailing" secondItem="gUk-ju-k3t" secondAttribute="trailing" constant="86" id="vm7-NU-siZ"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -1310,6 +1330,7 @@
                 <userDefaultsController id="fdz-vs-Tfq"/>
                 <userDefaultsController id="cSU-RD-kfr"/>
                 <userDefaultsController id="a36-ZE-KhO"/>
+                <userDefaultsController id="z2q-5R-L8h"/>
             </objects>
             <point key="canvasLocation" x="804" y="390.5"/>
         </scene>

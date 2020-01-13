@@ -38,11 +38,6 @@
     // Insert code here to initialize your application
     NSUserDefaults *dfl = [NSUserDefaults standardUserDefaults];
     
-//    NSUInteger concurrency = [[dfl valueForKey:@"maxConcurrentDownloads"] integerValue];
-//    
-//    _queueManager = [[DownloadQueueManager alloc] initWithConcurrency:concurrency];
-//    _bulkOperations = [[BulkOperations alloc] initWithQueueManager:[self queueManager]];
-    
     [dfl addObserver:self forKeyPath:@"maxConcurrentDownloads" options:NSKeyValueObservingOptionNew context:nil];
     
     //at first startup, ensure autoStart is on
@@ -85,7 +80,8 @@ ensure that the Notification Center pops-up our notifications
 /**
  create a new data entry based on the info from the server
 */
-- (NSManagedObject *) createNewBulk:(NSDictionary *)bulkMetadata retrievalToken:(NSString *)retrievalToken {
+- (NSManagedObject *) createNewBulk:(NSDictionary *)bulkMetadata retrievalToken:(NSString *)retrievalToken forServerType:(NSString *)serverType
+{
     NSManagedObjectContext *ctx = [self managedObjectContext];
     
     NSManagedObject* ent=[NSEntityDescription insertNewObjectForEntityForName:@"BulkDownload" inManagedObjectContext:ctx];
@@ -98,6 +94,7 @@ ensure that the Notification Center pops-up our notifications
                                          [bulkMetadata objectForKey:@"userEmail"], @"userEmail",
                                          [NSNumber numberWithLongLong:0], @"totalSize",
                                          [NSNumber numberWithLongLong:0], @"amountDownloaded",
+                                         serverType, @"serverSource",
                                          nil]];
     return ent;
 }
@@ -134,76 +131,90 @@ ensure that the Notification Center pops-up our notifications
     NSArray<NSString *> *components = [urlString componentsSeparatedByString:@":"];
     NSLog(@"Got request: %@", components);
     if([[components objectAtIndex:1] compare:@"bulkdownload"]==NSEqualToComparison){
-        NSError *err;
         NSString *token = [components objectAtIndex:2];
-        NSLog(@"Got bulk download with onetime token %@", token);
+        [self initialiseDownloadFromUrl:token forServerType:@"archivehunter"];
+    } else if([[components objectAtIndex:1] compare:@"vaultdownload"]==NSEqualToComparison){
+        NSString *token = [components objectAtIndex:2];
+        [self initialiseDownloadFromUrl:token forServerType:@"vaultdoor"];
+    } else {
+        NSAlert *a = [[NSAlert alloc] init];
+        [a setMessageText:@"Couldn't understand URL"];
+        [a setInformativeText:[NSString stringWithFormat:@"The provided custom URL %@ is not valid, second part did not identify a download type", urlString]];
+        [a runModal];
+    }
+}
+
+- (void) initialiseDownloadFromUrl:(NSString *)token forServerType:(NSString *)serverType
+{
+    NSError *err;
+    NSLog(@"Got bulk download with onetime token %@", token);
+    
+    BOOL result = [_serverComms initiateDownload:token forServerSource:serverType withError:&err completionHandler:^(NSDictionary *_Nullable data, NSError *err){
+        NSError *localErr=nil;
         
-        BOOL result = [_serverComms initiateDownload:token withError:&err completionHandler:^(NSDictionary *_Nullable data, NSError *err){
-            NSError *localErr=nil;
+        if(err){
+            NSLog(@"Download error: %@", err);
             
-            if(err){
-                NSLog(@"Download error: %@", err);
+            if([[err domain] compare:@"servercomms"]!=NSOrderedSame){
+                NSString *errorString = [NSString stringWithFormat:@"%@", err];
+                NSAlert *alert = [[NSAlert alloc] init];
+                [alert setMessageText:@"Download Error"];
                 
-                if([[err domain] compare:@"servercomms"]!=NSOrderedSame){
-                    NSString *errorString = [NSString stringWithFormat:@"%@", err];
+                NSString *truncatedErrorString = [errorString length]>256 ? [errorString substringToIndex:256] : errorString;
+                
+                [alert setInformativeText:[NSString stringWithFormat:@"A download error occured: %@", truncatedErrorString]];
+                [alert addButtonWithTitle:@"Okay"];
+                [alert runModal];
+            }
+        } else {
+            //NSLog(@"Got data: %@", data);
+            NSDictionary *metadata = [data objectForKey:@"metadata"];
+            
+            if([self haveBulkEntryFor:[metadata valueForKey:@"id"] withError:&localErr]){
+                [(ViewController *)_mainViewController showErrorBox:@"You already have this bulk in your download queue"];
+            } else {
+                NSManagedObject *bulk = [self createNewBulk:metadata
+                                             retrievalToken:[data objectForKey:@"retrievalToken"]
+                                              forServerType: serverType];
+                
+                long long totalSize = 0;
+                
+                for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
+                    [self createNewEntry:entrySynop parent:bulk];
+                    NSLog(@"entry synopsis is %@", entrySynop);
+                    NSNumber *fileSize = [entrySynop valueForKey:@"fileSize"];
+                    //NSLog(@"File Size: %@", fileSize);
+                    //NSLog(@"File Size Long Long: %lld", [fileSize longLongValue]);
+                    totalSize = [fileSize longLongValue] + totalSize;
+                }
+                
+                [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
+                
+                [[self managedObjectContext] save:&err];
+                if(err){
+                    NSLog(@"could not save data store: %@", err);
+                }
+                
+                NSDictionary *entryDict = [data objectForKey:@"entries"];
+                NSUInteger keyCount = [entryDict count];
+                
+                if(keyCount==0) {
+                    NSLog(@"There are no items to download!");
                     NSAlert *alert = [[NSAlert alloc] init];
                     [alert setMessageText:@"Download Error"];
-                    
-                    NSString *truncatedErrorString = [errorString length]>256 ? [errorString substringToIndex:256] : errorString;
-                    
-                    [alert setInformativeText:[NSString stringWithFormat:@"A download error occured: %@", truncatedErrorString]];
+                    [alert setInformativeText:[NSString stringWithFormat:@"There are no items to download!"]];
                     [alert addButtonWithTitle:@"Okay"];
                     [alert runModal];
-                }
-            } else {
-                //NSLog(@"Got data: %@", data);
-                NSDictionary *metadata = [data objectForKey:@"metadata"];
-                
-                if([self haveBulkEntryFor:[metadata valueForKey:@"id"] withError:&localErr]){
-                    [(ViewController *)_mainViewController showErrorBox:@"You already have this bulk in your download queue"];
+                    [[self managedObjectContext] deleteObject:bulk];
                 } else {
-                    NSManagedObject *bulk = [self createNewBulk:metadata
-                                                 retrievalToken:[data objectForKey:@"retrievalToken"]];
-                    
-                    long long totalSize = 0;
-                    
-                    for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
-                        [self createNewEntry:entrySynop parent:bulk];
-                        NSLog(@"entry synopsis is %@", entrySynop);
-                        NSNumber *fileSize = [entrySynop valueForKey:@"fileSize"];
-                        //NSLog(@"File Size: %@", fileSize);
-                        //NSLog(@"File Size Long Long: %lld", [fileSize longLongValue]);
-                        totalSize = [fileSize longLongValue] + totalSize;
-                    }
-                    
-                    [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
-                    
-                    [[self managedObjectContext] save:&err];
-                    if(err){
-                        NSLog(@"could not save data store: %@", err);
-                    }
-                    
-                    NSDictionary *entryDict = [data objectForKey:@"entries"];
-                    NSUInteger keyCount = [entryDict count];
-                    
-                    if(keyCount==0) {
-                        NSLog(@"There are no items to download!");
-                        NSAlert *alert = [[NSAlert alloc] init];
-                        [alert setMessageText:@"Download Error"];
-                        [alert setInformativeText:[NSString stringWithFormat:@"There are no items to download!"]];
-                        [alert addButtonWithTitle:@"Okay"];
-                        [alert runModal];
-                        [[self managedObjectContext] deleteObject:bulk];
-                    } else {
-                        [self asyncSetupDownload:bulk];
-                    }
-                    
+                    [self asyncSetupDownload:bulk];
                 }
+                
             }
-        }];
-        if(!result){
-            NSLog(@"Download failed: %@", err);
         }
+    }];
+    if(!result){
+        NSLog(@"Download failed: %@", err);
     }
 }
 

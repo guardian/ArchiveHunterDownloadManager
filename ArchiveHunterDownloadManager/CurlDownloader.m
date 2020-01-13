@@ -234,9 +234,10 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     bool result;
     
     //step one - get headers
+    NSLog(@"Header download: URL is %@", url);
     result = [self getUrlInfo:url withError:err];
     if(!result){
-        NSLog(@"Header download failed");
+        NSLog(@"Header download failed: %@", *err);
         return false;
     }
     

@@ -33,11 +33,21 @@ ServerComms *serverComms;
     return self;
 }
 
+- (NSString *) hostNameForServerSource:(NSString *)serverSource
+{
+    if([serverSource compare:@"vaultdoor" options:0]==NSEqualToComparison){
+        return [[NSUserDefaults standardUserDefaults] valueForKey:@"vaultDoorHost"];
+    } else {
+        return [[NSUserDefaults standardUserDefaults] valueForKey:@"serverHost"];
+    }
+}
+
 /**
  read the user defaults and build a URL to get the download URL from the server
  */
-- (NSURL *_Nullable) getRetrievalLinkUrl:(NSString *)entryId withRetrievalToken:(NSString *)retrievalToken {
-    NSString *hostName = [[NSUserDefaults standardUserDefaults] valueForKey:@"serverHost"];
+- (NSURL *_Nullable) getRetrievalLinkUrl:(NSString *)entryId withRetrievalToken:(NSString *)retrievalToken withServerSource:(NSString *)serverSource
+{
+    NSString *hostName = [self hostNameForServerSource:serverSource];
     if(!hostName){
         NSLog(@"ERROR: You need to set the hostname");
         return nil;
@@ -47,6 +57,19 @@ ServerComms *serverComms;
 }
 
 
+- (NSURL *) makeUrlAbsolute:(NSURL *)url forServerSource:(NSString *)serverSource
+{
+    NSLog(@"makeURLAbsolute: start with %@", url);
+    if([url host]==nil || [url scheme]==nil){
+        NSString *hostName = [self hostNameForServerSource:serverSource];
+        NSURL *baseUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@", hostName]];
+        NSLog(@"combining with baseURL for %@", baseUrl);
+        return [NSURL URLWithString:[url absoluteString] relativeToURL:baseUrl];
+    } else {
+        NSLog(@"URL is already absolute");
+        return url;
+    }
+}
 
 /**
  actually do an item download
@@ -61,7 +84,7 @@ ServerComms *serverComms;
     
     NSManagedObject *parent = [entry valueForKey:@"parent"];
     NSString *retrievalToken = [parent valueForKey:@"retrievalToken"];
-    NSURL *retrievalLink = [self getRetrievalLinkUrl:[entry valueForKey:@"fileId"] withRetrievalToken:retrievalToken];
+    NSURL *retrievalLink = [self getRetrievalLinkUrl:[entry valueForKey:@"fileId"] withRetrievalToken:retrievalToken withServerSource:[parent valueForKey:@"serverSource"]];
     
     if(!retrievalLink) {
         NSLog(@"Could not get retrieval URL for %@", [entry valueForKey:@"name"]);
@@ -69,14 +92,15 @@ ServerComms *serverComms;
     }
     
     NSURLSessionDataTask *retrievalTask = [serverComms itemRetrievalTask:retrievalLink forEntry:entry
-                                                       completionHandler:^(NSURL * _Nullable downloadUrl, NSError * _Nullable err) {
+                                                       completionHandler:^(NSURL * _Nullable maybeRelativeDownloadUrl, NSError * _Nullable err) {
                                                            if(err){
                                                                NSLog(@"failed to start download: %@", err);
                                                                [self removeFromQueue:entry];    //removeFromQueue automatcially pulls item
                                                            } else {
+                                                               NSURL *downloadUrl = [self makeUrlAbsolute:maybeRelativeDownloadUrl forServerSource:[parent valueForKey:@"serverSource"]];
                                                                BOOL result = [serverComms performItemDownload:downloadUrl forEntry:entry manager:self];
                                                                if(!result){
-                                                                   NSLog(@"Failed to start download.");
+                                                                   NSLog(@"Failed to start download, performItemDownload failed");
                                                                    [self removeFromQueue:entry];
                                                                }
                                                            }

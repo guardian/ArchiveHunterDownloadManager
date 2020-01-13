@@ -6,6 +6,7 @@
         <attribute name="downloadDescription" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="retrievalToken" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="serverSource" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="totalSize" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="userEmail" optional="YES" attributeType="String" syncable="YES"/>
@@ -28,7 +29,7 @@
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BulkDownload" inverseName="entities" inverseEntity="BulkDownload" syncable="YES"/>
     </entity>
     <elements>
-        <element name="BulkDownload" positionX="-63" positionY="-18" width="128" height="180"/>
+        <element name="BulkDownload" positionX="-63" positionY="-18" width="128" height="195"/>
         <element name="DownloadEntity" positionX="-54" positionY="9" width="128" height="255"/>
     </elements>
 </model>

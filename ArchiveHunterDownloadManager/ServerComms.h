@@ -14,6 +14,7 @@
 - (id _Nonnull)init;
 
 - (BOOL) initiateDownload:(NSString * _Nonnull)token
+          forServerSource:(NSString *)serverSource
                 withError:(NSError *_Nullable *_Nullable)err
         completionHandler:(void (^ _Nonnull)(NSDictionary *_Nullable data, NSError *_Nullable err))completionBlock;
 

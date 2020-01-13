@@ -52,11 +52,12 @@
                 [bulk setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
                 NSLog(@"autoStart is %d", autoStart);
                 if(autoStart){
-                    BulkOperationStatus st = [self kickoffBulks:bulk withError:&err];
-                    if(st!=BO_READY){
-                        NSLog(@"Could not start kickoff: %@", err);
-                    }
-                    return st;
+                    dispatch_async(dispatch_get_main_queue(),^{
+                        BulkOperationStatus st = [self kickoffBulks:bulk withError:nil];
+                        if(st!=BO_READY){
+                            NSLog(@"Could not start kickoff: %@", err);
+                        }
+                    });
                 }
                 return BO_READY;
             } else {
@@ -189,7 +190,7 @@
     if([(NSNumber *)[entry valueForKey:@"status"] integerValue]==BO_COMPLETED ||
        [(NSNumber *)[entry valueForKey:@"status"] integerValue]==BO_RUNNING) return;
     
-    //NSLog(@"setupDownloadEntry: path %@ name %@ status %@ fileId %@",[entry valueForKey:@"path"], [entry valueForKey:@"name"], [entry valueForKey:@"status"], [entry valueForKey:@"fileId"]);
+    NSLog(@"setupDownloadEntry: path %@ name %@ status %@ fileId %@",[entry valueForKey:@"path"], [entry valueForKey:@"name"], [entry valueForKey:@"status"], [entry valueForKey:@"fileId"]);
     
     NSString *localDestString = [
                                  [self stripCommonPathComponents:[bulk valueForKey:@"destinationPath"] forEntryPath:[entry valueForKey:@"path"]
