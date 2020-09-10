@@ -20,16 +20,27 @@
     return self;
 }
 
+- (NSString *) hostNameForServerSource:(NSString *)serverSource
+{
+    NSLog(@"hostNameForServerSource: source is %@", serverSource);
+    
+    if([serverSource compare:@"vaultdoor" options:0]==NSEqualToComparison){
+        return [[NSUserDefaults standardUserDefaults] valueForKey:@"vaultDoorHost"];
+    } else {
+        return [[NSUserDefaults standardUserDefaults] valueForKey:@"serverHost"];
+    }
+}
 
 /**
  use the provided one-off token to start download from server.
  call the given completionHandler block when that is done.
  */
 - (BOOL) initiateDownload:(NSString *)token
+          forServerSource:(NSString *)serverSource
                withError:(NSError **)err
        completionHandler:(void (^)(NSDictionary *_Nullable data, NSError *err))completionBlock
 {
-    NSString *serverHost = [[NSUserDefaults standardUserDefaults] objectForKey:@"serverHost" ];
+    NSString *serverHost = [self hostNameForServerSource:serverSource];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulk/%@", serverHost, token]];
     
     NSLog(@"Download URL is %@", url);
@@ -267,7 +278,7 @@ enum ArchiveRestoreStatus {
 {
     NSURLSession *sess = [NSURLSession sharedSession];
     
-    NSLog(@"itemRetrievalTask for %@", [entry valueForKey:@"name"]);
+    NSLog(@"itemRetrievalTask for %@ at %@", [entry valueForKey:@"name"], retrievalLink);
     
     return [sess dataTaskWithURL:retrievalLink completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSError *parseError=nil;
