@@ -30,4 +30,9 @@
 
 @property (atomic, strong) NSURLSession* _Nonnull session;
 @property (readonly, strong) dispatch_queue_t _Nonnull replyQueue;
+
+- (BOOL) getStream:(NSString * _Nonnull)token
+          forServerSource:(NSString *)serverSource
+                withError:(NSError *_Nullable *_Nullable)err
+        completionHandler:(void (^ _Nonnull)(NSDictionary *_Nullable data, NSError *_Nullable err))completionBlock;
 @end
