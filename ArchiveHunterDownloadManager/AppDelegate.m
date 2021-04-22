@@ -177,40 +177,39 @@ ensure that the Notification Center pops-up our notifications
                                              retrievalToken:[data objectForKey:@"retrievalToken"]
                                               forServerType: serverType];
                 
-                long long totalSize = 0;
+                //long long totalSize = 0;
                 
-                for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
-                    [self createNewEntry:entrySynop parent:bulk];
-                    NSLog(@"entry synopsis is %@", entrySynop);
-                    NSNumber *fileSize = [entrySynop valueForKey:@"fileSize"];
+                //for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
+                //    [self createNewEntry:entrySynop parent:bulk];
+                //    NSLog(@"entry synopsis is %@", entrySynop);
+                //    NSNumber *fileSize = [entrySynop valueForKey:@"fileSize"];
                     //NSLog(@"File Size: %@", fileSize);
                     //NSLog(@"File Size Long Long: %lld", [fileSize longLongValue]);
-                    totalSize = [fileSize longLongValue] + totalSize;
-                }
+                //    totalSize = [fileSize longLongValue] + totalSize;
+                //}
                 
-                [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
+                //[bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
                 
                 [[self managedObjectContext] save:&err];
                 if(err){
                     NSLog(@"could not save data store: %@", err);
                 }
                 
-                NSDictionary *entryDict = [data objectForKey:@"entries"];
-                NSUInteger keyCount = [entryDict count];
+                //NSDictionary *entryDict = [data objectForKey:@"entries"];
+                //NSUInteger keyCount = [entryDict count];
                 
-                if(keyCount==0) {
-                    NSLog(@"There are no items to download!");
-                    NSAlert *alert = [[NSAlert alloc] init];
-                    [alert setMessageText:@"Download Error"];
-                    [alert setInformativeText:[NSString stringWithFormat:@"There are no items to download!"]];
-                    [alert addButtonWithTitle:@"Okay"];
-                    [alert runModal];
-                    [[self managedObjectContext] deleteObject:bulk];
-                } else {
-                    [self asyncSetupDownload:bulk];
-                }
-                
-            }
+                //if(keyCount==0) {
+                //    NSLog(@"There are no items to download!");
+                //    NSAlert *alert = [[NSAlert alloc] init];
+                //    [alert setMessageText:@"Download Error"];
+                //    [alert setInformativeText:[NSString stringWithFormat:@"There are no items to download!"]];
+                //    [alert addButtonWithTitle:@"Okay"];
+                //    [alert runModal];
+                //    [[self managedObjectContext] deleteObject:bulk];
+                //} else {
+                //    [self asyncSetupDownload:bulk];
+                //}
+                [self asyncSetupDownloadFromStream:bulk];            }
         }
     }];
     if(!result){
@@ -273,6 +272,154 @@ ensure that the Notification Center pops-up our notifications
     });
 }
 
+- (NSString *_Nullable)getReterievalToken:(NSManagedObject *) bulk {
+    @try {
+        return [bulk valueForKey:@"retrievalToken"];
+    } @catch (NSException *exception) {
+        NSLog(@"Caught exception: %@", exception);
+        return nil;
+    }
+}
+
+- (NSString *_Nullable)getServerType:(NSManagedObject *) bulk {
+    @try {
+        return [bulk valueForKey:@"serverSource"];
+    } @catch (NSException *exception) {
+        NSLog(@"Caught exception: %@", exception);
+        return nil;
+    }
+}
+
+- (NSString *) hostNameForServerSource:(NSString *)serverSource
+{
+    NSLog(@"hostNameForServerSource: source is %@", serverSource);
+    
+    if([serverSource compare:@"vaultdoor" options:0]==NSEqualToComparison){
+        return [[NSUserDefaults standardUserDefaults] valueForKey:@"vaultDoorHost"];
+    } else {
+        return [[NSUserDefaults standardUserDefaults] valueForKey:@"serverHost"];
+    }
+}
+//run setup for a bulk. Do this in the background.
+- (void) asyncSetupDownloadFromStream:(NSManagedObject *)bulk {
+    NSError *err;
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL autoStart = [[defaults valueForKey:@"autoStart"] boolValue];
+    
+    NSLog(@"asyncSetupDownloadFromStream");
+    
+    NSString *token = [self getReterievalToken:bulk];
+    
+    NSLog(@"Token is %@", token);
+    
+    NSString *serverType = [self getServerType:bulk];
+    
+    NSLog(@"Server type is %@", serverType);
+    
+    NSString *serverHost = [self hostNameForServerSource:serverType];
+    
+    NSURL *apiURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulkv2/%@/summarystream", serverHost, token]];
+    NSLog(@"URL is %@", apiURL);
+    NSError *error = nil;
+    
+    // First option - failed
+    NSInputStream *iStream = [NSInputStream inputStreamWithURL:apiURL]; // returning nil
+    //NSInputStream *iStream= [[NSInputStream alloc] initWithURL:apiURL];
+    
+    //[iStream setDelegate:self];
+    //[iStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [iStream open];
+    NSLog(@"Stream is %@",iStream);
+    NSInteger result;
+    uint8_t buffer[1024];
+    while((result = [iStream read:buffer maxLength:1024]) != 0) {
+        //NSLog(@"Result is %n",result);
+        if(result > 0) {
+            NSLog(@"Buffer is %@",buffer);
+            
+            // buffer contains result bytes of data to be handled
+        } else {
+            NSLog(@"ERROR: %@",buffer);
+            // The stream had an error. You can get an NSError object using [iStream streamError]
+        }
+        NSLog(@"end of while loop: %@",buffer);
+        
+    }
+    // Either the stream ran out of data or there was an error
+    
+    
+    NSLog(@"Either the stream ran out of data or there was an error");
+    
+    
+    //input stream
+    NSInputStream *iStream2;
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulkv2/%@/summarystream", serverHost, token]];
+    //NSURL *url = [url initWithString:@"https://%@/api/bulkv2/%@/summarystream", serverHost, token];
+    
+    [iStream2 initWithURL:url];
+    [iStream2 setDelegate:self];
+    [iStream2 scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [iStream2 open];
+    NSLog(@"Stream is %@",iStream2);
+    
+    
+    NSInteger result2;
+    uint8_t buffer2[128]; // BUFFER_LEN can be any positive integer
+    while((result2 = [iStream2 read:buffer2 maxLength:128]) != 0) {
+        if(result2 > 0) {
+            // buffer contains result bytes of data to be handled
+            NSLog(@"Found data");
+        } else {
+            // The stream had an error. You can get an NSError object using [iStream streamError]
+            NSLog(@"Stream error");
+            
+        }
+    }
+    // Either the stream ran out of data or there was an error
+
+    
+    //[inputStream open];
+    //id jsonFound1 = [NSJSONSerialization JSONObjectWithStream:inputStream options:NSJSONReadingMutableContainers error:&error];
+    
+    //NSLog(@"JSON is %@", jsonFound1);
+  
+    
+    if(![[self bulkOperations] moc]) [[self bulkOperations] setMoc:[self managedObjectContext]];
+    
+    if(![[self managedObjectContext] save:&err]){
+        NSLog(@"Could not save managed objects: %@", err);
+    }
+    
+    dispatch_queue_t targetQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    
+    dispatch_async(targetQueue, ^{
+        NSError *err;
+        NSLog(@"asyncSetupDownload - in block");
+        BulkOperationStatus status = [_bulkOperations startBulk:bulk autoStart:autoStart];
+        if(status==BO_WAITING_USER_INPUT){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSError *err=nil;
+                [(ViewController *)_mainViewController askUserForPath:bulk];
+                [[self managedObjectContext] save:&err];
+            });
+        } else {
+            NSLog(@"Status is %d", status);
+            NSLog(@"bulk is %@", bulk);
+            if(![[self managedObjectContext] save:&err]){
+                NSLog(@"Could not save managed objects: %@", err);
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *errorString = [NSString stringWithFormat:@"%@", err];
+                    NSAlert *alert = [[NSAlert alloc] init];
+                    [alert setMessageText:@"Save Error"];
+                    [alert setInformativeText:[NSString stringWithFormat:@"A saving error occured: %@", [errorString substringToIndex:256]]];
+                    [alert addButtonWithTitle:@"Okay"];
+                    [alert runModal];
+                });
+            }
+        }
+    });
+}
 //
 #pragma mark - Core Data stack
 
