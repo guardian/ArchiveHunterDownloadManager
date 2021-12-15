@@ -177,12 +177,28 @@ ensure that the Notification Center pops-up our notifications
                                              retrievalToken:[data objectForKey:@"retrievalToken"]
                                               forServerType: serverType];
                 
+                [self getEntities:bulk];
+                
                 [[self managedObjectContext] save:&err];
                 if(err){
                     NSLog(@"could not save data store: %@", err);
                 }
                 
-                [self asyncSetupDownloadFromStream:bulk];            }
+                NSNumber *totalFileSize = [bulk valueForKey:@"totalSize"];
+                long long fileSizeAsLongLong = [totalFileSize longLongValue];
+
+                if(fileSizeAsLongLong==0) {
+                    NSLog(@"There are no items to download!");
+                    NSAlert *alert = [[NSAlert alloc] init];
+                    [alert setMessageText:@"Download Error"];
+                    [alert setInformativeText:[NSString stringWithFormat:@"There are no items to download!"]];
+                    [alert addButtonWithTitle:@"Okay"];
+                    [alert runModal];
+                    [[self managedObjectContext] deleteObject:bulk];
+                } else {
+                    [self asyncSetupDownload:bulk];
+                }
+            }
         }
     }];
     if(!result){
@@ -274,70 +290,6 @@ ensure that the Notification Center pops-up our notifications
     }
 }
 
-//run setup for a bulk. Do this in the background.
-- (void) asyncSetupDownloadFromStream:(NSManagedObject *)bulk {
-    NSError *err;
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    BOOL autoStart = [[defaults valueForKey:@"autoStart"] boolValue];
- 
-    NSLog(@"asyncSetupDownloadFromStream");
-    
-    NSString *token = [self getReterievalToken:bulk];
-    NSString *serverType = [self getServerType:bulk];
-    NSString *serverHost = [self hostNameForServerSource:serverType];
-    NSURL *apiURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulkv2/%@/summarystream", serverHost, token]];
-    NSData *urlData = [NSData dataWithContentsOfURL:apiURL];
-    NSString *strData = [[NSString alloc]initWithData:urlData encoding:NSUTF8StringEncoding];
-    NSArray *arrayOfComponents = [strData componentsSeparatedByString:@"\n"];
-    long long totalSize = 0;
-    
-    for(NSString *jsonString in arrayOfComponents) {
-        NSData* jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-        NSError * error=nil;
-        NSDictionary * inputDic = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&error];
-        [self createNewEntry:inputDic parent:bulk];
-        NSNumber *fileSize = [inputDic valueForKey:@"fileSize"];
-        totalSize = [fileSize longLongValue] + totalSize;
-    }
-        
-    [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
-     
-    if(![[self bulkOperations] moc]) [[self bulkOperations] setMoc:[self managedObjectContext]];
-    
-    if(![[self managedObjectContext] save:&err]){
-        NSLog(@"Could not save managed objects: %@", err);
-    }
-    
-    dispatch_queue_t targetQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-    
-    dispatch_async(targetQueue, ^{
-        NSError *err;
-        NSLog(@"asyncSetupDownloadFromStream - in block");
-        BulkOperationStatus status = [_bulkOperations startBulk:bulk autoStart:autoStart];
-        if(status==BO_WAITING_USER_INPUT){
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSError *err=nil;
-                [(ViewController *)_mainViewController askUserForPath:bulk];
-                [[self managedObjectContext] save:&err];
-            });
-        } else {
-            NSLog(@"Status is %d", status);
-            NSLog(@"bulk is %@", bulk);
-            if(![[self managedObjectContext] save:&err]){
-                NSLog(@"Could not save managed objects: %@", err);
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSString *errorString = [NSString stringWithFormat:@"%@", err];
-                    NSAlert *alert = [[NSAlert alloc] init];
-                    [alert setMessageText:@"Save Error"];
-                    [alert setInformativeText:[NSString stringWithFormat:@"A saving error occured: %@", [errorString substringToIndex:256]]];
-                    [alert addButtonWithTitle:@"Okay"];
-                    [alert runModal];
-                });
-            }
-        }
-    });
-}
 //
 #pragma mark - Core Data stack
 
@@ -494,4 +446,25 @@ ensure that the Notification Center pops-up our notifications
     return NSTerminateNow;
 }
 
+- (void) getEntities:(NSManagedObject *)bulk {
+    NSString *token = [self getReterievalToken:bulk];
+    NSString *serverType = [self getServerType:bulk];
+    NSString *serverHost = [self hostNameForServerSource:serverType];
+    NSURL *apiURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulkv2/%@/summarystream", serverHost, token]];
+    NSData *urlData = [NSData dataWithContentsOfURL:apiURL];
+    NSString *strData = [[NSString alloc]initWithData:urlData encoding:NSUTF8StringEncoding];
+    NSArray *arrayOfEntities = [strData componentsSeparatedByString:@"\n"];
+    long long totalSize = 0;
+    
+    for(NSString *jsonString in arrayOfEntities) {
+        NSData* jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+        NSError * error=nil;
+        NSDictionary * inputDic = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&error];
+        [self createNewEntry:inputDic parent:bulk];
+        NSNumber *fileSize = [inputDic valueForKey:@"fileSize"];
+        totalSize = [fileSize longLongValue] + totalSize;
+    }
+        
+    [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
+}
 @end

@@ -23,6 +23,6 @@
 @property (readonly, strong, atomic) BulkOperations *bulkOperations;
 
 - (void) asyncSetupDownload:(NSManagedObject *)bulk;
-- (void) asyncSetupDownloadFromStream:(NSManagedObject *)bulk;
+- (void) getEntities:(NSManagedObject *)bulk;
 @end
 
