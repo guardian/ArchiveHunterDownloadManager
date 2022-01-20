@@ -28,7 +28,7 @@ jobs:
           if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
           file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
           mkdir $PWD/build
-          xcodebuild clean build analyze -archivePath $PWD/build/Test.xcarchive -scheme "$scheme" -"$filetype_parameter" "$file_to_build" | xcpretty && exit ${PIPESTATUS[0]}
+          xcodebuild clean archive -archivePath $PWD/build/Test.xcarchive -scheme "$scheme" -"$filetype_parameter" "$file_to_build" | xcpretty && exit ${PIPESTATUS[0]}
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.3.1
         with:
