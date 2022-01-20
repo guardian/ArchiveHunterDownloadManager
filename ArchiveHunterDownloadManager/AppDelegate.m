@@ -184,10 +184,7 @@ ensure that the Notification Center pops-up our notifications
                     NSLog(@"could not save data store: %@", err);
                 }
                 
-                NSNumber *totalFileSize = [bulk valueForKey:@"totalSize"];
-                long long fileSizeAsLongLong = [totalFileSize longLongValue];
-
-                if(fileSizeAsLongLong==0) {
+                if( [ [bulk valueForKey:@"totalSize"] isEqualToNumber:[NSNumber numberWithInt:0] ]) {
                     NSLog(@"There are no items to download!");
                     NSAlert *alert = [[NSAlert alloc] init];
                     [alert setMessageText:@"Download Error"];
@@ -448,7 +445,15 @@ ensure that the Notification Center pops-up our notifications
 
 - (void) getEntities:(NSManagedObject *)bulk {
     NSString *token = [self getReterievalToken:bulk];
+    if (token == nil) {
+        NSLog(@"token is nil so getEntities can not continue.");
+        return;
+    }
     NSString *serverType = [self getServerType:bulk];
+    if (serverType == nil) {
+        NSLog(@"serverType is nil so getEntities can not continue.");
+        return;
+    }
     NSString *serverHost = [self hostNameForServerSource:serverType];
     NSURL *apiURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulkv2/%@/summarystream", serverHost, token]];
     NSData *urlData = [NSData dataWithContentsOfURL:apiURL];
