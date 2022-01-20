@@ -37,7 +37,6 @@ jobs:
           path: |
             `echo $file_to_build | awk '{$1=$1;print}'`
           # The desired behavior if no files are found using the provided path.
-          error: Could not upload executable.
           if-no-files-found: error
 
  
