@@ -5,7 +5,7 @@
   <key>teamID</key>
   <string>...</string>
   <key>method</key>
-  <string>ad-hoc</string>
+  <string>mac-application</string>
   <key>uploadSymbols</key>
   <true/>
   <key>uploadBitcode</key>
