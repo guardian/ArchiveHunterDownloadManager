@@ -29,6 +29,9 @@ jobs:
           file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
           mkdir $PWD/build
           xcodebuild clean archive -archivePath $PWD/build/Test.xcarchive -scheme "$scheme" -"$filetype_parameter" "$file_to_build" | xcpretty && exit ${PIPESTATUS[0]}
+      - name: Export
+        run: |
+          xcodebuild -exportArchive -archivePath $PWD/build/Test.xcarchive -exportOptionsPlist $PWD/ExportOptions.plist -exportPath $PWD/build/
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.3.1
         with:
