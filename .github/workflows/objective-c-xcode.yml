@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build and analyse default scheme using xcodebuild command
-    runs-on: macos-latest
+    runs-on: macos-10.15
 
     steps:
       - name: Checkout
@@ -38,7 +38,7 @@ jobs:
           # Artifact name
           name: Executable
           # A file, directory or wildcard pattern that describes what to upload
-          path: ./
+          path: ./build/ArchiveHunterDownloadManager.app
           # The desired behavior if no files are found using the provided path.
           if-no-files-found: error
 
