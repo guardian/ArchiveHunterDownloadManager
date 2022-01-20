@@ -28,13 +28,16 @@ jobs:
           if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
           file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
           xcodebuild clean build analyze -scheme "$scheme" -"$filetype_parameter" "$file_to_build" | xcpretty && exit ${PIPESTATUS[0]}
+          echo $file_to_upload | cat >file_to_build
       - name: Upload a Build Artifact
+        env:
+          file_to_upload: ${{ 'file_to_upload' }}
         uses: actions/upload-artifact@v2.3.1
         with:
           # Artifact name
           name: Executable
           # A file, directory or wildcard pattern that describes what to upload
-          path: "$file_to_build"
+          path: $file_to_upload
           # The desired behavior if no files are found using the provided path.
           if-no-files-found: error
 
