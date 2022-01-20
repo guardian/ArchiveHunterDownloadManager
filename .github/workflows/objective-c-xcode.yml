@@ -34,8 +34,7 @@ jobs:
           # Artifact name
           name: Executable
           # A file, directory or wildcard pattern that describes what to upload
-          path: |
-            `echo $file_to_build | awk '{$1=$1;print}'`
+          path: ${{ file_to_build }}
           # The desired behavior if no files are found using the provided path.
           if-no-files-found: error
 
