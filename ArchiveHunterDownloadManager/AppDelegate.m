@@ -177,28 +177,14 @@ ensure that the Notification Center pops-up our notifications
                                              retrievalToken:[data objectForKey:@"retrievalToken"]
                                               forServerType: serverType];
                 
-                long long totalSize = 0;
-                
-                for(NSDictionary *entrySynop in [data objectForKey:@"entries"]){
-                    [self createNewEntry:entrySynop parent:bulk];
-                    NSLog(@"entry synopsis is %@", entrySynop);
-                    NSNumber *fileSize = [entrySynop valueForKey:@"fileSize"];
-                    //NSLog(@"File Size: %@", fileSize);
-                    //NSLog(@"File Size Long Long: %lld", [fileSize longLongValue]);
-                    totalSize = [fileSize longLongValue] + totalSize;
-                }
-                
-                [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
+                [self getEntities:bulk];
                 
                 [[self managedObjectContext] save:&err];
                 if(err){
                     NSLog(@"could not save data store: %@", err);
                 }
                 
-                NSDictionary *entryDict = [data objectForKey:@"entries"];
-                NSUInteger keyCount = [entryDict count];
-                
-                if(keyCount==0) {
+                if( [ [bulk valueForKey:@"totalSize"] isEqualToNumber:[NSNumber numberWithInt:0] ]) {
                     NSLog(@"There are no items to download!");
                     NSAlert *alert = [[NSAlert alloc] init];
                     [alert setMessageText:@"Download Error"];
@@ -209,7 +195,6 @@ ensure that the Notification Center pops-up our notifications
                 } else {
                     [self asyncSetupDownload:bulk];
                 }
-                
             }
         }
     }];
@@ -271,6 +256,35 @@ ensure that the Notification Center pops-up our notifications
             }
         }
     });
+}
+
+- (NSString *_Nullable)getReterievalToken:(NSManagedObject *) bulk {
+    @try {
+        return [bulk valueForKey:@"retrievalToken"];
+    } @catch (NSException *exception) {
+        NSLog(@"Caught exception: %@", exception);
+        return nil;
+    }
+}
+
+- (NSString *_Nullable)getServerType:(NSManagedObject *) bulk {
+    @try {
+        return [bulk valueForKey:@"serverSource"];
+    } @catch (NSException *exception) {
+        NSLog(@"Caught exception: %@", exception);
+        return nil;
+    }
+}
+
+- (NSString *) hostNameForServerSource:(NSString *)serverSource
+{
+    NSLog(@"hostNameForServerSource: source is %@", serverSource);
+    
+    if([serverSource compare:@"vaultdoor" options:0]==NSEqualToComparison){
+        return [[NSUserDefaults standardUserDefaults] valueForKey:@"vaultDoorHost"];
+    } else {
+        return [[NSUserDefaults standardUserDefaults] valueForKey:@"serverHost"];
+    }
 }
 
 //
@@ -429,4 +443,33 @@ ensure that the Notification Center pops-up our notifications
     return NSTerminateNow;
 }
 
+- (void) getEntities:(NSManagedObject *)bulk {
+    NSString *token = [self getReterievalToken:bulk];
+    if (token == nil) {
+        NSLog(@"token is nil so getEntities can not continue.");
+        return;
+    }
+    NSString *serverType = [self getServerType:bulk];
+    if (serverType == nil) {
+        NSLog(@"serverType is nil so getEntities can not continue.");
+        return;
+    }
+    NSString *serverHost = [self hostNameForServerSource:serverType];
+    NSURL *apiURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulkv2/%@/summarystream", serverHost, token]];
+    NSData *urlData = [NSData dataWithContentsOfURL:apiURL];
+    NSString *strData = [[NSString alloc]initWithData:urlData encoding:NSUTF8StringEncoding];
+    NSArray *arrayOfEntities = [strData componentsSeparatedByString:@"\n"];
+    long long totalSize = 0;
+    
+    for(NSString *jsonString in arrayOfEntities) {
+        NSData* jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+        NSError * error=nil;
+        NSDictionary * inputDic = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&error];
+        [self createNewEntry:inputDic parent:bulk];
+        NSNumber *fileSize = [inputDic valueForKey:@"fileSize"];
+        totalSize = [fileSize longLongValue] + totalSize;
+    }
+        
+    [bulk setValue:[NSNumber numberWithLongLong:totalSize] forKey:@"totalSize"];
+}
 @end

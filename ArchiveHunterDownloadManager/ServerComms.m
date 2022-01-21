@@ -41,7 +41,7 @@
        completionHandler:(void (^)(NSDictionary *_Nullable data, NSError *err))completionBlock
 {
     NSString *serverHost = [self hostNameForServerSource:serverSource];
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulk/%@", serverHost, token]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/bulkv2/%@", serverHost, token]];
     
     NSLog(@"Download URL is %@", url);
     
