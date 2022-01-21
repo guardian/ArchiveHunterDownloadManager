@@ -37,11 +37,16 @@ jobs:
         run: |
           mkdir $PWD/application
           xcodebuild -exportArchive -archivePath $PWD/build/Build.xcarchive -exportOptionsPlist $PWD/ExportOptions.plist -exportPath $PWD/application/
+      - name: Make GITHUB_RUN_NUMBER env var available outside of shells
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: bash
+        run: |
+          echo GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER>> $GITHUB_ENV
       - name: Upload Executable
         uses: actions/upload-artifact@v2.3.1
         with:
           # Artifact name
-          name: ArchiveHunterDownloadManager-${{ env.GITHUB_JOB }}
+          name: ArchiveHunterDownloadManager-${{ env.GITHUB_RUN_NUMBER }}
           # A file, directory or wildcard pattern that describes what to upload
           path: ./application/
           # The desired behavior if no files are found using the provided path.
