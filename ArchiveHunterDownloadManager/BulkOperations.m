@@ -218,12 +218,8 @@
     
     BOOL result = [BulkOperations bulkForEach:bulk managedObjectContext:_moc withError:err block:^(NSManagedObject *entry){
         dispatch_async(targetQueue, ^{
-            if([[entry valueForKey:@"fileSize"] longLongValue]>0){
-                NSLog(@"adding entry to queue manager");
-                [[self qManager] addToQueue:entry];
-            } else {
-                [entry setValue:[NSNumber numberWithInt:BO_INVALID] forKey:@"status"];
-            }
+            NSLog(@"adding entry to queue manager");
+            [[self qManager] addToQueue:entry];
         });
     }];
     

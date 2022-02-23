@@ -245,7 +245,7 @@ int early_abort_progresscb(void *clientp,   double dltotal,   double dlnow,   do
     _currentFile = [[MMappedFile alloc] initWithFile:filePath];
     //O_EXCL means "fail if creating and the file already exists"
     result = [_currentFile open:O_CREAT|O_EXCL|O_EXLOCK|O_RDWR withSize:[[_headInfo size] longLongValue] withError:err];
-    if(!result) {
+    if((!result) && ([[_headInfo size] longLongValue] != 0)) {
         NSLog(@"file open failed: %@", [*err localizedDescription]);
         return false;
     }
