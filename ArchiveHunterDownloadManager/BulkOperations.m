@@ -49,28 +49,32 @@
         BOOL exists = [[NSFileManager  defaultManager] fileExistsAtPath:downloadPath isDirectory:&isDir];
         if(exists && isDir){
             if([self prepareBulkEntries:bulk withError:&err]){
-                [bulk setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
-                NSLog(@"autoStart is %d", autoStart);
-                if(autoStart){
-                    dispatch_async(dispatch_get_main_queue(),^{
+                dispatch_async(dispatch_get_main_queue(),^{
+                    [bulk setValue:[NSNumber numberWithInteger:BO_READY] forKey:@"status"];
+                    NSLog(@"autoStart is %d", autoStart);
+                    if(autoStart){
                         BulkOperationStatus st = [self kickoffBulks:bulk withError:nil];
                         if(st!=BO_READY){
                             NSLog(@"Could not start kickoff: %@", err);
                         }
-                    });
-                }
+                    }
+                });
                 return BO_READY;
             } else {
                 NSLog(@"Could not prepare bulk entries: %@",err);
                 return BO_ERRORED;
             }
         } else {
-            [bulk setValue:[NSNumber numberWithInteger:BO_WAITING_USER_INPUT] forKey:@"status"];
+            dispatch_async(dispatch_get_main_queue(),^{
+                [bulk setValue:[NSNumber numberWithInteger:BO_WAITING_USER_INPUT] forKey:@"status"];
+            });
             return BO_WAITING_USER_INPUT;   //as a convenience
         }
     } else {
         //downloadpath has not been set yet
-        [bulk setValue:[NSNumber numberWithInteger:BO_WAITING_USER_INPUT] forKey:@"status"];
+        dispatch_async(dispatch_get_main_queue(),^{
+            [bulk setValue:[NSNumber numberWithInteger:BO_WAITING_USER_INPUT] forKey:@"status"];
+        });
         return BO_WAITING_USER_INPUT;   //as a convenience
     }
 }
